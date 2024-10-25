@@ -22,9 +22,9 @@ export default function Footer() {
             <Image
               src="/assets/images/facebook-icon.png"
               alt="Facebook Icon"
-              fill
+              width={100}
+              height={100}
               className="rounded-md object-contain"
-              priority
             />
           </div>
         </a>

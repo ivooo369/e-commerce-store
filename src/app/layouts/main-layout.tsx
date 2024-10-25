@@ -1,3 +1,6 @@
+"use client";
+
+import { usePathname } from "next/navigation";
 import Header from "./header";
 import Footer from "./footer";
 
@@ -6,11 +9,17 @@ interface MainLayoutProps {
 }
 
 export default function MainLayout({ children }: MainLayoutProps) {
+  const pathname = usePathname();
+  const isDashboard = pathname.startsWith("/dashboard");
+  const isAdmin = pathname.startsWith("/admin");
+
+  const showHeaderFooter = !isDashboard && !isAdmin;
+
   return (
     <>
-      <Header />
+      {showHeaderFooter && <Header />}
       <main>{children}</main>
-      <Footer />
+      {showHeaderFooter && <Footer />}
     </>
   );
 }

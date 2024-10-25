@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
 import HomeIcon from "@mui/icons-material/Home";
@@ -7,11 +9,14 @@ import ContactMailIcon from "@mui/icons-material/ContactMail";
 import PhoneIcon from "@mui/icons-material/Phone";
 import SearchIcon from "@mui/icons-material/Search";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
+import { usePathname } from "next/navigation";
 
 export default function Header() {
+  const pathname = usePathname();
+
   return (
     <>
-      <header className="bg-white text-black border-b-4 px-4 md:px-6 lg:px-10 py-2 md:py-4 flex flex-col md:flex-row justify-around items-center gap-2 md:gap-4 flex-wrap">
+      <header className="bg-white text-black px-4 md:px-6 lg:px-10 py-2 md:py-4 flex flex-col md:flex-row justify-around items-center gap-2 md:gap-4 flex-wrap">
         <div className="flex justify-center w-full md:w-auto gap-4 md:gap-8">
           <Link href="/" className="flex items-center" aria-label="Home">
             <Image
@@ -21,10 +26,11 @@ export default function Header() {
               height={100}
               className="rounded-md"
               priority
+              style={{ width: "auto", height: "auto" }}
             />
           </Link>
           <span
-            className="hidden sm:flex items-center gap-2 text-sm md:text-base"
+            className="hidden sm:flex items-center gap-2 text-sm md:text-base font-medium"
             aria-label="Contact Phone Number"
           >
             <PhoneIcon />
@@ -40,16 +46,16 @@ export default function Header() {
             aria-required="false"
           />
           <button
-            className="bg-gray-300 p-2 hover:bg-gray-300 transition"
+            className="bg-gray-200 p-2 hover:bg-gray-300 transition duration-300"
             aria-label="Search"
           >
             <SearchIcon />
           </button>
         </div>
 
-        <nav className="flex items-center font-medium order-1 md:order-2">
+        <div className="flex items-center font-medium order-1 md:order-2">
           <Link
-            href="/sign-in"
+            href="/user/sign-in"
             className="hover:underline mr-2 text-sm md:text-base"
             aria-label="Sign In"
           >
@@ -57,7 +63,7 @@ export default function Header() {
           </Link>
           <span className="text-sm md:text-base">/</span>
           <Link
-            href="/sign-out"
+            href="/user/sign-up"
             className="hover:underline ml-2 text-sm md:text-base"
             aria-label="Sign Out"
           >
@@ -65,15 +71,22 @@ export default function Header() {
           </Link>
           <Link
             href="/cart"
-            className="flex items-center hover:bg-gray-300 rounded px-3 py-2 transition ml-0 sm:ml-4 md:ml-6 lg:ml-8 text-sm md:text-base"
+            className={`flex items-center rounded px-3 py-2 transition duration-300 ml-0 sm:ml-4 md:ml-6 lg:ml-8 text-sm md:text-base ${
+              pathname === "/cart"
+                ? "bg-gray-200 hover:bg-gray-300"
+                : "hover:bg-gray-300"
+            }`}
             aria-label="Shopping Cart"
           >
             <ShoppingCartIcon className="mr-1" />
             КОЛИЧКА
           </Link>
-        </nav>
+        </div>
       </header>
-      <nav className="text-black bg-gray-100 py-3" aria-label="Main Navigation">
+      <nav
+        className="text-black bg-gray-100 py-3 border-t-4 border-b-4 font-medium"
+        aria-label="Main Navigation"
+      >
         <div className="container mx-auto flex justify-center flex-wrap">
           <div className="grid grid-cols-2 gap-4 md:space-x-4 md:flex md:flex-row">
             {[
@@ -88,7 +101,7 @@ export default function Header() {
                 ),
               },
               {
-                href: "/catalog",
+                href: "/product-catalog",
                 label: "КАТАЛОГ",
                 icon: (
                   <ViewListIcon
@@ -111,7 +124,11 @@ export default function Header() {
               <Link
                 key={href}
                 href={href}
-                className="flex items-center hover:bg-gray-300 rounded px-3 py-2 transition duration-300 text-sm md:text-base"
+                className={`flex items-center rounded px-3 py-2 transition duration-300 text-sm md:text-base ${
+                  pathname === href
+                    ? "bg-gray-200 hover:bg-gray-300"
+                    : "hover:bg-gray-300"
+                }`}
                 aria-label={label}
               >
                 {icon}

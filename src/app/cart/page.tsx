@@ -2,9 +2,9 @@ import { Metadata } from "next";
 import React from "react";
 
 export const metadata: Metadata = {
-  title: "За нас",
+  title: "Количка",
 };
 
-export default function About() {
-  return <h1>ЗА НАС</h1>;
+export default function CartPage() {
+  return <h1>КОЛИЧКА</h1>;
 }

@@ -1,0 +1,95 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Admin {
+  id        String   @id @default(uuid())
+  username  String   @unique @db.VarChar(50)
+  password  String   @db.VarChar(255)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@map("admins")
+}
+
+model Customer {
+  id        String   @id @default(uuid())
+  firstName String   @map("first_name") @db.VarChar(50)
+  lastName  String   @map("last_name") @db.VarChar(50)
+  email     String   @unique @db.VarChar(255)
+  password  String   @db.VarChar(255)
+  city      String?  @db.VarChar(100)
+  address   String?  @db.VarChar(255)
+  phone     String?  @db.VarChar(20)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  orders Order[]
+
+  @@map("customers")
+}
+
+model Product {
+  id            String   @id @default(uuid())
+  name          String   @db.VarChar(100)
+  code          String   @unique @db.VarChar(10)
+  subcategoryId String   @map("subcategory_id")
+  price         Float
+  description   String   @db.VarChar(500)
+  images        String[]
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt     DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  subcategory Subcategory @relation(fields: [subcategoryId], references: [id])
+
+  @@map("products")
+}
+
+model Category {
+  id        String   @id @default(uuid())
+  name      String   @unique @db.VarChar(100)
+  code      String   @unique @db.VarChar(10)
+  imageUrl  String   @map("image_url") @db.VarChar(255)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  subcategories Subcategory[]
+
+  @@map("categories")
+}
+
+model Subcategory {
+  id         String   @id @default(uuid())
+  categoryId String   @map("category_id")
+  name       String   @unique @db.VarChar(100)
+  code       String   @unique @db.VarChar(10)
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt  DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  category Category  @relation(fields: [categoryId], references: [id])
+  products Product[]
+
+  @@map("subcategories")
+}
+
+model Order {
+  id             String   @id @default(uuid())
+  customerId     String   @map("customer_id")
+  name           String   @db.VarChar(100)
+  email          String   @db.VarChar(255)
+  city           String   @db.VarChar(100)
+  address        String   @db.VarChar(255)
+  phone          String   @db.VarChar(20)
+  additionalInfo String?  @map("additional_info") @db.VarChar(500)
+  items          Json
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  customer Customer @relation(fields: [customerId], references: [id])
+
+  @@map("orders")
+}
