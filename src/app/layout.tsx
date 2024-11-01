@@ -1,5 +1,5 @@
-import MainLayout from "./layouts/main-layout";
-import "./globals.css";
+import MainLayout from "@/app/ui/layouts/main-layout";
+import "@/app/globals.css";
 
 import { Metadata } from "next";
 

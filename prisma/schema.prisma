@@ -35,17 +35,16 @@ model Customer {
 }
 
 model Product {
-  id            String   @id @default(uuid())
-  name          String   @db.VarChar(100)
-  code          String   @unique @db.VarChar(10)
-  subcategoryId String   @map("subcategory_id")
-  price         Float
-  description   String   @db.VarChar(500)
-  images        String[]
-  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt     DateTime @updatedAt @map("updated_at") @db.Timestamptz
+  id          String   @id @default(uuid())
+  name        String   @db.VarChar(100)
+  code        String   @unique @db.VarChar(10)
+  price       Float
+  description String   @db.VarChar(500)
+  images      String[]
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz
 
-  subcategory Subcategory @relation(fields: [subcategoryId], references: [id])
+  subcategories ProductSubcategory[]
 
   @@map("products")
 }
@@ -71,10 +70,21 @@ model Subcategory {
   createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz
   updatedAt  DateTime @updatedAt @map("updated_at") @db.Timestamptz
 
-  category Category  @relation(fields: [categoryId], references: [id])
-  products Product[]
+  category Category             @relation(fields: [categoryId], references: [id])
+  products ProductSubcategory[]
 
   @@map("subcategories")
+}
+
+model ProductSubcategory {
+  productId     String @map("product_id")
+  subcategoryId String @map("subcategory_id")
+
+  product     Product     @relation(fields: [productId], references: [id])
+  subcategory Subcategory @relation(fields: [subcategoryId], references: [id])
+
+  @@id([productId, subcategoryId])
+  @@map("products_subcategories")
 }
 
 model Order {

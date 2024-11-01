@@ -16,7 +16,7 @@ export default function Footer() {
           href="https://www.facebook.com/LIPCIdesignstudio?locale=bg_BG"
           target="_blank"
           rel="noopener noreferrer"
-          aria-label="Visit our Facebook page"
+          aria-label="Посетете нашата Facebook страница"
         >
           <div className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 relative">
             <Image

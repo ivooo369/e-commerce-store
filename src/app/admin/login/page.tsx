@@ -38,7 +38,7 @@ export default function DashboardLoginPage() {
     if (result?.error) {
       setError("Невалидно потребителско име или парола");
     } else {
-      router.push("/dashboard");
+      router.push("/dashboard/products");
     }
   };
 
@@ -67,7 +67,7 @@ export default function DashboardLoginPage() {
               endAdornment={
                 <InputAdornment position="end">
                   <IconButton
-                    aria-label="toggle password visibility"
+                    aria-label="Превключване на видимостта на паролата"
                     onClick={handleClickShowPassword}
                     onMouseDown={handleMouseDownPassword}
                     edge="end"

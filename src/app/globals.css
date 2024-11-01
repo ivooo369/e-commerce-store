@@ -10,3 +10,7 @@
 body {
   background-color: #f5f5f5;
 }
+
+.search-container .search {
+  min-width: 1456px;
+}

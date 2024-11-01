@@ -2,14 +2,14 @@ import DashboardNav from "@/app/ui/dashboard/dashboard-primary-nav";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Направени поръчки",
+  title: "Изпратени съобщения",
 };
 
-export default function DashboardOrdersPage() {
+export default function DashboardMessagesPage() {
   return (
     <>
       <DashboardNav />
-      <h1>АДМИНИСТРАТОРСКИ ПАНЕЛ - ПОРЪЧКИ</h1>
+      <h1>АДМИНИСТРАТОРСКИ ПАНЕЛ - СЪОБЩЕНИЯ</h1>;
     </>
   );
 }
