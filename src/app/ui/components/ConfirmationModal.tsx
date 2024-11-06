@@ -4,6 +4,7 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import WarningIcon from "@mui/icons-material/Warning";
+import { FaTrash } from "react-icons/fa";
 
 const ConfirmationModal: React.FC<{
   open: boolean;
@@ -38,16 +39,16 @@ const ConfirmationModal: React.FC<{
           className="text-center mb-4 text-base md:text-lg lg:text-xl font-bold"
         >
           Това действие е окончателно! Сигурни ли сте, че искате да изтриете
-          този артикул?
+          избрания артикул?
         </Typography>
         <div className="mt-4 flex justify-between w-full">
           <Button
             variant="contained"
             color="error"
             onClick={onConfirm}
-            className="flex-1 mr-2 font-bold"
+            className="flex-1 mr-2 font-bold gap-1.5"
           >
-            Изтрий
+            <FaTrash /> Изтрий
           </Button>
           <Button
             variant="contained"

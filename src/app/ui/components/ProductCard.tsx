@@ -6,6 +6,7 @@ import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import { Product } from "@prisma/client";
 import Link from "next/link";
+import { FaTrash } from "react-icons/fa";
 
 interface ProductCardProps {
   product: Product;
@@ -36,7 +37,7 @@ export default function ProductCard({ product, onDelete }: ProductCardProps) {
           Цена: {product.price} лв.
         </Typography>
         <div className="mt-4 flex justify-center gap-2">
-          <Link href="/dashboard/products/edit">
+          <Link href={`/dashboard/products/edit/${product.id}`}>
             <Button variant="contained" className="font-bold w-32">
               Редактирай
             </Button>
@@ -44,10 +45,10 @@ export default function ProductCard({ product, onDelete }: ProductCardProps) {
           <Button
             variant="contained"
             color="error"
-            className="font-bold w-32"
+            className="flex font-bold w-32 gap-1.5"
             onClick={() => onDelete(product.id)}
           >
-            Изтрий
+            <FaTrash /> Изтрий
           </Button>
         </div>
       </CardContent>
