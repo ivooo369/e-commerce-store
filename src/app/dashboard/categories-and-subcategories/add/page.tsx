@@ -28,7 +28,11 @@ export default function DashboardAddCategoriesAndSubcategoriesPage() {
     const fetchCategories = async () => {
       const response = await fetch("/api/categories");
       const data = await response.json();
-      setCategories(data);
+      const sortedCategories = data.sort(
+        (a: { code: string }, b: { code: string }) =>
+          a.code.localeCompare(b.code)
+      );
+      setCategories(sortedCategories);
     };
 
     fetchCategories();
@@ -65,6 +69,7 @@ export default function DashboardAddCategoriesAndSubcategoriesPage() {
       };
       reader.readAsDataURL(selectedFile);
     }
+    window.location.reload();
   };
 
   const handleSubcategorySubmit = async (e: React.FormEvent) => {
@@ -250,7 +255,7 @@ export default function DashboardAddCategoriesAndSubcategoriesPage() {
                 type="submit"
                 variant="contained"
                 color="primary"
-                className="w-full mt-4"
+                className="w-full"
               >
                 Добави подкатегория
               </Button>

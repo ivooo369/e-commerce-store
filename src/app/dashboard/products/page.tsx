@@ -3,15 +3,15 @@
 import { useEffect, useState } from "react";
 import DashboardNav from "@/app/ui/dashboard/dashboard-primary-nav";
 import DashboardSecondaryNav from "@/app/ui/dashboard/dashboard-secondary-nav";
-import ProductCard from "@/app/ui/components/ProductCard";
-import Search from "@/app/ui/components/Search";
+import ProductCard from "@/app/ui/components/product-card";
+import ConfirmationModal from "@/app/ui/components/confirmation-modal";
 import Box from "@mui/material/Box";
 import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import { Product } from "@prisma/client";
-import ConfirmationModal from "@/app/ui/components/ConfirmationModal";
+import DashboardSearch from "@/app/ui/dashboard/dashboard-search";
 
 interface Subcategory {
   id: string;
@@ -44,6 +44,7 @@ export default function DashboardInventoryPage() {
   const [selectedSubcategory, setSelectedSubcategory] = useState<string[]>([]);
   const [openModal, setOpenModal] = useState(false);
   const [productToDelete, setProductToDelete] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState<string>("");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -68,7 +69,13 @@ export default function DashboardInventoryPage() {
         const categoriesData = await categoriesResponse.json();
         const subcategoriesData = await subcategoriesResponse.json();
 
+        productsData.sort((a, b) => a.code.localeCompare(b.code));
+
         subcategoriesData.sort((a: { code: string }, b: { code: string }) =>
+          a.code.localeCompare(b.code)
+        );
+
+        categoriesData.sort((a: { code: string }, b: { code: string }) =>
           a.code.localeCompare(b.code)
         );
 
@@ -83,11 +90,8 @@ export default function DashboardInventoryPage() {
     };
 
     fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedCategory, selectedSubcategory]);
-
-  useEffect(() => {
-    filterProducts(products, selectedSubcategory);
-  }, [selectedCategory, selectedSubcategory, products]);
 
   const filterProducts = (
     products: ProductWithSubcategories[],
@@ -95,20 +99,20 @@ export default function DashboardInventoryPage() {
   ) => {
     let filtered = products;
 
-    console.log("Selected Subcategories: ", selectedSubcategory);
-
     if (selectedSubcategory.length > 0) {
-      filtered = filtered.filter((product) => {
-        console.log("Product Subcategories: ", product.subcategories);
-        const matches = product.subcategories.some((sub) =>
+      filtered = filtered.filter((product) =>
+        product.subcategories.some((sub) =>
           selectedSubcategory.includes(sub.subcategory.id)
-        );
-        console.log(`Product ${product.name} matches subcategory: ${matches}`);
-        return matches;
-      });
+        )
+      );
     }
 
-    console.log("Filtered Products: ", filtered);
+    filtered = filtered.filter(
+      (product) =>
+        product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        product.code.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
     setFilteredProducts(filtered);
   };
 
@@ -122,10 +126,10 @@ export default function DashboardInventoryPage() {
     setProductToDelete(null);
   };
 
-  const handleDelete = async () => {
+  const handleDeleteProduct = async () => {
     if (productToDelete) {
       try {
-        const response = await fetch(`/api/products?id=${productToDelete}`, {
+        const response = await fetch(`/api/products/${productToDelete}`, {
           method: "DELETE",
         });
 
@@ -162,12 +166,20 @@ export default function DashboardInventoryPage() {
       )
     : subcategories;
 
+  useEffect(() => {
+    filterProducts(products, selectedSubcategory);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchTerm, products, selectedSubcategory]);
+
   return (
     <>
       <DashboardNav />
       <DashboardSecondaryNav />
       <div className="products-filter-container flex flex-col items-center max-w-screen-2xl mx-auto space-y-4 py-4 px-4">
-        <Search />
+        <DashboardSearch
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+        />
         <FormControl fullWidth variant="outlined">
           <InputLabel htmlFor="category-select">
             Филтриране на подкатегориите според избраните категории
@@ -226,11 +238,10 @@ export default function DashboardInventoryPage() {
           ))}
         </Box>
       </div>
-
       <ConfirmationModal
         open={openModal}
         onClose={handleCloseModal}
-        onConfirm={handleDelete}
+        onConfirm={handleDeleteProduct}
       />
     </>
   );

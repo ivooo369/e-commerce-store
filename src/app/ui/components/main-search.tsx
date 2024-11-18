@@ -2,7 +2,7 @@
 
 import SearchIcon from "@mui/icons-material/Search";
 
-export default function Search() {
+export default function MainSearch() {
   return (
     <div className="search flex items-center border border-gray-300 w-full max-w-md">
       <input

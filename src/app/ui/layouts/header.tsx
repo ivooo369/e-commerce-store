@@ -8,7 +8,7 @@ import InfoIcon from "@mui/icons-material/Info";
 import ContactMailIcon from "@mui/icons-material/ContactMail";
 import PhoneIcon from "@mui/icons-material/Phone";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
-import Search from "../components/Search";
+import MainSearch from "../components/main-search";
 import { usePathname } from "next/navigation";
 
 export default function Header() {
@@ -37,7 +37,7 @@ export default function Header() {
             +359 88 911 5233
           </span>
         </div>
-        <Search />
+        <MainSearch />
         <div className="flex items-center font-medium order-1 md:order-2">
           <Link
             href="/user/sign-in"

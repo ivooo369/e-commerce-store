@@ -147,3 +147,47 @@ export async function PUT(
     );
   }
 }
+
+export async function DELETE(
+  req: Request,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const { id } = params;
+
+    if (!id) {
+      return NextResponse.json(
+        { error: "Product ID is required" },
+        { status: 400 }
+      );
+    }
+
+    const product = await prisma.product.findUnique({ where: { id } });
+    if (product?.images) {
+      const deleteImagePromises = product.images.map((imageUrl) => {
+        const publicId = imageUrl.split("/").pop()?.split(".")[0];
+        return cloudinary.uploader.destroy(`LIPCI/products/${publicId}`);
+      });
+      await Promise.all(deleteImagePromises);
+    }
+
+    await prisma.productSubcategory.deleteMany({
+      where: { productId: id },
+    });
+
+    await prisma.product.delete({ where: { id } });
+
+    return NextResponse.json(
+      { message: "Product deleted successfully" },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("Error deleting product:", error);
+    return NextResponse.json(
+      { error: "Failed to delete product" },
+      { status: 500 }
+    );
+  } finally {
+    await prisma.$disconnect();
+  }
+}
