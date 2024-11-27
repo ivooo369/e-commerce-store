@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
+import Image from "next/image";
+import { FaTrash } from "react-icons/fa";
 import DashboardNav from "@/app/ui/dashboard/dashboard-primary-nav";
 import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
@@ -10,24 +12,31 @@ import Select, { SelectChangeEvent } from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
-import Image from "next/image";
-import { FaTrash } from "react-icons/fa";
+import CircularProgress from "@/app/ui/components/circular-progress";
+import { getCustomButtonStyles } from "@/app/ui/mui-custom-styles/custom-button";
+import AlertMessage from "@/app/ui/components/alert-message";
 
 export default function DashboardEditProductPage() {
   const router = useRouter();
   const { id } = useParams();
-
   const [productName, setProductName] = useState("");
   const [productCode, setProductCode] = useState("");
   const [subcategoryIds, setSubcategoryIds] = useState<string[]>([]);
   const [price, setPrice] = useState<number | undefined>(undefined);
   const [description, setDescription] = useState("");
   const [productImageUrls, setProductImageUrls] = useState<string[]>([]);
+  const [imagesToRemove, setImagesToRemove] = useState<string[]>([]);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [isEditing, setIsEditing] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [subcategories, setSubcategories] = useState<
     { id: string; name: string; code: string }[]
   >([]);
+  const [alert, setAlert] = useState<{
+    message: string;
+    severity: "success" | "error";
+  } | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -56,71 +65,144 @@ export default function DashboardEditProductPage() {
         setSubcategories(sortedData);
       } catch (error) {
         console.error("Error fetching data:", error);
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchData();
   }, [id]);
 
+  const handleImageRemove = (index: number) => {
+    const imageUrlToRemove = productImageUrls[index];
+    const fileToRemove = selectedFiles.find(
+      (file) => file.name === imageUrlToRemove
+    );
+
+    if (fileToRemove) {
+      setSelectedFiles((prevFiles) =>
+        prevFiles.filter((file) => file.name !== fileToRemove.name)
+      );
+    } else {
+      setImagesToRemove((prev) => [...prev, imageUrlToRemove]);
+    }
+
+    setProductImageUrls((prevUrls) => prevUrls.filter((_, i) => i !== index));
+  };
+
   const handleFileChange = (files: FileList | null) => {
     if (files) {
       const newFiles = Array.from(files);
-      const newImageUrls = newFiles.map((file) => URL.createObjectURL(file));
-
       setSelectedFiles((prevFiles) => [...prevFiles, ...newFiles]);
-      setProductImageUrls((prevUrls) => [...prevUrls, ...newImageUrls]);
-    }
-  };
 
-  const handleImageRemove = (index: number) => {
-    setProductImageUrls((prevUrls) => prevUrls.filter((_, i) => i !== index));
+      const newImageUrls = newFiles.map((file) => URL.createObjectURL(file));
+      setProductImageUrls((prevUrls) => [...prevUrls, ...newImageUrls]);
+
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
   };
 
   const handleProductSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsEditing(true);
 
-    const imageUrls =
-      selectedFiles.length > 0
-        ? await Promise.all(
-            selectedFiles.map(
-              (file) =>
-                new Promise<string>((resolve) => {
-                  const reader = new FileReader();
-                  reader.onloadend = () => resolve(reader.result as string);
-                  reader.readAsDataURL(file);
-                })
+    try {
+      const imageUrls =
+        selectedFiles.length > 0
+          ? await Promise.all(
+              selectedFiles.map(
+                (file) =>
+                  new Promise<string>((resolve) => {
+                    const reader = new FileReader();
+                    reader.onloadend = () => resolve(reader.result as string);
+                    reader.readAsDataURL(file);
+                  })
+              )
             )
-          )
-        : productImageUrls;
+          : productImageUrls.filter((url) => !imagesToRemove.includes(url));
 
-    await fetch(`/api/products/${id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        name: productName,
-        code: productCode,
-        subcategoryIds,
-        price,
-        description,
-        images: imageUrls,
-      }),
-    });
+      const response = await fetch(`/api/products/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: productName,
+          code: productCode,
+          subcategoryIds,
+          price,
+          description,
+          images: imageUrls,
+          imagesToRemove,
+        }),
+      });
 
-    router.push("/dashboard/products");
+      const responseData = await response.json();
+
+      if (!response.ok) {
+        // Покажи съобщението за грешка от бекенда
+        setAlert({
+          message: responseData.error,
+          severity: "error",
+        });
+        return;
+      }
+
+      setAlert({
+        message: responseData.message,
+        severity: "success",
+      });
+
+      // Нулиране на временни стойности
+      setProductName("");
+      setProductCode("");
+      setSubcategoryIds([]);
+      setPrice(undefined);
+      setDescription("");
+      setProductImageUrls([]);
+      setSelectedFiles([]);
+      setImagesToRemove([]);
+
+      // Пренасочване
+      setTimeout(() => {
+        router.push("/dashboard/products");
+      }, 1000);
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (error) {
+      // Обработка на грешка, ако няма връзка с API или друга грешка
+      setAlert({
+        message: "Възникна грешка! Моля, опитайте отново!",
+        severity: "error",
+      });
+    } finally {
+      setLoading(false);
+      setIsEditing(false);
+
+      // Скриване на съобщението след определено време
+      setTimeout(() => setAlert(null), 5000);
+    }
   };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <CircularProgress message="Зареждане на данните на продукта..." />
+      </div>
+    );
+  }
 
   return (
     <>
       <DashboardNav />
-      <div className="container mx-auto py-10 px-28">
-        <h2 className="text-3xl font-bold text-center text-gray-800 mb-10 tracking-wide">
+      <div className="container mx-auto p-8">
+        <h2 className="text-3xl font-bold text-center text-gray-800 mb-8 tracking-wide">
           Редактиране на продукт
         </h2>
         <form
           onSubmit={handleProductSubmit}
-          className="bg-white shadow-lg rounded-lg p-6 mb-8 min-h-96"
+          className="bg-white shadow-lg rounded-lg p-6"
         >
           <FormControl fullWidth variant="outlined" className="mb-4" required>
             <InputLabel htmlFor="product-name">Име на продукт</InputLabel>
@@ -208,41 +290,48 @@ export default function DashboardEditProductPage() {
               </Button>
             </label>
           </Box>
-          {productImageUrls.length > 0 && (
-            <div className="mt-4 flex flex-wrap justify-center gap-10">
-              {productImageUrls.map((url, index) => (
-                <div
-                  key={index}
-                  className="relative w-[200px] h-auto m-2 flex items-center"
-                >
-                  <Image
-                    src={url}
-                    alt={`Selected Product ${index + 1}`}
-                    width={200}
-                    height={200}
-                    style={{ maxHeight: "250px" }}
-                  />
-                  <Button
-                    onClick={() => handleImageRemove(index)}
-                    variant="contained"
-                    color="error"
-                    aria-label="Изтрий изображение"
-                    className="self-center p-1 ml-0.5 min-w-10"
+          <div className="flex justify-center">
+            {productImageUrls.length > 0 && (
+              <div className="flex flex-wrap justify-center gap-10 mt-4">
+                {productImageUrls.map((url, index) => (
+                  <div
+                    key={index}
+                    className="relative flex justify-center items-center"
                   >
-                    <FaTrash />
-                  </Button>
-                </div>
-              ))}
-            </div>
-          )}
+                    <Image
+                      src={url}
+                      alt={`Продукт изображение ${index + 1}`}
+                      width={200}
+                      height={200}
+                      className="rounded-md"
+                    />
+                    <button
+                      type="button"
+                      className="absolute top-0 right-0 p-2 bg-red-600 hover:bg-red-800 transition text-white rounded-full"
+                      onClick={() => handleImageRemove(index)}
+                    >
+                      <FaTrash />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
           <Button
             type="submit"
             variant="contained"
             color="primary"
-            className="w-full mt-4"
+            className="mt-4"
+            sx={getCustomButtonStyles}
+            disabled={isEditing}
           >
-            Запази промените
+            {isEditing ? "ЗАПАЗВАНЕ НА ПРОМЕНИТЕ..." : "ЗАПАЗИ ПРОМЕНИТЕ"}
           </Button>
+          {alert && (
+            <div className="mt-4">
+              <AlertMessage severity={alert.severity} message={alert.message} />
+            </div>
+          )}
         </form>
       </div>
     </>

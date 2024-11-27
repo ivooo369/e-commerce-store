@@ -41,21 +41,57 @@ export async function PUT(
     const body = await request.json();
     const { name, code, categoryId } = body;
 
+    // Проверка за задължителни полета
     if (!name || !code || !categoryId) {
-      return NextResponse.json({ error: "Missing fields" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Всички полета са задължителни!" },
+        { status: 400 }
+      );
     }
 
+    // Проверка дали подкатегорията съществува
     const existingSubcategory = await prisma.subcategory.findUnique({
       where: { id },
     });
 
     if (!existingSubcategory) {
       return NextResponse.json(
-        { error: "Subcategory not found" },
+        { error: "Подкатегорията не е намерена!" },
         { status: 404 }
       );
     }
 
+    // Проверка дали съществува подкатегория с това име (без текущата)
+    const existingSubcategoryName = await prisma.subcategory.findFirst({
+      where: {
+        name,
+        NOT: { id },
+      },
+    });
+
+    if (existingSubcategoryName) {
+      return NextResponse.json(
+        { error: "Подкатегория с това име вече съществува!" },
+        { status: 400 }
+      );
+    }
+
+    // Проверка дали съществува подкатегория с този код (без текущата)
+    const existingSubcategoryCode = await prisma.subcategory.findFirst({
+      where: {
+        code,
+        NOT: { id },
+      },
+    });
+
+    if (existingSubcategoryCode) {
+      return NextResponse.json(
+        { error: "Подкатегория с този код вече съществува!" },
+        { status: 400 }
+      );
+    }
+
+    // Актуализиране на подкатегорията
     const updatedSubcategory = await prisma.subcategory.update({
       where: { id },
       data: {
@@ -65,11 +101,17 @@ export async function PUT(
       },
     });
 
-    return NextResponse.json(updatedSubcategory, { status: 200 });
-  } catch (error) {
-    console.error("Error updating subcategory:", error);
     return NextResponse.json(
-      { error: "Failed to update subcategory" },
+      {
+        message: "Подкатегорията е актуализирана успешно!",
+        subcategory: updatedSubcategory,
+      },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("Грешка при редактиране на подкатегория:", error);
+    return NextResponse.json(
+      { error: "Възникна грешка! Моля, опитайте отново!" },
       { status: 500 }
     );
   }
@@ -91,7 +133,9 @@ export async function DELETE(
   try {
     const subcategory = await prisma.subcategory.findUnique({
       where: { id },
-      include: { products: true },
+      include: {
+        products: true,
+      },
     });
 
     if (!subcategory) {
@@ -101,25 +145,34 @@ export async function DELETE(
       );
     }
 
+    const otherSubcategory = await prisma.subcategory.findUnique({
+      where: { name: "Други" },
+    });
+
+    if (!otherSubcategory) {
+      return NextResponse.json(
+        { error: "Other subcategory not found" },
+        { status: 404 }
+      );
+    }
+
     for (const product of subcategory.products) {
-      const otherSubcategory = await prisma.subcategory.findUnique({
-        where: { name: "Други" },
-      });
-
-      if (!otherSubcategory) {
-        return NextResponse.json(
-          { error: "Other subcategory not found" },
-          { status: 404 }
-        );
-      }
-
-      await prisma.productSubcategory.updateMany({
+      const otherSubcategoryLinks = await prisma.productSubcategory.count({
         where: {
           productId: product.productId,
-          subcategoryId: subcategory.id,
+          NOT: { subcategoryId: subcategory.id },
         },
-        data: { subcategoryId: otherSubcategory.id },
       });
+
+      if (otherSubcategoryLinks === 0) {
+        await prisma.productSubcategory.updateMany({
+          where: {
+            productId: product.productId,
+            subcategoryId: subcategory.id,
+          },
+          data: { subcategoryId: otherSubcategory.id },
+        });
+      }
     }
 
     await prisma.productSubcategory.deleteMany({

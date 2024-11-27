@@ -9,7 +9,9 @@ import OutlinedInput from "@mui/material/OutlinedInput";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
 import Image from "next/image";
-import { FaTrash } from "react-icons/fa";
+import CircularProgress from "@/app/ui/components/circular-progress";
+import { getCustomButtonStyles } from "@/app/ui/mui-custom-styles/custom-button";
+import AlertMessage from "@/app/ui/components/alert-message";
 
 export default function DashboardEditCategoryPage() {
   const router = useRouter();
@@ -19,7 +21,13 @@ export default function DashboardEditCategoryPage() {
   const [categoryCode, setCategoryCode] = useState("");
   const [categoryImageUrl, setCategoryImageUrl] = useState<string>("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [isEditing, setIsEditing] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [alert, setAlert] = useState<{
+    message: string;
+    severity: "success" | "error";
+  } | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -35,6 +43,8 @@ export default function DashboardEditCategoryPage() {
         }
       } catch (error) {
         console.error("Error fetching data:", error);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -45,55 +55,91 @@ export default function DashboardEditCategoryPage() {
     if (files && files.length > 0) {
       const file = files[0];
       setSelectedFile(file);
-      setCategoryImageUrl(URL.createObjectURL(file));
+      setCategoryImageUrl(URL.createObjectURL(file)); // Промяна на изображението на клиента
     }
-  };
-
-  const handleImageRemove = () => {
-    setCategoryImageUrl("");
-    setSelectedFile(null);
   };
 
   const handleCategorySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsEditing(true);
 
-    const imageUrl = selectedFile
-      ? await new Promise<string>((resolve) => {
-          const reader = new FileReader();
-          reader.onloadend = () => resolve(reader.result as string);
-          reader.readAsDataURL(selectedFile);
-        })
-      : categoryImageUrl;
+    try {
+      const imageUrl = selectedFile
+        ? await new Promise<string>((resolve) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result as string);
+            reader.readAsDataURL(selectedFile);
+          })
+        : categoryImageUrl; // Ако няма ново изображение, използваме старото
 
-    const imageToRemove =
-      categoryImageUrl !== imageUrl ? categoryImageUrl : null;
+      const response = await fetch(`/api/categories/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: categoryName,
+          code: categoryCode,
+          imageUrl,
+        }),
+      });
 
-    await fetch(`/api/categories/${id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        name: categoryName,
-        code: categoryCode,
-        imageUrl: imageUrl,
-        imageToRemove: imageToRemove,
-      }),
-    });
+      const responseData = await response.json();
 
-    router.push("/dashboard/categories");
+      if (!response.ok) {
+        setAlert({
+          message: responseData.error,
+          severity: "error",
+        });
+        return;
+      }
+
+      setAlert({
+        message: responseData.message,
+        severity: "success",
+      });
+
+      // Нулиране на стойностите
+      setCategoryName("");
+      setCategoryCode("");
+      setCategoryImageUrl("");
+      setSelectedFile(null);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+
+      // Пренасочване
+      setTimeout(() => {
+        router.push("/dashboard/categories");
+      }, 1000);
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (error) {
+      setAlert({
+        message: "Възникна грешка! Моля, опитайте отново!",
+        severity: "error",
+      });
+    } finally {
+      setIsEditing(false);
+      setTimeout(() => setAlert(null), 5000);
+    }
   };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <CircularProgress message="Зареждане на данните на категорията..." />
+      </div>
+    );
+  }
 
   return (
     <>
       <DashboardNav />
-      <div className="container mx-auto py-10 px-28">
-        <h2 className="text-3xl font-bold text-center text-gray-800 mb-10 tracking-wide">
+      <div className="container mx-auto p-8">
+        <h2 className="text-3xl font-bold text-center text-gray-800 mb-8 tracking-wide">
           Редактиране на категория
         </h2>
         <form
           onSubmit={handleCategorySubmit}
-          className="bg-white shadow-lg rounded-lg p-6 mb-8 min-h-96"
+          className="bg-white shadow-lg rounded-lg p-6"
         >
           <FormControl fullWidth variant="outlined" className="mb-4" required>
             <InputLabel htmlFor="category-name">Име на категория</InputLabel>
@@ -129,29 +175,24 @@ export default function DashboardEditCategoryPage() {
                 fullWidth
                 sx={{ textTransform: "none", height: "100%" }}
               >
-                Качено изображение
+                {selectedFile
+                  ? selectedFile.name
+                  : categoryImageUrl
+                  ? categoryImageUrl.split("/").pop() // Extract the filename from the URL
+                  : "Качете изображение *"}
               </Button>
             </label>
           </Box>
-          <div className="mt-4 flex justify-center">
+          <div className="flex justify-center">
             {categoryImageUrl && (
-              <div className="relative w-[200px] h-auto flex items-center">
+              <div className="flex justify-center items-center mt-4">
                 <Image
                   src={categoryImageUrl}
-                  alt="Category Image"
+                  alt={`Продукт изображение ${categoryImageUrl}`}
                   width={200}
                   height={200}
-                  style={{ maxHeight: "250px" }}
+                  className="rounded-md"
                 />
-                <Button
-                  onClick={handleImageRemove}
-                  variant="contained"
-                  color="error"
-                  aria-label="Изтрий изображение"
-                  className="self-center p-1 ml-0.5 min-w-10"
-                >
-                  <FaTrash />
-                </Button>
               </div>
             )}
           </div>
@@ -159,10 +200,17 @@ export default function DashboardEditCategoryPage() {
             type="submit"
             variant="contained"
             color="primary"
-            className="w-full mt-4"
+            className="mt-4"
+            sx={getCustomButtonStyles}
+            disabled={isEditing}
           >
-            Запази промените
+            {isEditing ? "ЗАПАЗВАНЕ НА ПРОМЕНИТЕ..." : "ЗАПАЗИ ПРОМЕНИТЕ"}
           </Button>
+          {alert && (
+            <div className="mt-4">
+              <AlertMessage severity={alert.severity} message={alert.message} />
+            </div>
+          )}
         </form>
       </div>
     </>

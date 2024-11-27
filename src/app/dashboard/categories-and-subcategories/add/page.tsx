@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { useState, useRef, useEffect } from "react";
@@ -10,6 +11,8 @@ import MenuItem from "@mui/material/MenuItem";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
 import Image from "next/image";
+import { getCustomButtonStyles } from "@/app/ui/mui-custom-styles/custom-button";
+import AlertMessage from "@/app/ui/components/alert-message";
 
 export default function DashboardAddCategoriesAndSubcategoriesPage() {
   const [categoryName, setCategoryName] = useState("");
@@ -23,6 +26,14 @@ export default function DashboardAddCategoriesAndSubcategoriesPage() {
   const [categories, setCategories] = useState<
     { id: string; name: string; code: string }[]
   >([]);
+  const [alertCategory, setAlertCategory] = useState<{
+    message: string;
+    severity: "success" | "error";
+  } | null>(null);
+  const [alertSubcategory, setAlertSubcategory] = useState<{
+    message: string;
+    severity: "success" | "error";
+  } | null>(null);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -45,49 +56,107 @@ export default function DashboardAddCategoriesAndSubcategoriesPage() {
 
   const handleCategorySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (selectedFile) {
-      const reader = new FileReader();
-      reader.onloadend = async () => {
-        const imageUrl = reader.result as string;
 
-        await fetch("/api/categories", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            name: categoryName,
-            code: categoryCode,
-            imageUrl: imageUrl,
-          }),
+    try {
+      const response = await fetch("/api/categories", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: categoryName,
+          code: categoryCode,
+          imageUrl: selectedFile
+            ? await new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(reader.result as string);
+                reader.readAsDataURL(selectedFile);
+              })
+            : null,
+        }),
+      });
+
+      const responseData = await response.json();
+
+      if (!response.ok) {
+        // Покажи съобщението за грешка от бекенда
+        setAlertCategory({
+          message: responseData.error,
+          severity: "error",
         });
+        return;
+      }
 
-        setCategoryName("");
-        setCategoryCode("");
-        setCategoryImageUrl("");
-        setSelectedFile(null);
-      };
-      reader.readAsDataURL(selectedFile);
+      // Успешно съобщение от бекенда
+      setAlertCategory({
+        message: responseData.message,
+        severity: "success",
+      });
+
+      // Изчистване на полетата
+      setCategoryName("");
+      setCategoryCode("");
+      setCategoryImageUrl("");
+      setSelectedFile(null);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    } catch (error) {
+      // Ако няма връзка с API или друга грешка
+      setAlertCategory({
+        message: "Възникна грешка! Моля, опитайте отново!",
+        severity: "error",
+      });
+    } finally {
+      setTimeout(() => setAlertCategory(null), 5000);
     }
-    window.location.reload();
   };
 
   const handleSubcategorySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await fetch("/api/subcategories", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        name: subcategoryName,
-        code: subcategoryCode,
-        categoryId: selectedCategoryId,
-      }),
-    });
-    setSubcategoryName("");
-    setSubcategoryCode("");
-    setSelectedCategoryId("");
+
+    try {
+      const response = await fetch("/api/subcategories", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: subcategoryName,
+          code: subcategoryCode,
+          categoryId: selectedCategoryId,
+        }),
+      });
+
+      const responseData = await response.json();
+
+      if (!response.ok) {
+        // Покажи съобщението за грешка от бекенда
+        setAlertSubcategory({
+          message: responseData.error,
+          severity: "error",
+        });
+        return;
+      }
+
+      // Успешно съобщение от бекенда
+      setAlertSubcategory({
+        message: responseData.message,
+        severity: "success",
+      });
+
+      // Изчистване на полетата
+      setSubcategoryName("");
+      setSubcategoryCode("");
+      setSelectedCategoryId("");
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (error) {
+      // Ако няма връзка с API или друга грешка
+      setAlertSubcategory({
+        message: "Възникна грешка! Моля, опитайте отново!",
+        severity: "error",
+      });
+    } finally {
+      setTimeout(() => setAlertSubcategory(null), 5000);
+    }
   };
 
   const handleChange = (file: File | null) => {
@@ -101,17 +170,17 @@ export default function DashboardAddCategoriesAndSubcategoriesPage() {
   return (
     <>
       <DashboardNav />
-      <div className="container mx-auto py-6">
-        <h2 className="text-3xl font-bold text-center text-gray-800 mb-10 tracking-wide">
+      <div className="container mx-auto p-8">
+        <h2 className="text-3xl font-bold text-center text-gray-800 mb-8 tracking-wide">
           Добавяне на категории и подкатегории
         </h2>
         <div className="flex space-x-8">
           <div className="flex-1">
             <form
               onSubmit={handleCategorySubmit}
-              className="bg-white shadow-lg rounded-lg p-6 mb-8 min-h-96"
+              className="bg-white shadow-lg rounded-lg p-6"
             >
-              <h2 className="text-2xl font-semibold mb-4 text-center">
+              <h2 className="text-2xl font-semibold mb-6 text-center">
                 Нова категория
               </h2>
               <FormControl
@@ -166,35 +235,46 @@ export default function DashboardAddCategoriesAndSubcategoriesPage() {
                   </Button>
                 </label>
               </Box>
-              {selectedFile && (
-                <div className="mt-4 flex justify-center">
-                  <div className="w-[200px] h-auto">
-                    <Image
-                      src={categoryImageUrl}
-                      alt="Selected Category"
-                      width={200}
-                      height={200}
-                      style={{ maxHeight: "250px" }}
-                    />
+              <div className="flex justify-center">
+                {selectedFile && (
+                  <div className="flex justify-center mt-4">
+                    <div className="w-[200px] h-auto">
+                      <Image
+                        src={categoryImageUrl}
+                        alt="Selected Category"
+                        width={200}
+                        height={200}
+                        style={{ maxHeight: "250px" }}
+                      />
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
               <Button
                 type="submit"
                 variant="contained"
                 color="primary"
-                className="w-full mt-4"
+                className="mt-4"
+                sx={getCustomButtonStyles}
               >
-                Добави категория
+                Добави нова категория
               </Button>
+              {alertCategory && (
+                <div className="mt-4">
+                  <AlertMessage
+                    severity={alertCategory.severity}
+                    message={alertCategory.message}
+                  />
+                </div>
+              )}
             </form>
           </div>
           <div className="flex-1">
             <form
               onSubmit={handleSubcategorySubmit}
-              className="bg-white shadow-lg rounded-lg p-6 mb-8 min-h-96"
+              className="bg-white shadow-lg rounded-lg p-6"
             >
-              <h2 className="text-2xl font-semibold mb-4 text-center">
+              <h2 className="text-2xl font-semibold mb-6 text-center">
                 Нова подкатегория
               </h2>
               <FormControl
@@ -255,10 +335,18 @@ export default function DashboardAddCategoriesAndSubcategoriesPage() {
                 type="submit"
                 variant="contained"
                 color="primary"
-                className="w-full"
+                sx={getCustomButtonStyles}
               >
-                Добави подкатегория
+                Добави нова подкатегория
               </Button>
+              {alertSubcategory && (
+                <div className="mt-4">
+                  <AlertMessage
+                    severity={alertSubcategory.severity}
+                    message={alertSubcategory.message}
+                  />
+                </div>
+              )}
             </form>
           </div>
         </div>

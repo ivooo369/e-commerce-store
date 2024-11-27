@@ -25,21 +25,48 @@ export async function GET() {
   }
 }
 
-export async function POST(req: Request) {
+export async function POST(request: Request) {
   try {
-    const {
-      name,
-      code,
-      categoryId,
-    }: { name: string; code: string; categoryId: string } = await req.json();
+    const body = await request.json();
+    const { name, code, categoryId } = body;
 
+    // Проверка за задължителни полета
     if (!name || !code || !categoryId) {
       return NextResponse.json(
-        { error: "Invalid input data" },
+        { error: "Всички полета са задължителни!" },
         { status: 400 }
       );
     }
 
+    // Проверка дали съществува подкатегория с това име
+    const existingSubcategoryName = await prisma.subcategory.findUnique({
+      where: { name },
+    });
+
+    if (existingSubcategoryName) {
+      return NextResponse.json(
+        {
+          error: "Подкатегория с това име вече съществува!",
+        },
+        { status: 400 }
+      );
+    }
+
+    // Проверка дали съществува подкатегория с този код
+    const existingSubcategory = await prisma.subcategory.findUnique({
+      where: { code },
+    });
+
+    if (existingSubcategory) {
+      return NextResponse.json(
+        {
+          error: "Подкатегория с този код вече съществува!",
+        },
+        { status: 400 }
+      );
+    }
+
+    // Създаване на нова подкатегория
     const newSubcategory = await prisma.subcategory.create({
       data: {
         name,
@@ -50,18 +77,18 @@ export async function POST(req: Request) {
       },
     });
 
-    return NextResponse.json(newSubcategory, { status: 201 });
-  } catch (error) {
-    console.error("Error creating subcategory:", error);
-
-    const errorMessage =
-      error instanceof Error ? error.message : "Unknown error occurred";
-
     return NextResponse.json(
-      { error: "Failed to create subcategory", details: errorMessage },
+      {
+        message: "Подкатегорията е добавена успешно!",
+        subcategory: newSubcategory,
+      },
+      { status: 201 }
+    );
+  } catch (error) {
+    console.error("Грешка при добавяне на подкатегория:", error);
+    return NextResponse.json(
+      { error: "Възникна грешка! Моля, опитайте отново!" },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }

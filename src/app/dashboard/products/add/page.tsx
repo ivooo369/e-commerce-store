@@ -10,6 +10,9 @@ import MenuItem from "@mui/material/MenuItem";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
 import Image from "next/image";
+import AlertMessage from "@/app/ui/components/alert-message";
+import { FaTrash } from "react-icons/fa";
+import { getCustomButtonStyles } from "@/app/ui/mui-custom-styles/custom-button";
 
 export default function DashboardAddNewProductPage() {
   const [productName, setProductName] = useState("");
@@ -23,6 +26,13 @@ export default function DashboardAddNewProductPage() {
   const [subcategories, setSubcategories] = useState<
     { id: string; name: string; code: string }[]
   >([]);
+
+  const [alert, setAlert] = useState<{
+    message: string;
+    severity: "success" | "error";
+  } | null>(null);
+
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchSubcategories = async () => {
@@ -41,7 +51,19 @@ export default function DashboardAddNewProductPage() {
       }
     };
     fetchSubcategories();
-  }, []);
+
+    return () => {
+      productImageUrls.forEach((url) => URL.revokeObjectURL(url));
+    };
+  }, [productImageUrls]);
+
+  const handleImageRemove = (index: number) => {
+    setProductImageUrls((prevUrls) => {
+      URL.revokeObjectURL(prevUrls[index]);
+      return prevUrls.filter((_, i) => i !== index);
+    });
+    setSelectedFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
+  };
 
   const handleFileChange = (files: FileList | null) => {
     if (files) {
@@ -50,25 +72,33 @@ export default function DashboardAddNewProductPage() {
 
       setSelectedFiles((prevFiles) => [...prevFiles, ...newFiles]);
       setProductImageUrls((prevUrls) => [...prevUrls, ...newImageUrls]);
+
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
     }
   };
 
   const handleProductSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (selectedFiles.length > 0) {
-      const imagePromises = selectedFiles.map((file) => {
-        return new Promise<string>((resolve) => {
-          const reader = new FileReader();
-          reader.onloadend = () => {
-            resolve(reader.result as string);
-          };
-          reader.readAsDataURL(file);
-        });
-      });
+    setLoading(true);
 
-      const imageUrls = await Promise.all(imagePromises);
+    try {
+      const imageUrls =
+        selectedFiles.length > 0
+          ? await Promise.all(
+              selectedFiles.map(
+                (file) =>
+                  new Promise<string>((resolve) => {
+                    const reader = new FileReader();
+                    reader.onloadend = () => resolve(reader.result as string);
+                    reader.readAsDataURL(file);
+                  })
+              )
+            )
+          : null;
 
-      await fetch("/api/products", {
+      const response = await fetch("/api/products", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -82,6 +112,25 @@ export default function DashboardAddNewProductPage() {
           images: imageUrls,
         }),
       });
+
+      const responseData = await response.json();
+
+      if (!response.ok) {
+        // Покажи съобщението за грешка от бекенда
+        setAlert({
+          message: responseData.error,
+          severity: "error",
+        });
+        return;
+      }
+
+      // Успешно съобщение от бекенда
+      setAlert({
+        message: responseData.message,
+        severity: "success",
+      });
+
+      // Нулиране на полетата
       setProductName("");
       setProductCode("");
       setSubcategoryIds([]);
@@ -89,19 +138,30 @@ export default function DashboardAddNewProductPage() {
       setDescription("");
       setProductImageUrls([]);
       setSelectedFiles([]);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (error) {
+      // Ако няма връзка с API или друга грешка
+      setAlert({
+        message: "Възникна грешка при свързването с API.",
+        severity: "error",
+      });
+    } finally {
+      setLoading(false);
+      setTimeout(() => setAlert(null), 5000);
     }
   };
 
   return (
     <>
       <DashboardNav />
-      <div className="container mx-auto py-10 px-28">
-        <h2 className="text-3xl font-bold text-center text-gray-800 mb-10 tracking-wide">
+      <div className="container mx-auto p-8">
+        <h2 className="text-3xl font-bold text-center text-gray-800 mb-8 tracking-wide">
           Добавяне на нов продукт
         </h2>
         <form
           onSubmit={handleProductSubmit}
-          className="bg-white shadow-lg rounded-lg p-6 mb-8 min-h-96"
+          className="bg-white shadow-lg rounded-lg p-6"
         >
           <FormControl fullWidth variant="outlined" className="mb-4" required>
             <InputLabel htmlFor="product-name">Име на продукт</InputLabel>
@@ -141,8 +201,8 @@ export default function DashboardAddNewProductPage() {
               ))}
             </Select>
           </FormControl>
-          <FormControl fullWidth variant="outlined" className="mb-4">
-            <InputLabel htmlFor="product-price">Цена</InputLabel>
+          <FormControl fullWidth variant="outlined" className="mb-4" required>
+            <InputLabel htmlFor="product-price">Цена (лв.)</InputLabel>
             <OutlinedInput
               id="product-price"
               type="number"
@@ -183,36 +243,53 @@ export default function DashboardAddNewProductPage() {
                 fullWidth
                 sx={{ textTransform: "none", height: "100%" }}
               >
-                {selectedFiles.length > 0
-                  ? `Качени изображения (${selectedFiles.length})`
+                {productImageUrls.length > 0
+                  ? `Качени изображения (${productImageUrls.length})`
                   : "Качете изображения *"}
               </Button>
             </label>
           </Box>
           {productImageUrls.length > 0 && (
-            <div className="mt-4 flex flex-wrap justify-center">
+            <div className="flex flex-wrap justify-center gap-10 mt-4">
               {productImageUrls.map((url, index) => (
-                <div key={index} className="w-[200px] h-auto m-2">
+                <div
+                  key={index}
+                  className="relative flex justify-center items-center"
+                >
                   <Image
                     src={url}
-                    alt={`Selected Product ${index + 1}`}
+                    alt={`Продукт изображение ${index + 1}`}
                     width={200}
                     height={200}
-                    style={{ maxHeight: "250px" }}
+                    className="rounded-md"
                   />
+                  <button
+                    type="button"
+                    className="absolute top-0 right-0 p-2 bg-red-600 hover:bg-red-800 transition text-white rounded-full"
+                    onClick={() => handleImageRemove(index)}
+                  >
+                    <FaTrash />
+                  </button>
                 </div>
               ))}
             </div>
           )}
-
           <Button
             type="submit"
             variant="contained"
             color="primary"
-            className="w-full mt-4"
+            fullWidth
+            sx={getCustomButtonStyles}
+            disabled={loading}
+            className="mt-4"
           >
-            Добави продукт
+            {loading ? "ДОБАВЯНЕ НА НОВ ПРОДУКТ..." : "ДОБАВИ НОВ ПРОДУКТ"}
           </Button>
+          {alert && (
+            <div className="mt-4">
+              <AlertMessage severity={alert.severity} message={alert.message} />
+            </div>
+          )}
         </form>
       </div>
     </>

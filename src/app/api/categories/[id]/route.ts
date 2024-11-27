@@ -53,47 +53,84 @@ export async function PUT(
 
   try {
     const body = await request.json();
-    const { name, code, imageUrl, imageToRemove } = body;
+    const { name, code, imageUrl } = body;
 
+    // Проверка за липсващи полета
     if (!name || !code) {
-      return NextResponse.json({ error: "Missing fields" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Всички полета са задължителни!" },
+        { status: 400 }
+      );
     }
 
+    // Проверка дали категорията съществува
     const existingCategory = await prisma.category.findUnique({
       where: { id },
     });
 
     if (!existingCategory) {
       return NextResponse.json(
-        { error: "Category not found" },
+        { error: "Категорията не е намерена!" },
         { status: 404 }
+      );
+    }
+
+    // Проверка дали съществува категория с това име, ако е различно от текущото
+    const existingCategoryName = await prisma.category.findUnique({
+      where: { name },
+    });
+
+    if (existingCategoryName && existingCategoryName.id !== id) {
+      return NextResponse.json(
+        { error: "Категория с това име вече съществува!" },
+        { status: 400 }
+      );
+    }
+
+    // Проверка дали съществува категория с този код, ако е различно от текущия
+    const existingCategoryCode = await prisma.category.findUnique({
+      where: { code },
+    });
+
+    if (existingCategoryCode && existingCategoryCode.id !== id) {
+      return NextResponse.json(
+        { error: "Категория с този код вече съществува!" },
+        { status: 400 }
+      );
+    }
+
+    // Ако няма изображение, но е необходимо такова
+    if (imageUrl && !imageUrl.trim()) {
+      return NextResponse.json(
+        { error: "Трябва да качите изображение на категорията!" },
+        { status: 400 }
       );
     }
 
     let updatedImageUrl = existingCategory.imageUrl;
 
+    // Проверка дали има ново изображение
     if (imageUrl && imageUrl !== existingCategory.imageUrl) {
-      if (existingCategory.imageUrl && imageToRemove) {
+      // Ако има старо изображение, изтриваме го
+      if (existingCategory.imageUrl) {
         const publicId = existingCategory.imageUrl
           .split("/")
           .pop()
           ?.split(".")[0];
-        console.log("Public ID to remove:", publicId);
-
         if (publicId) {
-          const result = await cloudinary.uploader.destroy(
-            `LIPCI/categories/${publicId}`
-          );
-          console.log("Cloudinary delete result:", result);
+          await cloudinary.uploader.destroy(`LIPCI/categories/${publicId}`);
         }
       }
 
+      // Качване на новото изображение
       const uploadResult = await cloudinary.uploader.upload(imageUrl, {
         folder: "LIPCI/categories",
       });
-      updatedImageUrl = uploadResult.secure_url;
+
+      updatedImageUrl = uploadResult.secure_url; // Използване на новото изображение
     }
 
+    // Актуализиране на категорията
     const updatedCategory = await prisma.category.update({
       where: { id },
       data: {
@@ -103,11 +140,17 @@ export async function PUT(
       },
     });
 
-    return NextResponse.json(updatedCategory, { status: 200 });
-  } catch (error) {
-    console.error("Error updating category:", error);
     return NextResponse.json(
-      { error: "Failed to update category" },
+      {
+        message: "Категорията е актуализирана успешно!",
+        category: updatedCategory,
+      },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("Грешка при редактиране на категория:", error);
+    return NextResponse.json(
+      { error: "Възникна грешка! Моля, опитайте отново!" },
       { status: 500 }
     );
   }

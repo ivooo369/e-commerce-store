@@ -11,12 +11,19 @@ import InputAdornment from "@mui/material/InputAdornment";
 import FormControl from "@mui/material/FormControl";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import Button from "@mui/material/Button";
+import { getCustomButtonStyles } from "@/app/ui/mui-custom-styles/custom-button";
+import AlertMessage from "@/app/ui/components/alert-message";
 
 export default function DashboardLoginPage() {
   const [customerUsername, setCustomerUsername] = useState("");
   const [customerPassword, setCustomerPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [alert, setAlert] = useState<{
+    message: string;
+    severity: "success" | "error";
+  } | null>(null);
   const router = useRouter();
 
   const handleClickShowPassword = () => setShowPassword((show) => !show);
@@ -27,7 +34,7 @@ export default function DashboardLoginPage() {
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setError("");
+    setLoading(true);
 
     const result = await signIn("credentials", {
       redirect: false,
@@ -35,64 +42,78 @@ export default function DashboardLoginPage() {
       password: customerPassword,
     });
 
+    setLoading(false);
+
     if (result?.error) {
-      setError("Невалидно потребителско име или парола");
+      setAlert({
+        message: result.error,
+        severity: "error",
+      });
+      setTimeout(() => {
+        setAlert(null);
+      }, 5000);
     } else {
-      router.push("/dashboard/products");
+      const redirectUrl = new URLSearchParams(window.location.search).get(
+        "redirect"
+      );
+      router.push(redirectUrl || "/dashboard/products");
     }
   };
 
   return (
     <div className="min-h-screen flex flex-col justify-center items-center bg-gray-200">
-      <div className="bg-white p-9 rounded-lg shadow-2xl w-full max-w-lg">
-        <h1 className="text-2xl font-bold text-center mb-7">
+      <div className="bg-white p-6 rounded-lg shadow-2xl w-full max-w-lg">
+        <h1 className="text-2xl font-bold text-center mb-6">
           Администраторски Панел - Вход
         </h1>
-        <form className="space-y-7" onSubmit={handleSubmit}>
+        <form className="space-y-4" onSubmit={handleSubmit}>
           <TextField
+            label="Потребителско име"
+            autoComplete="current-username"
+            variant="outlined"
             fullWidth
             required
-            id="email-input"
-            label="Потребителско име"
             value={customerUsername}
             onChange={(e) => setCustomerUsername(e.target.value)}
           />
-          <FormControl variant="outlined" required fullWidth>
-            <InputLabel htmlFor="outlined-password-input">Парола</InputLabel>
+          <FormControl variant="outlined" fullWidth required>
+            <InputLabel htmlFor="password">Парола</InputLabel>
             <OutlinedInput
-              id="outlined-password-input"
+              id="password"
+              label="Парола"
+              autoComplete="current-password"
               type={showPassword ? "text" : "password"}
               value={customerPassword}
               onChange={(e) => setCustomerPassword(e.target.value)}
               endAdornment={
                 <InputAdornment position="end">
                   <IconButton
-                    aria-label="Превключване на видимостта на паролата"
+                    aria-label="toggle password visibility"
                     onClick={handleClickShowPassword}
                     onMouseDown={handleMouseDownPassword}
                     edge="end"
-                    sx={{
-                      transition: "background-color 0.3s ease",
-                      marginRight: "1px",
-                      "&:hover": {
-                        backgroundColor: "#DCDCDC",
-                      },
-                    }}
                   >
                     {showPassword ? <VisibilityOff /> : <Visibility />}
                   </IconButton>
                 </InputAdornment>
               }
-              label="Парола"
             />
           </FormControl>
-          {error && <p className="text-red-500 text-center">{error}</p>}{" "}
-          <button
+          <Button
             type="submit"
-            className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-300"
+            variant="contained"
+            color="primary"
+            fullWidth
+            sx={getCustomButtonStyles}
+            disabled={loading}
           >
-            ВХОД
-          </button>
+            {loading ? "Влизане..." : "Вход"}
+          </Button>
+          {alert && (
+            <div className="mb-4">
+              <AlertMessage severity={alert.severity} message={alert.message} />
+            </div>
+          )}
         </form>
       </div>
     </div>

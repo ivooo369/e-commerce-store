@@ -12,7 +12,9 @@ export async function middleware(request: NextRequest) {
   const token = await getToken({ req: request });
 
   if (isDashboardRoute && !token) {
-    return NextResponse.redirect(new URL("/admin/login", request.url));
+    const loginUrl = new URL("/admin/login", request.url);
+    loginUrl.searchParams.set("redirect", request.nextUrl.pathname);
+    return NextResponse.redirect(loginUrl);
   }
 
   if (isApiRoute && !token) {

@@ -68,40 +68,86 @@ export async function PUT(
       imagesToRemove,
     } = body;
 
+    // Проверка за задължителни полета
     if (!name || !code || !price || !subcategoryIds) {
-      return NextResponse.json({ error: "Missing fields" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Всички полета са задължителни!" },
+        { status: 400 }
+      );
     }
 
+    // Проверка за валидна цена
+    if (isNaN(price) || price <= 0) {
+      return NextResponse.json(
+        { error: "Цената трябва да бъде валидно число и по-голямо от 0!" },
+        { status: 400 }
+      );
+    }
+
+    // Проверка за поне една снимка
+    if (images && (!Array.isArray(images) || images.length === 0)) {
+      return NextResponse.json(
+        { error: "Трябва да качите поне едно изображение на продукта!" },
+        { status: 400 }
+      );
+    }
+
+    // Проверка дали кодът вече съществува (с изключение на текущия продукт)
+    const existingProductWithCode = await prisma.product.findUnique({
+      where: { code },
+    });
+
+    if (existingProductWithCode && existingProductWithCode.id !== id) {
+      return NextResponse.json(
+        {
+          error: "Продукт с този код вече съществува!",
+        },
+        { status: 400 }
+      );
+    }
+
+    // Проверка дали продуктът съществува
     const existingProduct = await prisma.product.findUnique({
       where: { id },
     });
 
     if (!existingProduct) {
-      return NextResponse.json({ error: "Product not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Продуктът не е намерен!" },
+        { status: 404 }
+      );
     }
 
-    const newImageUrls = [];
-    if (images && images.length > 0) {
+    // Функция за качване на нови изображения
+    const handleImageUpload = async (images: string[]) => {
       const existingImageUrls = existingProduct.images || [];
       const newImagesToUpload = images.filter(
-        (img: string) => !existingImageUrls.includes(img)
+        (img) => !existingImageUrls.includes(img)
       );
 
-      const uploadPromises = newImagesToUpload.map((imageUrl: string) =>
+      const uploadPromises = newImagesToUpload.map((imageUrl) =>
         cloudinary.uploader.upload(imageUrl, {
           folder: "LIPCI/products",
         })
       );
       const uploadedImages = await Promise.all(uploadPromises);
-      newImageUrls.push(...uploadedImages.map((upload) => upload.secure_url));
+      return uploadedImages.map((upload) => upload.secure_url);
+    };
+
+    const newImageUrls: string[] = [];
+
+    if (images && images.length > 0) {
+      const uploadedImages = await handleImageUpload(images);
+      newImageUrls.push(...uploadedImages);
     }
 
+    // Съществуващи снимки за запазване
     const imagesToKeep = existingProduct.images.filter(
       (img) => !imagesToRemove || !imagesToRemove.includes(img)
     );
-
     const combinedImages = [...imagesToKeep, ...newImageUrls];
 
+    // Обновяване на продукта
     const updatedProduct = await prisma.product.update({
       where: { id },
       data: {
@@ -113,23 +159,25 @@ export async function PUT(
       },
     });
 
+    // Изтриване на връзки с подкатегории
     await prisma.productSubcategory.deleteMany({
       where: { productId: id },
     });
 
+    // Създаване на нови връзки с подкатегории
     const createSubcategoryRelations = subcategoryIds.map(
-      (subcategoryId: string) => {
-        return prisma.productSubcategory.create({
+      (subcategoryId: string) =>
+        prisma.productSubcategory.create({
           data: {
             productId: id,
             subcategoryId,
           },
-        });
-      }
+        })
     );
 
     await Promise.all(createSubcategoryRelations);
 
+    // Изтриване на снимки, които трябва да бъдат премахнати
     if (imagesToRemove) {
       const deleteImagePromises = imagesToRemove.map((imageUrl: string) => {
         const publicId = imageUrl.split("/").pop()?.split(".")[0];
@@ -138,11 +186,17 @@ export async function PUT(
       await Promise.all(deleteImagePromises);
     }
 
-    return NextResponse.json(updatedProduct, { status: 200 });
-  } catch (error) {
-    console.error("Error updating product:", error);
     return NextResponse.json(
-      { error: "Failed to update product" },
+      {
+        message: "Продуктът е актуализиран успешно!",
+        category: updatedProduct,
+      },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("Грешка при обновяване на продукта:", error);
+    return NextResponse.json(
+      { error: "Възникна грешка! Моля, опитайте отново!" },
       { status: 500 }
     );
   }

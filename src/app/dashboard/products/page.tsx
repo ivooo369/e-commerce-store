@@ -12,6 +12,9 @@ import Select, { SelectChangeEvent } from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import { Product } from "@prisma/client";
 import DashboardSearch from "@/app/ui/dashboard/dashboard-search";
+import CircularProgress from "@/app/ui/components/circular-progress";
+import usePagination, { ITEMS_PER_PAGE } from "@/app/lib/usePagination";
+import PaginationButtons from "@/app/ui/components/pagination";
 
 interface Subcategory {
   id: string;
@@ -29,7 +32,7 @@ interface ProductWithSubcategories extends Product {
   }[];
 }
 
-export default function DashboardInventoryPage() {
+export default function DashboardProductsPage() {
   const [products, setProducts] = useState<ProductWithSubcategories[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<
     ProductWithSubcategories[]
@@ -45,53 +48,8 @@ export default function DashboardInventoryPage() {
   const [openModal, setOpenModal] = useState(false);
   const [productToDelete, setProductToDelete] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>("");
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [productsResponse, categoriesResponse, subcategoriesResponse] =
-          await Promise.all([
-            fetch("/api/products"),
-            fetch("/api/categories"),
-            fetch("/api/subcategories"),
-          ]);
-
-        if (
-          !productsResponse.ok ||
-          !categoriesResponse.ok ||
-          !subcategoriesResponse.ok
-        ) {
-          throw new Error("Failed to fetch data");
-        }
-
-        const productsData: ProductWithSubcategories[] =
-          await productsResponse.json();
-        const categoriesData = await categoriesResponse.json();
-        const subcategoriesData = await subcategoriesResponse.json();
-
-        productsData.sort((a, b) => a.code.localeCompare(b.code));
-
-        subcategoriesData.sort((a: { code: string }, b: { code: string }) =>
-          a.code.localeCompare(b.code)
-        );
-
-        categoriesData.sort((a: { code: string }, b: { code: string }) =>
-          a.code.localeCompare(b.code)
-        );
-
-        setProducts(productsData);
-        setCategories(categoriesData);
-        setSubcategories(subcategoriesData);
-
-        filterProducts(productsData, selectedSubcategory);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
-
-    fetchData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedCategory, selectedSubcategory]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [deleting, setDeleting] = useState<boolean>(false);
 
   const filterProducts = (
     products: ProductWithSubcategories[],
@@ -116,6 +74,62 @@ export default function DashboardInventoryPage() {
     setFilteredProducts(filtered);
   };
 
+  const { currentPage, currentItems, paginate } =
+    usePagination(filteredProducts);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const [productsResponse, categoriesResponse, subcategoriesResponse] =
+          await Promise.all([
+            fetch("/api/products"),
+            fetch("/api/categories"),
+            fetch("/api/subcategories"),
+          ]);
+
+        if (
+          !productsResponse.ok ||
+          !categoriesResponse.ok ||
+          !subcategoriesResponse.ok
+        ) {
+          throw new Error("Failed to fetch data");
+        }
+
+        const productsData: ProductWithSubcategories[] =
+          await productsResponse.json();
+        const categoriesData = await categoriesResponse.json();
+        const subcategoriesData = await subcategoriesResponse.json();
+
+        productsData.sort((a, b) => a.code.localeCompare(b.code));
+        subcategoriesData.sort((a: { code: string }, b: { code: string }) =>
+          a.code.localeCompare(b.code)
+        );
+        categoriesData.sort((a: { code: string }, b: { code: string }) =>
+          a.code.localeCompare(b.code)
+        );
+
+        setProducts(productsData);
+        setCategories(categoriesData);
+        setSubcategories(subcategoriesData);
+
+        filterProducts(productsData, selectedSubcategory);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    filterProducts(products, selectedSubcategory);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchTerm, selectedSubcategory]);
+
   const handleOpenModal = (id: string) => {
     setProductToDelete(id);
     setOpenModal(true);
@@ -128,6 +142,7 @@ export default function DashboardInventoryPage() {
 
   const handleDeleteProduct = async () => {
     if (productToDelete) {
+      setDeleting(true);
       try {
         const response = await fetch(`/api/products/${productToDelete}`, {
           method: "DELETE",
@@ -144,6 +159,7 @@ export default function DashboardInventoryPage() {
       } catch (error) {
         console.error("Error deleting product:", error);
       } finally {
+        setDeleting(false);
         handleCloseModal();
       }
     }
@@ -152,24 +168,12 @@ export default function DashboardInventoryPage() {
   const handleCategoryChange = (event: SelectChangeEvent<string[]>) => {
     const categoryIds = event.target.value as string[];
     setSelectedCategory(categoryIds);
-    setSelectedSubcategory([]);
   };
 
   const handleSubcategoryChange = (event: SelectChangeEvent<string[]>) => {
     const subcategoryIds = event.target.value as string[];
     setSelectedSubcategory(subcategoryIds);
   };
-
-  const filteredSubcategories = selectedCategory.length
-    ? subcategories.filter((subcategory) =>
-        selectedCategory.includes(subcategory.categoryId)
-      )
-    : subcategories;
-
-  useEffect(() => {
-    filterProducts(products, selectedSubcategory);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchTerm, products, selectedSubcategory]);
 
   return (
     <>
@@ -219,29 +223,68 @@ export default function DashboardInventoryPage() {
                 .join(", ")
             }
           >
-            {filteredSubcategories.map((subcategory) => (
-              <MenuItem key={subcategory.id} value={subcategory.id}>
-                {subcategory.code} - {subcategory.name}
-              </MenuItem>
-            ))}
+            {subcategories
+              .filter(
+                (subcategory) =>
+                  selectedCategory.length === 0 ||
+                  selectedCategory.includes(subcategory.categoryId)
+              )
+              .map((subcategory) => (
+                <MenuItem key={subcategory.id} value={subcategory.id}>
+                  {subcategory.code} - {subcategory.name}
+                </MenuItem>
+              ))}
           </Select>
         </FormControl>
-      </div>
-      <div className="container mx-auto py-4 lg:px-4">
-        <Box className="grid gap-10 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-          {filteredProducts.map((product) => (
-            <ProductCard
-              key={product.id}
-              product={product}
-              onDelete={handleOpenModal}
+        {filteredProducts.length > 0 && (
+          <div className="pb-2">
+            <PaginationButtons
+              itemsPerPage={ITEMS_PER_PAGE}
+              totalItems={filteredProducts.length}
+              paginate={paginate}
+              currentPage={currentPage}
             />
-          ))}
-        </Box>
+          </div>
+        )}
       </div>
+      {loading ? (
+        <Box className="flex justify-center items-center py-10 my-auto">
+          <CircularProgress message="Зареждане на продуктите..." />
+        </Box>
+      ) : currentItems.length === 0 ? (
+        <div className="text-center py-10">
+          <h2 className="text-2xl font-bold">Няма намерени продукти</h2>
+        </div>
+      ) : (
+        <>
+          <div className="container mx-auto py-4 lg:px-4">
+            <div className="grid gap-10 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+              {currentItems.map((product) => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  onDelete={handleOpenModal}
+                />
+              ))}
+            </div>
+            <div className="pt-10">
+              <PaginationButtons
+                itemsPerPage={ITEMS_PER_PAGE}
+                totalItems={filteredProducts.length}
+                paginate={paginate}
+                currentPage={currentPage}
+              />
+            </div>
+          </div>
+        </>
+      )}
       <ConfirmationModal
         open={openModal}
         onClose={handleCloseModal}
         onConfirm={handleDeleteProduct}
+        mainMessage="Сигурни ли сте, че искате да изтриете този продукт?"
+        deletingMessage="Изтриване на продукта..."
+        isDeleting={deleting}
       />
     </>
   );

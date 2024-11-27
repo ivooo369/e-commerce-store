@@ -9,7 +9,7 @@ export const authOptions = {
     CredentialsProvider({
       name: "Credentials",
       credentials: {
-        username: { label: "Username", type: "text", placeholder: "jsmith" },
+        username: { label: "Username", type: "text" },
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
@@ -17,18 +17,16 @@ export const authOptions = {
         const password = credentials?.password as string;
 
         try {
-          const user = await prisma.admin.findUnique({
-            where: { username },
-          });
+          const user = await prisma.admin.findUnique({ where: { username } });
 
-          if (user && (await verifyPassword(password, user.password))) {
-            return user;
+          if (!user || !(await verifyPassword(password, user.password))) {
+            throw new Error("Неправилно потребителско име или парола!");
           }
 
-          return null;
+          return user;
         } catch (error) {
           console.error("Authorization error:", error);
-          return null;
+          throw new Error("Неправилно потребителско име или парола!");
         }
       },
     }),

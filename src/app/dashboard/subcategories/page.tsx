@@ -10,6 +10,11 @@ import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
+import CircularProgress from "@/app/ui/components/circular-progress";
+import PaginationButtons from "@/app/ui/components/pagination";
+import usePagination from "@/app/lib/usePagination";
+import { ITEMS_PER_PAGE } from "@/app/lib/usePagination";
+import Box from "@mui/material/Box";
 
 export default function DashboardSubcategoriesPage() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -23,6 +28,24 @@ export default function DashboardSubcategoriesPage() {
   );
   const [openSubcategoryModal, setOpenSubcategoryModal] = useState(false);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [deleting, setDeleting] = useState<boolean>(false);
+
+  const sortedCategories = categories.sort((a, b) =>
+    a.code.localeCompare(b.code)
+  );
+
+  const filteredSubcategories = subcategories.filter(
+    (subcategory) =>
+      (selectedCategories.length === 0 ||
+        selectedCategories.includes(subcategory.categoryId)) &&
+      (subcategory.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        subcategory.code.toLowerCase().includes(searchTerm.toLowerCase()))
+  );
+
+  const { currentPage, currentItems, paginate } = usePagination(
+    filteredSubcategories
+  );
 
   useEffect(() => {
     const fetchCategoriesAndSubcategories = async () => {
@@ -47,23 +70,13 @@ export default function DashboardSubcategoriesPage() {
         setSubcategories(subcategoriesData);
       } catch (error) {
         console.error("Error fetching categories or subcategories:", error);
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchCategoriesAndSubcategories();
   }, []);
-
-  const sortedCategories = categories.sort((a, b) =>
-    a.code.localeCompare(b.code)
-  );
-
-  const filteredSubcategories = subcategories.filter(
-    (subcategory) =>
-      (selectedCategories.length === 0 ||
-        selectedCategories.includes(subcategory.categoryId)) &&
-      (subcategory.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        subcategory.code.toLowerCase().includes(searchTerm.toLowerCase()))
-  );
 
   const handleOpenSubcategoryModal = (id: string) => {
     setSubcategoryToDelete(id);
@@ -77,6 +90,7 @@ export default function DashboardSubcategoriesPage() {
 
   const handleDeleteSubcategory = async () => {
     if (subcategoryToDelete) {
+      setDeleting(true);
       try {
         const response = await fetch(
           `/api/subcategories/${subcategoryToDelete}`,
@@ -95,6 +109,7 @@ export default function DashboardSubcategoriesPage() {
       } catch (error) {
         console.error("Error deleting subcategory:", error);
       } finally {
+        setDeleting(false);
         handleCloseSubcategoryModal();
       }
     }
@@ -132,22 +147,57 @@ export default function DashboardSubcategoriesPage() {
             ))}
           </Select>
         </FormControl>
-      </div>
-      <div className="container mx-auto py-4 lg:px-4">
-        <div className="grid gap-10 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-          {filteredSubcategories.map((subcategory) => (
-            <SubcategoryCard
-              key={subcategory.id}
-              subcategory={subcategory}
-              onDelete={handleOpenSubcategoryModal}
+        {currentItems.length > 0 && (
+          <div className="pb-2">
+            <PaginationButtons
+              itemsPerPage={ITEMS_PER_PAGE}
+              totalItems={filteredSubcategories.length}
+              paginate={paginate}
+              currentPage={currentPage}
             />
-          ))}
-        </div>
+          </div>
+        )}
       </div>
+      {loading ? (
+        <Box className="flex justify-center items-center py-10 my-auto">
+          <CircularProgress message="Зареждане на подкатегориите..." />
+        </Box>
+      ) : currentItems.length === 0 ? (
+        <div className="text-center py-10">
+          <h2 className="text-2xl font-bold">Няма намерени подкатегории</h2>
+        </div>
+      ) : (
+        <>
+          <div className="container mx-auto py-4 lg:px-4">
+            <div className="grid gap-10 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+              {currentItems.map((subcategory) => (
+                <SubcategoryCard
+                  key={subcategory.id}
+                  subcategory={subcategory}
+                  onDelete={handleOpenSubcategoryModal}
+                />
+              ))}
+            </div>
+            <div className="pt-10">
+              {currentItems.length > 0 && (
+                <PaginationButtons
+                  itemsPerPage={ITEMS_PER_PAGE}
+                  totalItems={filteredSubcategories.length}
+                  paginate={paginate}
+                  currentPage={currentPage}
+                />
+              )}
+            </div>
+          </div>
+        </>
+      )}
       <ConfirmationModal
         open={openSubcategoryModal}
         onClose={handleCloseSubcategoryModal}
         onConfirm={handleDeleteSubcategory}
+        mainMessage="Сигурни ли сте, че искате да изтриете тази подкатегория?"
+        deletingMessage="Изтриване на подкатегорията..."
+        isDeleting={deleting}
       />
     </>
   );

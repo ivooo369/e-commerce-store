@@ -11,77 +11,73 @@ model Admin {
   id        String   @id @default(uuid())
   username  String   @unique @db.VarChar(50)
   password  String   @db.VarChar(255)
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   @@map("admins")
 }
 
 model Customer {
-  id        String   @id @default(uuid())
-  firstName String   @map("first_name") @db.VarChar(50)
-  lastName  String   @map("last_name") @db.VarChar(50)
-  email     String   @unique @db.VarChar(255)
-  password  String   @db.VarChar(255)
-  city      String?  @db.VarChar(100)
-  address   String?  @db.VarChar(255)
-  phone     String?  @db.VarChar(20)
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
-
-  orders Order[]
+  id        String    @id @default(uuid())
+  firstName String    @map("first_name") @db.VarChar(50)
+  lastName  String    @map("last_name") @db.VarChar(50)
+  email     String    @unique @db.VarChar(255)
+  password  String    @db.VarChar(255)
+  city      String?   @db.VarChar(100)
+  address   String?   @db.VarChar(255)
+  phone     String?   @db.VarChar(20)
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+  messages  Message[]
+  orders    Order[]
 
   @@map("customers")
 }
 
 model Product {
-  id          String   @id @default(uuid())
-  name        String   @db.VarChar(100)
-  code        String   @unique @db.VarChar(10)
-  price       Float
-  description String   @db.VarChar(500)
-  images      String[]
-  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz
-
+  id            String               @id @default(uuid())
+  name          String               @db.VarChar(100)
+  code          String               @unique @db.VarChar(10)
+  price         Float
+  description   String               @db.VarChar(500)
+  images        String[]
+  createdAt     DateTime             @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt     DateTime             @updatedAt @map("updated_at") @db.Timestamptz(6)
   subcategories ProductSubcategory[]
 
   @@map("products")
 }
 
 model Category {
-  id        String   @id @default(uuid())
-  name      String   @unique @db.VarChar(100)
-  code      String   @unique @db.VarChar(10)
-  imageUrl  String   @map("image_url") @db.VarChar(255)
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
-
+  id            String        @id @default(uuid())
+  name          String        @unique @db.VarChar(100)
+  code          String        @unique @db.VarChar(10)
+  imageUrl      String        @map("image_url") @db.VarChar(255)
+  createdAt     DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt     DateTime      @updatedAt @map("updated_at") @db.Timestamptz(6)
   subcategories Subcategory[]
 
   @@map("categories")
 }
 
 model Subcategory {
-  id         String   @id @default(uuid())
-  categoryId String   @map("category_id")
-  name       String   @unique @db.VarChar(100)
-  code       String   @unique @db.VarChar(10)
-  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt  DateTime @updatedAt @map("updated_at") @db.Timestamptz
-
-  category Category             @relation(fields: [categoryId], references: [id])
-  products ProductSubcategory[]
+  id         String               @id @default(uuid())
+  categoryId String               @map("category_id")
+  name       String               @unique @db.VarChar(100)
+  code       String               @unique @db.VarChar(10)
+  createdAt  DateTime             @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt  DateTime             @updatedAt @map("updated_at") @db.Timestamptz(6)
+  products   ProductSubcategory[]
+  category   Category             @relation(fields: [categoryId], references: [id], onDelete: Cascade)
 
   @@map("subcategories")
 }
 
 model ProductSubcategory {
-  productId     String @map("product_id")
-  subcategoryId String @map("subcategory_id")
-
-  product     Product     @relation(fields: [productId], references: [id])
-  subcategory Subcategory @relation(fields: [subcategoryId], references: [id])
+  productId     String      @map("product_id")
+  subcategoryId String      @map("subcategory_id")
+  product       Product     @relation(fields: [productId], references: [id], map: "products_subcategories_productId_fkey")
+  subcategory   Subcategory @relation(fields: [subcategoryId], references: [id], map: "products_subcategories_subcategoryId_fkey")
 
   @@id([productId, subcategoryId])
   @@map("products_subcategories")
@@ -97,9 +93,21 @@ model Order {
   phone          String   @db.VarChar(20)
   additionalInfo String?  @map("additional_info") @db.VarChar(500)
   items          Json
-  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz
-
-  customer Customer @relation(fields: [customerId], references: [id])
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  customer       Customer @relation(fields: [customerId], references: [id])
 
   @@map("orders")
+}
+
+model Message {
+  id         String    @id @default(dbgenerated("gen_random_uuid()"))
+  customerId String?   @map("customer_id")
+  name       String    @db.VarChar(100)
+  email      String    @db.VarChar(255)
+  title      String    @db.VarChar(100)
+  content    String    @db.VarChar(500)
+  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  customer   Customer? @relation(fields: [customerId], references: [id], onUpdate: NoAction)
+
+  @@map("messages")
 }
