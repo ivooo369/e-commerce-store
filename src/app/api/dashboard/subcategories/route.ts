@@ -11,13 +11,13 @@ export async function GET() {
 
     return NextResponse.json(subcategories, { status: 200 });
   } catch (error) {
-    console.error("Error fetching subcategories:", error);
-
-    const errorMessage =
-      error instanceof Error ? error.message : "Unknown error occurred";
+    console.error(
+      "Възникна грешка при извличане на данните на подкатегорията:",
+      error
+    );
 
     return NextResponse.json(
-      { error: "Failed to fetch subcategories", details: errorMessage },
+      { error: "Възникна грешка при извличане на данните на подкатегорията!" },
       { status: 500 }
     );
   } finally {
@@ -30,7 +30,6 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { name, code, categoryId } = body;
 
-    // Проверка за задължителни полета
     if (!name || !code || !categoryId) {
       return NextResponse.json(
         { error: "Всички полета са задължителни!" },
@@ -38,7 +37,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // Проверка дали съществува подкатегория с това име
     const existingSubcategoryName = await prisma.subcategory.findUnique({
       where: { name },
     });
@@ -52,7 +50,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // Проверка дали съществува подкатегория с този код
     const existingSubcategory = await prisma.subcategory.findUnique({
       where: { code },
     });
@@ -66,7 +63,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // Създаване на нова подкатегория
     const newSubcategory = await prisma.subcategory.create({
       data: {
         name,

@@ -2,16 +2,16 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
+import Image from "next/image";
 import DashboardNav from "@/app/ui/dashboard/dashboard-primary-nav";
+import CircularProgress from "@/app/ui/components/circular-progress";
+import { getCustomButtonStyles } from "@/app/ui/mui-custom-styles/custom-button";
+import AlertMessage from "@/app/ui/components/alert-message";
 import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
 import OutlinedInput from "@mui/material/OutlinedInput";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
-import Image from "next/image";
-import CircularProgress from "@/app/ui/components/circular-progress";
-import { getCustomButtonStyles } from "@/app/ui/mui-custom-styles/custom-button";
-import AlertMessage from "@/app/ui/components/alert-message";
 
 export default function DashboardEditCategoryPage() {
   const router = useRouter();
@@ -33,16 +33,23 @@ export default function DashboardEditCategoryPage() {
     const fetchData = async () => {
       try {
         if (id) {
-          const categoryResponse = await fetch(`/api/categories/${id}`);
+          const categoryResponse = await fetch(
+            `/api/dashboard/categories/${id}`
+          );
           if (!categoryResponse.ok)
-            throw new Error("Failed to fetch category data");
+            throw new Error(
+              "Възникна грешка при извличане на данните на категорията!"
+            );
           const categoryData = await categoryResponse.json();
           setCategoryName(categoryData.name);
           setCategoryCode(categoryData.code);
           setCategoryImageUrl(categoryData.imageUrl || "");
         }
       } catch (error) {
-        console.error("Error fetching data:", error);
+        console.error(
+          "Възникна грешка при извличане на данните на категорията:",
+          error
+        );
       } finally {
         setLoading(false);
       }
@@ -55,7 +62,7 @@ export default function DashboardEditCategoryPage() {
     if (files && files.length > 0) {
       const file = files[0];
       setSelectedFile(file);
-      setCategoryImageUrl(URL.createObjectURL(file)); // Промяна на изображението на клиента
+      setCategoryImageUrl(URL.createObjectURL(file));
     }
   };
 
@@ -70,9 +77,9 @@ export default function DashboardEditCategoryPage() {
             reader.onloadend = () => resolve(reader.result as string);
             reader.readAsDataURL(selectedFile);
           })
-        : categoryImageUrl; // Ако няма ново изображение, използваме старото
+        : categoryImageUrl;
 
-      const response = await fetch(`/api/categories/${id}`, {
+      const response = await fetch(`/api/dashboard/categories/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -99,14 +106,12 @@ export default function DashboardEditCategoryPage() {
         severity: "success",
       });
 
-      // Нулиране на стойностите
       setCategoryName("");
       setCategoryCode("");
       setCategoryImageUrl("");
       setSelectedFile(null);
       if (fileInputRef.current) fileInputRef.current.value = "";
 
-      // Пренасочване
       setTimeout(() => {
         router.push("/dashboard/categories");
       }, 1000);
@@ -178,7 +183,7 @@ export default function DashboardEditCategoryPage() {
                 {selectedFile
                   ? selectedFile.name
                   : categoryImageUrl
-                  ? categoryImageUrl.split("/").pop() // Extract the filename from the URL
+                  ? categoryImageUrl.split("/").pop()
                   : "Качете изображение *"}
               </Button>
             </label>
@@ -204,7 +209,7 @@ export default function DashboardEditCategoryPage() {
             sx={getCustomButtonStyles}
             disabled={isEditing}
           >
-            {isEditing ? "ЗАПАЗВАНЕ НА ПРОМЕНИТЕ..." : "ЗАПАЗИ ПРОМЕНИТЕ"}
+            {isEditing ? "ЗАПАЗВАНЕ..." : "ЗАПАЗИ ПРОМЕНИТЕ"}
           </Button>
           {alert && (
             <div className="mt-4">

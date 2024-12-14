@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { useState, useRef, useEffect } from "react";
@@ -22,7 +21,6 @@ export default function DashboardAddCategoriesAndSubcategoriesPage() {
   const [subcategoryCode, setSubcategoryCode] = useState("");
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | "">("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [categories, setCategories] = useState<
     { id: string; name: string; code: string }[]
   >([]);
@@ -34,10 +32,13 @@ export default function DashboardAddCategoriesAndSubcategoriesPage() {
     message: string;
     severity: "success" | "error";
   } | null>(null);
+  const [loadingCategory, setLoadingCategory] = useState(false);
+  const [loadingSubcategory, setLoadingSubcategory] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     const fetchCategories = async () => {
-      const response = await fetch("/api/categories");
+      const response = await fetch("/api/dashboard/categories");
       const data = await response.json();
       const sortedCategories = data.sort(
         (a: { code: string }, b: { code: string }) =>
@@ -56,9 +57,10 @@ export default function DashboardAddCategoriesAndSubcategoriesPage() {
 
   const handleCategorySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoadingCategory(true);
 
     try {
-      const response = await fetch("/api/categories", {
+      const response = await fetch("/api/dashboard/categories", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -79,7 +81,6 @@ export default function DashboardAddCategoriesAndSubcategoriesPage() {
       const responseData = await response.json();
 
       if (!response.ok) {
-        // Покажи съобщението за грешка от бекенда
         setAlertCategory({
           message: responseData.error,
           severity: "error",
@@ -87,34 +88,35 @@ export default function DashboardAddCategoriesAndSubcategoriesPage() {
         return;
       }
 
-      // Успешно съобщение от бекенда
       setAlertCategory({
         message: responseData.message,
         severity: "success",
       });
 
-      // Изчистване на полетата
       setCategoryName("");
       setCategoryCode("");
       setCategoryImageUrl("");
       setSelectedFile(null);
       if (fileInputRef.current) fileInputRef.current.value = "";
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      // Ако няма връзка с API или друга грешка
       setAlertCategory({
         message: "Възникна грешка! Моля, опитайте отново!",
         severity: "error",
       });
     } finally {
       setTimeout(() => setAlertCategory(null), 5000);
+      setLoadingCategory(false);
     }
+    window.location.reload();
   };
 
   const handleSubcategorySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoadingSubcategory(true);
 
     try {
-      const response = await fetch("/api/subcategories", {
+      const response = await fetch("/api/dashboard/subcategories", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -129,7 +131,6 @@ export default function DashboardAddCategoriesAndSubcategoriesPage() {
       const responseData = await response.json();
 
       if (!response.ok) {
-        // Покажи съобщението за грешка от бекенда
         setAlertSubcategory({
           message: responseData.error,
           severity: "error",
@@ -137,25 +138,23 @@ export default function DashboardAddCategoriesAndSubcategoriesPage() {
         return;
       }
 
-      // Успешно съобщение от бекенда
       setAlertSubcategory({
         message: responseData.message,
         severity: "success",
       });
 
-      // Изчистване на полетата
       setSubcategoryName("");
       setSubcategoryCode("");
       setSelectedCategoryId("");
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      // Ако няма връзка с API или друга грешка
       setAlertSubcategory({
         message: "Възникна грешка! Моля, опитайте отново!",
         severity: "error",
       });
     } finally {
       setTimeout(() => setAlertSubcategory(null), 5000);
+      setLoadingSubcategory(false);
     }
   };
 
@@ -256,8 +255,9 @@ export default function DashboardAddCategoriesAndSubcategoriesPage() {
                 color="primary"
                 className="mt-4"
                 sx={getCustomButtonStyles}
+                disabled={loadingCategory}
               >
-                Добави нова категория
+                {loadingCategory ? "Добавяне..." : "Добави нова категория"}
               </Button>
               {alertCategory && (
                 <div className="mt-4">
@@ -309,24 +309,17 @@ export default function DashboardAddCategoriesAndSubcategoriesPage() {
                   label="Код на подкатегория"
                 />
               </FormControl>
-              <FormControl
-                fullWidth
-                variant="outlined"
-                className="mb-4"
-                required
-              >
-                <InputLabel htmlFor="category-select">
-                  Изберете категория
-                </InputLabel>
+              <FormControl fullWidth className="mb-4">
+                <InputLabel>Категория</InputLabel>
                 <Select
-                  id="category-select"
+                  label="Категория"
                   value={selectedCategoryId}
                   onChange={handleCategorySelectChange}
-                  label="Изберете категория"
+                  required
                 >
                   {categories.map((category) => (
                     <MenuItem key={category.id} value={category.id}>
-                      {category.code} - {category.name}
+                      {category.name}
                     </MenuItem>
                   ))}
                 </Select>
@@ -336,8 +329,11 @@ export default function DashboardAddCategoriesAndSubcategoriesPage() {
                 variant="contained"
                 color="primary"
                 sx={getCustomButtonStyles}
+                disabled={loadingSubcategory}
               >
-                Добави нова подкатегория
+                {loadingSubcategory
+                  ? "Добавяне..."
+                  : "Добави нова подкатегория"}
               </Button>
               {alertSubcategory && (
                 <div className="mt-4">

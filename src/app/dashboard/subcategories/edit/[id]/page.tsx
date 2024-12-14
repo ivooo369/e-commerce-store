@@ -32,7 +32,7 @@ export default function DashboardEditSubcategoryPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const categoriesResponse = await fetch("/api/categories");
+        const categoriesResponse = await fetch("/api/dashboard/categories");
         const categoriesData = await categoriesResponse.json();
         const sortedCategories = categoriesData.sort(
           (a: { code: string }, b: { code: string }) =>
@@ -41,7 +41,9 @@ export default function DashboardEditSubcategoryPage() {
         setCategories(sortedCategories);
 
         if (id) {
-          const subcategoryResponse = await fetch(`/api/subcategories/${id}`);
+          const subcategoryResponse = await fetch(
+            `/api/dashboard/subcategories/${id}`
+          );
           if (!subcategoryResponse.ok)
             throw new Error("Failed to fetch subcategory data");
           const subcategoryData = await subcategoryResponse.json();
@@ -69,7 +71,7 @@ export default function DashboardEditSubcategoryPage() {
     setIsEditing(true);
 
     try {
-      const response = await fetch(`/api/subcategories/${id}`, {
+      const response = await fetch(`/api/dashboard/subcategories/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -84,7 +86,6 @@ export default function DashboardEditSubcategoryPage() {
       const responseData = await response.json();
 
       if (!response.ok) {
-        // Покажи съобщението за грешка от бекенда
         setAlert({
           message: responseData.error,
           severity: "error",
@@ -97,25 +98,21 @@ export default function DashboardEditSubcategoryPage() {
         severity: "success",
       });
 
-      // Изчистване на полетата (ако е необходимо)
       setSubcategoryName("");
       setSubcategoryCode("");
       setSelectedCategoryId("");
 
-      // Навигация обратно към списъка с подкатегории
       setTimeout(() => {
         router.push("/dashboard/subcategories");
       }, 1000);
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      // Ако няма връзка с API или друга грешка
       setAlert({
         message: "Възникна грешка! Моля, опитайте отново!",
         severity: "error",
       });
     } finally {
       setIsEditing(false);
-      // Изчистване на алертите след 5 секунди
       setTimeout(() => setAlert(null), 5000);
     }
   };
@@ -185,7 +182,7 @@ export default function DashboardEditSubcategoryPage() {
             sx={getCustomButtonStyles}
             disabled={isEditing}
           >
-            {isEditing ? "ЗАПАЗВАНЕ НА ПРОМЕНИТЕ..." : "ЗАПАЗИ ПРОМЕНИТЕ"}
+            {isEditing ? "ЗАПАЗВАНЕ..." : "ЗАПАЗИ ПРОМЕНИТЕ"}
           </Button>
           {alert && (
             <div className="mt-4">

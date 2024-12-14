@@ -1,4 +1,3 @@
-import React from "react";
 import Modal from "@mui/material/Modal";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
@@ -16,14 +15,14 @@ interface ConfirmationModalProps {
   isDeleting?: boolean;
 }
 
-const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
+export default function ConfirmationModal({
   open,
   onClose,
   onConfirm,
   mainMessage,
   deletingMessage,
   isDeleting = false,
-}) => {
+}: ConfirmationModalProps) {
   return (
     <Modal open={open} onClose={onClose}>
       {isDeleting ? (
@@ -91,6 +90,4 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
       )}
     </Modal>
   );
-};
-
-export default ConfirmationModal;
+}

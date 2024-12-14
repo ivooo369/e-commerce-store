@@ -3,24 +3,18 @@
 import { useEffect, useState } from "react";
 import DashboardNav from "@/app/ui/dashboard/dashboard-primary-nav";
 import DashboardSecondaryNav from "@/app/ui/dashboard/dashboard-secondary-nav";
-import ProductCard from "@/app/ui/components/product-card";
+import ProductCard from "@/app/ui/components/product-card-dashboard";
 import ConfirmationModal from "@/app/ui/components/confirmation-modal";
 import Box from "@mui/material/Box";
 import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
-import { Product } from "@prisma/client";
+import { Product, Subcategory } from "@prisma/client";
 import DashboardSearch from "@/app/ui/dashboard/dashboard-search";
 import CircularProgress from "@/app/ui/components/circular-progress";
 import usePagination, { ITEMS_PER_PAGE } from "@/app/lib/usePagination";
 import PaginationButtons from "@/app/ui/components/pagination";
-
-interface Subcategory {
-  id: string;
-  name: string;
-  code: string;
-}
 
 interface ProductWithSubcategories extends Product {
   subcategories: {
@@ -43,8 +37,10 @@ export default function DashboardProductsPage() {
   const [subcategories, setSubcategories] = useState<
     { id: string; name: string; code: string; categoryId: string }[]
   >([]);
-  const [selectedCategory, setSelectedCategory] = useState<string[]>([]);
-  const [selectedSubcategory, setSelectedSubcategory] = useState<string[]>([]);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [selectedSubcategories, setSelectedSubcategories] = useState<string[]>(
+    []
+  );
   const [openModal, setOpenModal] = useState(false);
   const [productToDelete, setProductToDelete] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>("");
@@ -83,9 +79,9 @@ export default function DashboardProductsPage() {
       try {
         const [productsResponse, categoriesResponse, subcategoriesResponse] =
           await Promise.all([
-            fetch("/api/products"),
-            fetch("/api/categories"),
-            fetch("/api/subcategories"),
+            fetch("/api/dashboard/products"),
+            fetch("/api/dashboard/categories"),
+            fetch("/api/dashboard/subcategories"),
           ]);
 
         if (
@@ -93,7 +89,7 @@ export default function DashboardProductsPage() {
           !categoriesResponse.ok ||
           !subcategoriesResponse.ok
         ) {
-          throw new Error("Failed to fetch data");
+          throw new Error("Възникна грешка при извличане на данните!");
         }
 
         const productsData: ProductWithSubcategories[] =
@@ -113,9 +109,9 @@ export default function DashboardProductsPage() {
         setCategories(categoriesData);
         setSubcategories(subcategoriesData);
 
-        filterProducts(productsData, selectedSubcategory);
+        filterProducts(productsData, selectedSubcategories);
       } catch (error) {
-        console.error("Error fetching data:", error);
+        console.error("Възникна грешка при извличане на данните:", error);
       } finally {
         setLoading(false);
       }
@@ -126,9 +122,9 @@ export default function DashboardProductsPage() {
   }, []);
 
   useEffect(() => {
-    filterProducts(products, selectedSubcategory);
+    filterProducts(products, selectedSubcategories);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchTerm, selectedSubcategory]);
+  }, [searchTerm, selectedSubcategories]);
 
   const handleOpenModal = (id: string) => {
     setProductToDelete(id);
@@ -144,11 +140,15 @@ export default function DashboardProductsPage() {
     if (productToDelete) {
       setDeleting(true);
       try {
-        const response = await fetch(`/api/products/${productToDelete}`, {
-          method: "DELETE",
-        });
+        const response = await fetch(
+          `/api/dashboard/products/${productToDelete}`,
+          {
+            method: "DELETE",
+          }
+        );
 
-        if (!response.ok) throw new Error("Failed to delete product");
+        if (!response.ok)
+          throw new Error("Възникна грешка при изтриване на продукта!");
 
         setProducts((prevProducts) =>
           prevProducts.filter((product) => product.id !== productToDelete)
@@ -157,7 +157,7 @@ export default function DashboardProductsPage() {
           prevProducts.filter((product) => product.id !== productToDelete)
         );
       } catch (error) {
-        console.error("Error deleting product:", error);
+        console.error("Възникна грешка при изтриване на продукта:", error);
       } finally {
         setDeleting(false);
         handleCloseModal();
@@ -167,12 +167,12 @@ export default function DashboardProductsPage() {
 
   const handleCategoryChange = (event: SelectChangeEvent<string[]>) => {
     const categoryIds = event.target.value as string[];
-    setSelectedCategory(categoryIds);
+    setSelectedCategories(categoryIds);
   };
 
   const handleSubcategoryChange = (event: SelectChangeEvent<string[]>) => {
     const subcategoryIds = event.target.value as string[];
-    setSelectedSubcategory(subcategoryIds);
+    setSelectedSubcategories(subcategoryIds);
   };
 
   return (
@@ -190,7 +190,7 @@ export default function DashboardProductsPage() {
           </InputLabel>
           <Select
             multiple
-            value={selectedCategory}
+            value={selectedCategories}
             onChange={handleCategoryChange}
             label="Филтриране на подкатегориите според избраните категории"
             id="category-select"
@@ -208,7 +208,7 @@ export default function DashboardProductsPage() {
           </InputLabel>
           <Select
             multiple
-            value={selectedSubcategory}
+            value={selectedSubcategories}
             onChange={handleSubcategoryChange}
             label="Филтриране на продуктите според избраните подкатегории"
             id="subcategory-select"
@@ -226,8 +226,8 @@ export default function DashboardProductsPage() {
             {subcategories
               .filter(
                 (subcategory) =>
-                  selectedCategory.length === 0 ||
-                  selectedCategory.includes(subcategory.categoryId)
+                  selectedCategories.length === 0 ||
+                  selectedCategories.includes(subcategory.categoryId)
               )
               .map((subcategory) => (
                 <MenuItem key={subcategory.id} value={subcategory.id}>
@@ -247,16 +247,18 @@ export default function DashboardProductsPage() {
           </div>
         )}
       </div>
-      {loading ? (
-        <Box className="flex justify-center items-center py-10 my-auto">
-          <CircularProgress message="Зареждане на продуктите..." />
-        </Box>
-      ) : currentItems.length === 0 ? (
-        <div className="text-center py-10">
-          <h2 className="text-2xl font-bold">Няма намерени продукти</h2>
-        </div>
-      ) : (
-        <>
+      <div>
+        {loading ? (
+          <Box className="flex justify-center items-center py-10 my-auto">
+            <CircularProgress message="Зареждане на продуктите..." />
+          </Box>
+        ) : currentItems.length === 0 ? (
+          <div className="container mx-auto px-4 mt-4 font-bold">
+            <p className="text-center text-2xl p-16 bg-white rounded-md text-gray-600">
+              Няма намерени продукти
+            </p>
+          </div>
+        ) : (
           <div className="container mx-auto py-4 lg:px-4">
             <div className="grid gap-10 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
               {currentItems.map((product) => (
@@ -276,8 +278,8 @@ export default function DashboardProductsPage() {
               />
             </div>
           </div>
-        </>
-      )}
+        )}
+      </div>
       <ConfirmationModal
         open={openModal}
         onClose={handleCloseModal}

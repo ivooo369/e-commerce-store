@@ -42,9 +42,11 @@ export default function DashboardEditProductPage() {
     const fetchData = async () => {
       try {
         if (id) {
-          const productResponse = await fetch(`/api/products/${id}`);
+          const productResponse = await fetch(`/api/dashboard/products/${id}`);
           if (!productResponse.ok)
-            throw new Error("Failed to fetch product data");
+            throw new Error(
+              "Възникна грешка при извличане на данните на продукта!"
+            );
           const productData = await productResponse.json();
           setProductName(productData.name);
           setProductCode(productData.code);
@@ -54,9 +56,9 @@ export default function DashboardEditProductPage() {
           setProductImageUrls(productData.images);
         }
 
-        const subcategoryResponse = await fetch("/api/subcategories");
+        const subcategoryResponse = await fetch("/api/dashboard/subcategories");
         if (!subcategoryResponse.ok)
-          throw new Error("Failed to fetch subcategories");
+          throw new Error("Възникна грешка при извличане на подкатегориите!");
         const subcategoryData = await subcategoryResponse.json();
         const sortedData = subcategoryData.sort(
           (a: { code: string }, b: { code: string }) =>
@@ -64,7 +66,7 @@ export default function DashboardEditProductPage() {
         );
         setSubcategories(sortedData);
       } catch (error) {
-        console.error("Error fetching data:", error);
+        console.error("Възникна грешка при извличане на данните:", error);
       } finally {
         setLoading(false);
       }
@@ -123,7 +125,7 @@ export default function DashboardEditProductPage() {
             )
           : productImageUrls.filter((url) => !imagesToRemove.includes(url));
 
-      const response = await fetch(`/api/products/${id}`, {
+      const response = await fetch(`/api/dashboard/products/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -142,7 +144,6 @@ export default function DashboardEditProductPage() {
       const responseData = await response.json();
 
       if (!response.ok) {
-        // Покажи съобщението за грешка от бекенда
         setAlert({
           message: responseData.error,
           severity: "error",
@@ -155,7 +156,6 @@ export default function DashboardEditProductPage() {
         severity: "success",
       });
 
-      // Нулиране на временни стойности
       setProductName("");
       setProductCode("");
       setSubcategoryIds([]);
@@ -165,13 +165,11 @@ export default function DashboardEditProductPage() {
       setSelectedFiles([]);
       setImagesToRemove([]);
 
-      // Пренасочване
       setTimeout(() => {
         router.push("/dashboard/products");
       }, 1000);
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      // Обработка на грешка, ако няма връзка с API или друга грешка
       setAlert({
         message: "Възникна грешка! Моля, опитайте отново!",
         severity: "error",
@@ -180,7 +178,6 @@ export default function DashboardEditProductPage() {
       setLoading(false);
       setIsEditing(false);
 
-      // Скриване на съобщението след определено време
       setTimeout(() => setAlert(null), 5000);
     }
   };
@@ -325,7 +322,7 @@ export default function DashboardEditProductPage() {
             sx={getCustomButtonStyles}
             disabled={isEditing}
           >
-            {isEditing ? "ЗАПАЗВАНЕ НА ПРОМЕНИТЕ..." : "ЗАПАЗИ ПРОМЕНИТЕ"}
+            {isEditing ? "ЗАПАЗВАНЕ..." : "ЗАПАЗИ ПРОМЕНИТЕ"}
           </Button>
           {alert && (
             <div className="mt-4">

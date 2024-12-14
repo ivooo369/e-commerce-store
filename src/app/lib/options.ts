@@ -25,7 +25,7 @@ export const authOptions = {
 
           return user;
         } catch (error) {
-          console.error("Authorization error:", error);
+          console.error("Грешка при оторизация:", error);
           throw new Error("Неправилно потребителско име или парола!");
         }
       },

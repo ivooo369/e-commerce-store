@@ -51,12 +51,12 @@ export default function DashboardSubcategoriesPage() {
     const fetchCategoriesAndSubcategories = async () => {
       try {
         const [categoriesResponse, subcategoriesResponse] = await Promise.all([
-          fetch("/api/categories"),
-          fetch("/api/subcategories"),
+          fetch("/api/dashboard/categories"),
+          fetch("/api/dashboard/subcategories"),
         ]);
 
         if (!categoriesResponse.ok || !subcategoriesResponse.ok) {
-          throw new Error("Failed to fetch data");
+          throw new Error("Възникна грешка при извличане на данните!");
         }
 
         const categoriesData = await categoriesResponse.json();
@@ -69,7 +69,10 @@ export default function DashboardSubcategoriesPage() {
         setCategories(categoriesData);
         setSubcategories(subcategoriesData);
       } catch (error) {
-        console.error("Error fetching categories or subcategories:", error);
+        console.error(
+          "Възникна грешка при изтриване на категориите или подкатегориите:",
+          error
+        );
       } finally {
         setLoading(false);
       }
@@ -99,7 +102,8 @@ export default function DashboardSubcategoriesPage() {
           }
         );
 
-        if (!response.ok) throw new Error("Failed to delete subcategory");
+        if (!response.ok)
+          throw new Error("Възникна грешка при изтриване на подкатегорията!");
 
         setSubcategories((prevSubcategories) =>
           prevSubcategories.filter(
@@ -107,7 +111,10 @@ export default function DashboardSubcategoriesPage() {
           )
         );
       } catch (error) {
-        console.error("Error deleting subcategory:", error);
+        console.error(
+          "Възникна грешка при изтриване на подкатегорията:",
+          error
+        );
       } finally {
         setDeleting(false);
         handleCloseSubcategoryModal();

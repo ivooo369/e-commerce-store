@@ -39,7 +39,7 @@ export default function ContactPage() {
     };
 
     try {
-      const response = await fetch("/api/messages", {
+      const response = await fetch("/api/dashboard/messages", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -74,7 +74,7 @@ export default function ContactPage() {
     } catch (error) {
       setLoading(false);
       setAlert({
-        message: "Грешка при обработка на заявката.",
+        message: "Възникна грешка при обработка на заявката!",
         severity: "error",
       });
       setTimeout(() => setAlert(null), 5000);

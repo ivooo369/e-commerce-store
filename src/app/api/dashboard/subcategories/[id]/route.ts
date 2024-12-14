@@ -16,16 +16,19 @@ export async function GET(
 
     if (!subcategory) {
       return NextResponse.json(
-        { error: "Subcategory not found" },
+        { error: "Подкатегорията не е намерена!" },
         { status: 404 }
       );
     }
 
     return NextResponse.json(subcategory, { status: 200 });
   } catch (error) {
-    console.error("Error fetching subcategory:", error);
+    console.error(
+      "Възникна грешка при извличане на данните на подкатегорията:",
+      error
+    );
     return NextResponse.json(
-      { error: "Failed to fetch subcategory" },
+      { error: "Възникна грешка при извличане на данните на подкатегорията!" },
       { status: 500 }
     );
   }
@@ -41,7 +44,6 @@ export async function PUT(
     const body = await request.json();
     const { name, code, categoryId } = body;
 
-    // Проверка за задължителни полета
     if (!name || !code || !categoryId) {
       return NextResponse.json(
         { error: "Всички полета са задължителни!" },
@@ -49,7 +51,6 @@ export async function PUT(
       );
     }
 
-    // Проверка дали подкатегорията съществува
     const existingSubcategory = await prisma.subcategory.findUnique({
       where: { id },
     });
@@ -61,7 +62,6 @@ export async function PUT(
       );
     }
 
-    // Проверка дали съществува подкатегория с това име (без текущата)
     const existingSubcategoryName = await prisma.subcategory.findFirst({
       where: {
         name,
@@ -76,7 +76,6 @@ export async function PUT(
       );
     }
 
-    // Проверка дали съществува подкатегория с този код (без текущата)
     const existingSubcategoryCode = await prisma.subcategory.findFirst({
       where: {
         code,
@@ -91,7 +90,6 @@ export async function PUT(
       );
     }
 
-    // Актуализиране на подкатегорията
     const updatedSubcategory = await prisma.subcategory.update({
       where: { id },
       data: {
@@ -103,7 +101,7 @@ export async function PUT(
 
     return NextResponse.json(
       {
-        message: "Подкатегорията е актуализирана успешно!",
+        message: "Подкатегорията е обновена успешно!",
         subcategory: updatedSubcategory,
       },
       { status: 200 }
@@ -123,13 +121,6 @@ export async function DELETE(
 ) {
   const { id } = params;
 
-  if (!id) {
-    return NextResponse.json(
-      { error: "Subcategory ID is required" },
-      { status: 400 }
-    );
-  }
-
   try {
     const subcategory = await prisma.subcategory.findUnique({
       where: { id },
@@ -140,7 +131,7 @@ export async function DELETE(
 
     if (!subcategory) {
       return NextResponse.json(
-        { error: "Subcategory not found" },
+        { error: "Подкатегорията не е намерена!" },
         { status: 404 }
       );
     }
@@ -151,7 +142,7 @@ export async function DELETE(
 
     if (!otherSubcategory) {
       return NextResponse.json(
-        { error: "Other subcategory not found" },
+        { error: "Подкатегорията 'Други' не е намерена!" },
         { status: 404 }
       );
     }
@@ -184,13 +175,13 @@ export async function DELETE(
     });
 
     return NextResponse.json(
-      { message: "Subcategory deleted successfully" },
+      { message: "Подкатегорията е изтрита успешно!" },
       { status: 200 }
     );
   } catch (error) {
-    console.error("Error deleting subcategory:", error);
+    console.error("Възникна грешка при изтриване на подкатегорията:", error);
     return NextResponse.json(
-      { error: "Failed to delete subcategory" },
+      { error: "Възникна грешка при изтриване на подкатегорията!" },
       { status: 500 }
     );
   }

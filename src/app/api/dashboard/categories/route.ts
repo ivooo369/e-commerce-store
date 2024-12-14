@@ -9,9 +9,12 @@ export async function GET() {
     const categories = await prisma.category.findMany();
     return NextResponse.json(categories, { status: 200 });
   } catch (error) {
-    console.error("Error fetching categories:", error);
+    console.error(
+      "Възникна грешка при извличане на данните на категориите:",
+      error
+    );
     return NextResponse.json(
-      { error: "Failed to fetch categories" },
+      { error: "Възникна грешка при извличане на данните на категориите!" },
       { status: 500 }
     );
   }
@@ -22,7 +25,6 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { name, code, imageUrl } = body;
 
-    // Проверка за задължителни полета без изображението
     if (!name || !code) {
       return NextResponse.json(
         { error: "Всички полета са задължителни!" },
@@ -30,7 +32,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // Отделна проверка за изображението
     if (!imageUrl) {
       return NextResponse.json(
         { error: "Трябва да качите изображение на категорията!" },
@@ -38,7 +39,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // Проверка дали съществува категория с това име
     const existingCategoryName = await prisma.category.findUnique({
       where: { name },
     });
@@ -52,7 +52,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // Проверка дали съществува категория с този код
     const existingCategory = await prisma.category.findUnique({
       where: { code },
     });
@@ -66,12 +65,10 @@ export async function POST(request: Request) {
       );
     }
 
-    // Качване на изображението
     const uploadResponse = await cloudinary.uploader.upload(imageUrl, {
       folder: "LIPCI/categories",
     });
 
-    // Създаване на нова категория
     const newCategory = await prisma.category.create({
       data: {
         name,

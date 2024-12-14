@@ -1,4 +1,3 @@
-import React from "react";
 import { Alert } from "@mui/material";
 
 interface AlertMessageProps {
@@ -6,7 +5,7 @@ interface AlertMessageProps {
   message: string;
 }
 
-const AlertMessage: React.FC<AlertMessageProps> = ({ severity, message }) => {
+export default function AlertMessage({ severity, message }: AlertMessageProps) {
   return (
     <Alert
       variant="filled"
@@ -17,6 +16,4 @@ const AlertMessage: React.FC<AlertMessageProps> = ({ severity, message }) => {
       {message}
     </Alert>
   );
-};
-
-export default AlertMessage;
+}

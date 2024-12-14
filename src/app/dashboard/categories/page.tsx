@@ -1,17 +1,17 @@
 "use client";
 
+import { useState, useEffect } from "react";
+import { Category } from "@prisma/client";
 import DashboardNav from "@/app/ui/dashboard/dashboard-primary-nav";
 import DashboardSecondaryNav from "@/app/ui/dashboard/dashboard-secondary-nav";
-import { useState, useEffect } from "react";
 import CategoryCard from "@/app/ui/components/category-card";
-import { Category } from "@prisma/client";
 import ConfirmationModal from "@/app/ui/components/confirmation-modal";
 import DashboardSearch from "@/app/ui/dashboard/dashboard-search";
 import CircularProgress from "@/app/ui/components/circular-progress";
-import Box from "@mui/material/Box";
 import PaginationButtons from "@/app/ui/components/pagination";
 import usePagination from "@/app/lib/usePagination";
 import { ITEMS_PER_PAGE } from "@/app/lib/usePagination";
+import Box from "@mui/material/Box";
 
 export default function DashboardCategoriesPage() {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -34,15 +34,21 @@ export default function DashboardCategoriesPage() {
     const fetchCategories = async () => {
       setLoading(true);
       try {
-        const response = await fetch("/api/categories");
-        if (!response.ok) throw new Error("Failed to fetch categories");
+        const response = await fetch("/api/dashboard/categories");
+        if (!response.ok)
+          throw new Error(
+            "Възникна грешка при извличане на данните на категорията!"
+          );
         const data: Category[] = await response.json();
 
         data.sort((a, b) => a.code.localeCompare(b.code));
 
         setCategories(data);
       } catch (error) {
-        console.error("Error fetching categories:", error);
+        console.error(
+          "Възникна грешка при извличане на данните на категорията:",
+          error
+        );
       } finally {
         setLoading(false);
       }
@@ -65,17 +71,21 @@ export default function DashboardCategoriesPage() {
     if (categoryToDelete) {
       setDeleting(true);
       try {
-        const response = await fetch(`/api/categories/${categoryToDelete}`, {
-          method: "DELETE",
-        });
+        const response = await fetch(
+          `/api/dashboard/categories/${categoryToDelete}`,
+          {
+            method: "DELETE",
+          }
+        );
 
-        if (!response.ok) throw new Error("Failed to delete category");
+        if (!response.ok)
+          throw new Error("Възникна грешка при изтриване на категорията!");
 
         setCategories((prevCategories) =>
           prevCategories.filter((category) => category.id !== categoryToDelete)
         );
       } catch (error) {
-        console.error("Error deleting category:", error);
+        console.error("Възникна грешка при изтриване на категорията:", error);
       } finally {
         setDeleting(false);
         handleCloseCategoryModal();

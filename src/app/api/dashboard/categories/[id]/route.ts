@@ -20,7 +20,7 @@ export async function GET(
 
     if (!category) {
       return NextResponse.json(
-        { error: "Category not found" },
+        { error: "Категорията не е намерена!" },
         { status: 404 }
       );
     }
@@ -37,9 +37,12 @@ export async function GET(
       { status: 200 }
     );
   } catch (error) {
-    console.error("Error fetching category:", error);
+    console.error(
+      "Възникна грешка при извличане на данните на категорията:",
+      error
+    );
     return NextResponse.json(
-      { error: "Failed to fetch category" },
+      { error: "Възникна грешка при извличане на данните на категорията!" },
       { status: 500 }
     );
   }
@@ -55,7 +58,6 @@ export async function PUT(
     const body = await request.json();
     const { name, code, imageUrl } = body;
 
-    // Проверка за липсващи полета
     if (!name || !code) {
       return NextResponse.json(
         { error: "Всички полета са задължителни!" },
@@ -63,7 +65,6 @@ export async function PUT(
       );
     }
 
-    // Проверка дали категорията съществува
     const existingCategory = await prisma.category.findUnique({
       where: { id },
     });
@@ -75,7 +76,6 @@ export async function PUT(
       );
     }
 
-    // Проверка дали съществува категория с това име, ако е различно от текущото
     const existingCategoryName = await prisma.category.findUnique({
       where: { name },
     });
@@ -87,7 +87,6 @@ export async function PUT(
       );
     }
 
-    // Проверка дали съществува категория с този код, ако е различно от текущия
     const existingCategoryCode = await prisma.category.findUnique({
       where: { code },
     });
@@ -99,7 +98,6 @@ export async function PUT(
       );
     }
 
-    // Ако няма изображение, но е необходимо такова
     if (imageUrl && !imageUrl.trim()) {
       return NextResponse.json(
         { error: "Трябва да качите изображение на категорията!" },
@@ -109,9 +107,7 @@ export async function PUT(
 
     let updatedImageUrl = existingCategory.imageUrl;
 
-    // Проверка дали има ново изображение
     if (imageUrl && imageUrl !== existingCategory.imageUrl) {
-      // Ако има старо изображение, изтриваме го
       if (existingCategory.imageUrl) {
         const publicId = existingCategory.imageUrl
           .split("/")
@@ -122,15 +118,13 @@ export async function PUT(
         }
       }
 
-      // Качване на новото изображение
       const uploadResult = await cloudinary.uploader.upload(imageUrl, {
         folder: "LIPCI/categories",
       });
 
-      updatedImageUrl = uploadResult.secure_url; // Използване на новото изображение
+      updatedImageUrl = uploadResult.secure_url;
     }
 
-    // Актуализиране на категорията
     const updatedCategory = await prisma.category.update({
       where: { id },
       data: {
@@ -142,7 +136,7 @@ export async function PUT(
 
     return NextResponse.json(
       {
-        message: "Категорията е актуализирана успешно!",
+        message: "Категорията е обновена успешно!",
         category: updatedCategory,
       },
       { status: 200 }
@@ -162,13 +156,6 @@ export async function DELETE(
 ) {
   const { id } = params;
 
-  if (!id) {
-    return NextResponse.json(
-      { error: "Category ID is required" },
-      { status: 400 }
-    );
-  }
-
   try {
     const category = await prisma.category.findUnique({
       where: { id },
@@ -177,7 +164,7 @@ export async function DELETE(
 
     if (!category) {
       return NextResponse.json(
-        { error: "Category not found" },
+        { error: "Категорията не е намерена!" },
         { status: 404 }
       );
     }
@@ -188,7 +175,7 @@ export async function DELETE(
 
     if (!otherCategory) {
       return NextResponse.json(
-        { error: "Other category not found" },
+        { error: "Категорията 'Други' не е намерена!" },
         { status: 404 }
       );
     }
@@ -236,13 +223,16 @@ export async function DELETE(
     });
 
     return NextResponse.json(
-      { message: "Category and subcategories deleted successfully" },
+      {
+        message:
+          "Категорията и свързаните с нея подкатегории са изтрити успешно!",
+      },
       { status: 200 }
     );
   } catch (error) {
-    console.error("Error deleting category:", error);
+    console.error("Възникна грешка при изтриването на категорията:", error);
     return NextResponse.json(
-      { error: "Failed to delete category" },
+      { error: "Възникна грешка при изтриването на категорията!" },
       { status: 500 }
     );
   }

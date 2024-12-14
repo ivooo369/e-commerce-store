@@ -1,7 +1,6 @@
 import { Button } from "@mui/material";
 import { FaTrash } from "react-icons/fa";
 
-// Define the type for the message object
 interface Message {
   id: string;
   name: string;
@@ -11,11 +10,10 @@ interface Message {
   createdAt: string;
 }
 
-// Define the type for the formatDate function
 interface MessageCardProps {
   message: Message;
   formatDate: (dateString: string) => string;
-  onDelete: (id: string) => void; // Add a callback prop for handling delete
+  onDelete: (id: string) => void;
 }
 
 export default function MessageCard({
@@ -23,24 +21,6 @@ export default function MessageCard({
   formatDate,
   onDelete,
 }: MessageCardProps) {
-  const handleDelete = async () => {
-    try {
-      const response = await fetch("/api/messages", {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: message.id }),
-      });
-
-      if (response.ok) {
-        onDelete(message.id); // Notify the parent component to remove the message
-      } else {
-        console.error("Failed to delete message");
-      }
-    } catch (error) {
-      console.error("Error deleting message", error);
-    }
-  };
-
   return (
     <div
       key={message.id}
@@ -71,7 +51,7 @@ export default function MessageCard({
             variant="contained"
             color="error"
             className="w-32 flex justify-center items-center gap-2 font-medium py-2"
-            onClick={handleDelete} // Handle delete
+            onClick={() => onDelete(message.id)}
           >
             <FaTrash /> Изтрий
           </Button>

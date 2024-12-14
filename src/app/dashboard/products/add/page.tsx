@@ -22,23 +22,22 @@ export default function DashboardAddNewProductPage() {
   const [description, setDescription] = useState("");
   const [productImageUrls, setProductImageUrls] = useState<string[]>([]);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [loading, setLoading] = useState(false);
   const [subcategories, setSubcategories] = useState<
     { id: string; name: string; code: string }[]
   >([]);
-
   const [alert, setAlert] = useState<{
     message: string;
     severity: "success" | "error";
   } | null>(null);
-
-  const [loading, setLoading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     const fetchSubcategories = async () => {
       try {
-        const response = await fetch("/api/subcategories");
-        if (!response.ok) throw new Error("Failed to fetch subcategories");
+        const response = await fetch("/api/dashboard/subcategories");
+        if (!response.ok)
+          throw new Error("Възникна грешка при извличане на подкатегориите!");
 
         const data = await response.json();
         const sortedData = data.sort(
@@ -47,7 +46,10 @@ export default function DashboardAddNewProductPage() {
         );
         setSubcategories(sortedData);
       } catch (error) {
-        console.error("Error fetching subcategories:", error);
+        console.error(
+          "Възникна грешка при извличане на подкатегориите:",
+          error
+        );
       }
     };
     fetchSubcategories();
@@ -98,7 +100,7 @@ export default function DashboardAddNewProductPage() {
             )
           : null;
 
-      const response = await fetch("/api/products", {
+      const response = await fetch("/api/dashboard/products", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -116,7 +118,6 @@ export default function DashboardAddNewProductPage() {
       const responseData = await response.json();
 
       if (!response.ok) {
-        // Покажи съобщението за грешка от бекенда
         setAlert({
           message: responseData.error,
           severity: "error",
@@ -124,13 +125,11 @@ export default function DashboardAddNewProductPage() {
         return;
       }
 
-      // Успешно съобщение от бекенда
       setAlert({
         message: responseData.message,
         severity: "success",
       });
 
-      // Нулиране на полетата
       setProductName("");
       setProductCode("");
       setSubcategoryIds([]);
@@ -141,7 +140,6 @@ export default function DashboardAddNewProductPage() {
       if (fileInputRef.current) fileInputRef.current.value = "";
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      // Ако няма връзка с API или друга грешка
       setAlert({
         message: "Възникна грешка при свързването с API.",
         severity: "error",
@@ -283,7 +281,7 @@ export default function DashboardAddNewProductPage() {
             disabled={loading}
             className="mt-4"
           >
-            {loading ? "ДОБАВЯНЕ НА НОВ ПРОДУКТ..." : "ДОБАВИ НОВ ПРОДУКТ"}
+            {loading ? "ДОБАВЯНЕ..." : "ДОБАВИ НОВ ПРОДУКТ"}
           </Button>
           {alert && (
             <div className="mt-4">

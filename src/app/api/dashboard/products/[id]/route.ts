@@ -23,7 +23,10 @@ export async function GET(
     });
 
     if (!product) {
-      return NextResponse.json({ error: "Product not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Продуктът не е намерен!" },
+        { status: 404 }
+      );
     }
 
     const subcategoryIds = product.subcategories.map(
@@ -42,9 +45,12 @@ export async function GET(
       { status: 200 }
     );
   } catch (error) {
-    console.error("Error fetching product:", error);
+    console.error(
+      "Възникна грешка при извличане на данните на продукта:",
+      error
+    );
     return NextResponse.json(
-      { error: "Failed to fetch product" },
+      { error: "Възникна грешка при извличане на данните на продукта!" },
       { status: 500 }
     );
   }
@@ -68,7 +74,6 @@ export async function PUT(
       imagesToRemove,
     } = body;
 
-    // Проверка за задължителни полета
     if (!name || !code || !price || !subcategoryIds) {
       return NextResponse.json(
         { error: "Всички полета са задължителни!" },
@@ -76,7 +81,6 @@ export async function PUT(
       );
     }
 
-    // Проверка за валидна цена
     if (isNaN(price) || price <= 0) {
       return NextResponse.json(
         { error: "Цената трябва да бъде валидно число и по-голямо от 0!" },
@@ -84,7 +88,6 @@ export async function PUT(
       );
     }
 
-    // Проверка за поне една снимка
     if (images && (!Array.isArray(images) || images.length === 0)) {
       return NextResponse.json(
         { error: "Трябва да качите поне едно изображение на продукта!" },
@@ -92,7 +95,6 @@ export async function PUT(
       );
     }
 
-    // Проверка дали кодът вече съществува (с изключение на текущия продукт)
     const existingProductWithCode = await prisma.product.findUnique({
       where: { code },
     });
@@ -106,7 +108,6 @@ export async function PUT(
       );
     }
 
-    // Проверка дали продуктът съществува
     const existingProduct = await prisma.product.findUnique({
       where: { id },
     });
@@ -118,7 +119,6 @@ export async function PUT(
       );
     }
 
-    // Функция за качване на нови изображения
     const handleImageUpload = async (images: string[]) => {
       const existingImageUrls = existingProduct.images || [];
       const newImagesToUpload = images.filter(
@@ -141,13 +141,11 @@ export async function PUT(
       newImageUrls.push(...uploadedImages);
     }
 
-    // Съществуващи снимки за запазване
     const imagesToKeep = existingProduct.images.filter(
       (img) => !imagesToRemove || !imagesToRemove.includes(img)
     );
     const combinedImages = [...imagesToKeep, ...newImageUrls];
 
-    // Обновяване на продукта
     const updatedProduct = await prisma.product.update({
       where: { id },
       data: {
@@ -159,12 +157,10 @@ export async function PUT(
       },
     });
 
-    // Изтриване на връзки с подкатегории
     await prisma.productSubcategory.deleteMany({
       where: { productId: id },
     });
 
-    // Създаване на нови връзки с подкатегории
     const createSubcategoryRelations = subcategoryIds.map(
       (subcategoryId: string) =>
         prisma.productSubcategory.create({
@@ -177,7 +173,6 @@ export async function PUT(
 
     await Promise.all(createSubcategoryRelations);
 
-    // Изтриване на снимки, които трябва да бъдат премахнати
     if (imagesToRemove) {
       const deleteImagePromises = imagesToRemove.map((imageUrl: string) => {
         const publicId = imageUrl.split("/").pop()?.split(".")[0];
@@ -188,7 +183,7 @@ export async function PUT(
 
     return NextResponse.json(
       {
-        message: "Продуктът е актуализиран успешно!",
+        message: "Продуктът е обновен успешно!",
         category: updatedProduct,
       },
       { status: 200 }
@@ -203,18 +198,11 @@ export async function PUT(
 }
 
 export async function DELETE(
-  req: Request,
+  request: Request,
   { params }: { params: { id: string } }
 ) {
   try {
     const { id } = params;
-
-    if (!id) {
-      return NextResponse.json(
-        { error: "Product ID is required" },
-        { status: 400 }
-      );
-    }
 
     const product = await prisma.product.findUnique({ where: { id } });
     if (product?.images) {
@@ -232,13 +220,13 @@ export async function DELETE(
     await prisma.product.delete({ where: { id } });
 
     return NextResponse.json(
-      { message: "Product deleted successfully" },
+      { message: "Продуктът е изтрит успешно!" },
       { status: 200 }
     );
   } catch (error) {
-    console.error("Error deleting product:", error);
+    console.error("Възникна грешка при изтриване на продукта:", error);
     return NextResponse.json(
-      { error: "Failed to delete product" },
+      { error: "Възникна грешка при изтриване на продукта!" },
       { status: 500 }
     );
   } finally {
