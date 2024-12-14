@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-export const ITEMS_PER_PAGE = 2;
+export const ITEMS_PER_PAGE = 12;
 
 export default function usePagination<T>(items: T[]) {
   const [currentPage, setCurrentPage] = useState(1);

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Product } from "@prisma/client";
 import ProductCard from "@/app/ui/components/product-card";
@@ -10,6 +10,14 @@ import { Box } from "@mui/material";
 import usePagination, { ITEMS_PER_PAGE } from "@/app/lib/usePagination";
 
 export default function ResultsPage() {
+  return (
+    <Suspense fallback={<CircularProgress message="Зареждане..." />}>
+      <Results />
+    </Suspense>
+  );
+}
+
+function Results() {
   const searchParams = useSearchParams();
   const query = searchParams.get("query");
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
