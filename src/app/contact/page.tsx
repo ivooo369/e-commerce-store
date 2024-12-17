@@ -22,7 +22,7 @@ export default function ContactPage() {
     severity: "success" | "error";
   } | null>(null);
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
 
@@ -79,7 +79,7 @@ export default function ContactPage() {
       });
       setTimeout(() => setAlert(null), 5000);
     }
-  }
+  };
 
   return (
     <div className="container m-auto p-8">
@@ -102,6 +102,7 @@ export default function ContactPage() {
             value={name}
             onChange={(e) => setName(e.target.value)}
             label="Име"
+            inputProps={{ maxLength: 100 }}
           />
         </FormControl>
         <FormControl fullWidth variant="outlined" className="mb-4" required>
@@ -113,6 +114,7 @@ export default function ContactPage() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             label="E-mail"
+            inputProps={{ maxLength: 255 }}
           />
         </FormControl>
         <FormControl fullWidth variant="outlined" className="mb-4" required>
@@ -123,6 +125,7 @@ export default function ContactPage() {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             label="Тема"
+            inputProps={{ maxLength: 100 }}
           />
         </FormControl>
         <TextField
@@ -137,6 +140,7 @@ export default function ContactPage() {
           fullWidth
           variant="outlined"
           className="mb-4"
+          inputProps={{ maxLength: 500 }}
         />
         <Button
           type="submit"

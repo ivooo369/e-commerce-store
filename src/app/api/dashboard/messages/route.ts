@@ -1,7 +1,16 @@
 import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
+import nodemailer from "nodemailer";
 
 const prisma = new PrismaClient();
+
+const transporter = nodemailer.createTransport({
+  service: "Gmail",
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+});
 
 export async function GET() {
   try {
@@ -43,12 +52,48 @@ export async function POST(request: Request) {
       },
     });
 
+    await transporter.sendMail({
+      from: `"${name}" <lipcidesignstudio@gmail.com>`,
+      to: "lipcidesignstudio@gmail.com",
+      replyTo: email,
+      subject: `${title}`,
+      text: content,
+      html: `
+      <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 20px auto 20px auto; border: 1px solid #e5e7eb; border-radius: 8px; max-width: 800px; overflow: hidden;">
+        <header style="background-color: #1E3A8A; color: #ffffff; padding: 0.6rem; text-align: center;">
+          <h2 class="header-text" style="margin: 0; font-size: 1.2rem;">Ново съобщение от контактната форма</h2>
+        </header>
+        <div class="content" style="font-size: 1rem; padding: 1rem; background-color: #f8fafc;">
+          <section style="margin-bottom: 0.5rem;">
+            <strong class="label" style="margin-right: 5px; color: #1f2937;">Име:</strong>
+            <span class="value" style="color: #4b5563;">${name}</span>
+          </section>
+          <section style="margin-bottom: 0.5rem;">
+            <strong class="label" style="margin-right: 5px; color: #1f2937;">Email:</strong>
+            <span class="value" style="color: #4b5563;">${email}</span>
+          </section>
+          <section style="margin-bottom: 0.5rem;">
+            <strong class="label" style="margin-right: 5px; color: #1f2937;">Тема:</strong>
+            <span class="value" style="color: #4b5563;">${title}</span>
+          </section>
+          <section>
+            <strong class="label" style="margin-right: 5px; color: #1f2937;">Съобщение:</strong>
+            <span class="value" style="color: #4b5563;">${content}</span>
+          </section>
+        </div>
+        <footer style="background-color: #1E3A8A; color: #ffffff; padding: 0.5rem; font-size: 0.9rem; text-align: center;">
+          <p class="footer-text" style="margin: 0;">Това съобщение е изпратено чрез контактната форма на сайта.</p>
+        </footer>
+      </div>
+    `,
+    });
+
     return NextResponse.json(
       { message: "Съобщението е изпратено успешно!", newMessage },
       { status: 201 }
     );
   } catch (error) {
-    console.error("Грешка при добавяне на съобщение:", error);
+    console.error("Грешка при обработка на съобщението:", error);
     return NextResponse.json(
       { error: "Възникна грешка при обработка на съобщението!" },
       { status: 500 }
