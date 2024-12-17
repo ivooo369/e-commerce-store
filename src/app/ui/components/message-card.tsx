@@ -2,17 +2,15 @@ import { Button } from "@mui/material";
 import { FaTrash } from "react-icons/fa";
 import { Message } from "@prisma/client";
 
-interface MessageCardProps {
-  message: Message;
-  formatDate: (date: Date) => string;
-  onDelete: (id: string) => void;
-}
-
 export default function MessageCard({
   message,
   formatDate,
   onDelete,
-}: MessageCardProps) {
+}: {
+  message: Message;
+  formatDate: (date: Date) => string;
+  onDelete: (id: string) => void;
+}) {
   return (
     <div
       key={message.id}

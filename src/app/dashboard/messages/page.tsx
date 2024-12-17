@@ -6,15 +6,7 @@ import { useEffect, useState } from "react";
 import Box from "@mui/material/Box";
 import CircularProgress from "@/app/ui/components/circular-progress";
 import ConfirmationModal from "@/app/ui/components/confirmation-modal";
-
-interface Message {
-  id: string;
-  name: string;
-  email: string;
-  title: string;
-  content: string;
-  createdAt: string;
-}
+import { Message } from "@prisma/client";
 
 export default function DashboardMessagesPage() {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -85,13 +77,13 @@ export default function DashboardMessagesPage() {
     }
   };
 
-  const formatMessageDate = (dateString: string) => {
-    const date = new Date(dateString);
-    const day = String(date.getDate()).padStart(2, "0");
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const year = date.getFullYear();
-    const hours = String(date.getHours()).padStart(2, "0");
-    const minutes = String(date.getMinutes()).padStart(2, "0");
+  const formatMessageDate = (date: Date | string) => {
+    const validDate = new Date(date);
+    const day = String(validDate.getDate()).padStart(2, "0");
+    const month = String(validDate.getMonth() + 1).padStart(2, "0");
+    const year = validDate.getFullYear();
+    const hours = String(validDate.getHours()).padStart(2, "0");
+    const minutes = String(validDate.getMinutes()).padStart(2, "0");
 
     return `${day}.${month}.${year} г. (${hours}:${minutes} ч.)`;
   };
