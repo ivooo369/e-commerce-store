@@ -52,12 +52,9 @@ export default function DashboardAddNewProductPage() {
         );
       }
     };
-    fetchSubcategories();
 
-    return () => {
-      productImageUrls.forEach((url) => URL.revokeObjectURL(url));
-    };
-  }, [productImageUrls]);
+    fetchSubcategories();
+  }, []);
 
   const handleImageRemove = (index: number) => {
     setProductImageUrls((prevUrls) => {
@@ -86,19 +83,18 @@ export default function DashboardAddNewProductPage() {
     setLoading(true);
 
     try {
-      const imageUrls =
-        selectedFiles.length > 0
-          ? await Promise.all(
-              selectedFiles.map(
-                (file) =>
-                  new Promise<string>((resolve) => {
-                    const reader = new FileReader();
-                    reader.onloadend = () => resolve(reader.result as string);
-                    reader.readAsDataURL(file);
-                  })
-              )
+      const imageUrls = selectedFiles.length
+        ? await Promise.all(
+            selectedFiles.map(
+              (file) =>
+                new Promise<string>((resolve) => {
+                  const reader = new FileReader();
+                  reader.onloadend = () => resolve(reader.result as string);
+                  reader.readAsDataURL(file);
+                })
             )
-          : null;
+          )
+        : [];
 
       const response = await fetch("/api/dashboard/products", {
         method: "POST",
@@ -159,9 +155,9 @@ export default function DashboardAddNewProductPage() {
         </h2>
         <form
           onSubmit={handleProductSubmit}
-          className="bg-white shadow-lg rounded-lg p-6"
+          className="bg-white shadow-lg rounded-lg p-6 space-y-4"
         >
-          <FormControl fullWidth variant="outlined" className="mb-4" required>
+          <FormControl fullWidth variant="outlined" required>
             <InputLabel htmlFor="product-name">Име на продукт</InputLabel>
             <OutlinedInput
               id="product-name"
@@ -170,7 +166,7 @@ export default function DashboardAddNewProductPage() {
               label="Име на продукт"
             />
           </FormControl>
-          <FormControl fullWidth variant="outlined" className="mb-4" required>
+          <FormControl fullWidth variant="outlined" required>
             <InputLabel htmlFor="product-code">Код на продукт</InputLabel>
             <OutlinedInput
               id="product-code"
@@ -179,7 +175,7 @@ export default function DashboardAddNewProductPage() {
               label="Код на продукт"
             />
           </FormControl>
-          <FormControl fullWidth variant="outlined" className="mb-4" required>
+          <FormControl fullWidth variant="outlined" required>
             <InputLabel htmlFor="subcategory-select">
               Изберете подкатегории
             </InputLabel>
@@ -199,7 +195,7 @@ export default function DashboardAddNewProductPage() {
               ))}
             </Select>
           </FormControl>
-          <FormControl fullWidth variant="outlined" className="mb-4" required>
+          <FormControl fullWidth variant="outlined" required>
             <InputLabel htmlFor="product-price">Цена (лв.)</InputLabel>
             <OutlinedInput
               id="product-price"
@@ -213,7 +209,7 @@ export default function DashboardAddNewProductPage() {
               label="Цена (лв.)"
             />
           </FormControl>
-          <FormControl fullWidth variant="outlined" className="mb-4" required>
+          <FormControl fullWidth variant="outlined" required>
             <InputLabel htmlFor="product-description">Описание</InputLabel>
             <OutlinedInput
               id="product-description"
@@ -239,7 +235,7 @@ export default function DashboardAddNewProductPage() {
                 variant="outlined"
                 component="span"
                 fullWidth
-                sx={{ textTransform: "none", height: "100%" }}
+                sx={{ textTransform: "none" }}
               >
                 {productImageUrls.length > 0
                   ? `Качени изображения (${productImageUrls.length})`
@@ -248,7 +244,7 @@ export default function DashboardAddNewProductPage() {
             </label>
           </Box>
           {productImageUrls.length > 0 && (
-            <div className="flex flex-wrap justify-center gap-10 mt-4">
+            <div className="flex flex-wrap justify-center gap-10">
               {productImageUrls.map((url, index) => (
                 <div
                   key={index}
@@ -256,7 +252,7 @@ export default function DashboardAddNewProductPage() {
                 >
                   <Image
                     src={url}
-                    alt={`Продукт изображение ${index + 1}`}
+                    alt={`Изображение на продукт: ${index + 1}`}
                     width={200}
                     height={200}
                     className="rounded-md"
@@ -279,14 +275,11 @@ export default function DashboardAddNewProductPage() {
             fullWidth
             sx={getCustomButtonStyles}
             disabled={loading}
-            className="mt-4"
           >
             {loading ? "ДОБАВЯНЕ..." : "ДОБАВИ НОВ ПРОДУКТ"}
           </Button>
           {alert && (
-            <div className="mt-4">
-              <AlertMessage severity={alert.severity} message={alert.message} />
-            </div>
+            <AlertMessage message={alert.message} severity={alert.severity} />
           )}
         </form>
       </div>

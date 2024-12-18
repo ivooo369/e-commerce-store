@@ -144,9 +144,9 @@ export default function DashboardEditCategoryPage() {
         </h2>
         <form
           onSubmit={handleCategorySubmit}
-          className="bg-white shadow-lg rounded-lg p-6"
+          className="bg-white shadow-lg rounded-lg p-6 space-y-4"
         >
-          <FormControl fullWidth variant="outlined" className="mb-4" required>
+          <FormControl fullWidth variant="outlined" required>
             <InputLabel htmlFor="category-name">Име на категория</InputLabel>
             <OutlinedInput
               id="category-name"
@@ -155,7 +155,7 @@ export default function DashboardEditCategoryPage() {
               label="Име на категория"
             />
           </FormControl>
-          <FormControl fullWidth variant="outlined" className="mb-4" required>
+          <FormControl fullWidth variant="outlined" required>
             <InputLabel htmlFor="category-code">Код на категория</InputLabel>
             <OutlinedInput
               id="category-code"
@@ -190,7 +190,7 @@ export default function DashboardEditCategoryPage() {
           </Box>
           <div className="flex justify-center">
             {categoryImageUrl && (
-              <div className="flex justify-center items-center mt-4">
+              <div className="flex justify-center items-center">
                 <Image
                   src={categoryImageUrl}
                   alt={`Продукт изображение ${categoryImageUrl}`}
@@ -205,14 +205,13 @@ export default function DashboardEditCategoryPage() {
             type="submit"
             variant="contained"
             color="primary"
-            className="mt-4"
             sx={getCustomButtonStyles}
             disabled={isEditing}
           >
             {isEditing ? "ЗАПАЗВАНЕ..." : "ЗАПАЗИ ПРОМЕНИТЕ"}
           </Button>
           {alert && (
-            <div className="mt-4">
+            <div>
               <AlertMessage severity={alert.severity} message={alert.message} />
             </div>
           )}

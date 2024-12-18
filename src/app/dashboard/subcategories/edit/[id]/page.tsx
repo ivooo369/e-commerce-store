@@ -134,9 +134,9 @@ export default function DashboardEditSubcategoryPage() {
         </h2>
         <form
           onSubmit={handleSubcategorySubmit}
-          className="bg-white shadow-lg rounded-lg p-6"
+          className="bg-white shadow-lg rounded-lg p-6 space-y-4"
         >
-          <FormControl fullWidth variant="outlined" className="mb-4" required>
+          <FormControl fullWidth variant="outlined" required>
             <InputLabel htmlFor="subcategory-name">
               Име на подкатегория
             </InputLabel>
@@ -147,7 +147,7 @@ export default function DashboardEditSubcategoryPage() {
               label="Име на подкатегория"
             />
           </FormControl>
-          <FormControl fullWidth variant="outlined" className="mb-4" required>
+          <FormControl fullWidth variant="outlined" required>
             <InputLabel htmlFor="subcategory-code">
               Код на подкатегория
             </InputLabel>
@@ -158,7 +158,7 @@ export default function DashboardEditSubcategoryPage() {
               label="Код на подкатегория"
             />
           </FormControl>
-          <FormControl fullWidth variant="outlined" className="mb-4" required>
+          <FormControl fullWidth variant="outlined" required>
             <InputLabel htmlFor="category-select">
               Изберете категория
             </InputLabel>
@@ -185,7 +185,7 @@ export default function DashboardEditSubcategoryPage() {
             {isEditing ? "ЗАПАЗВАНЕ..." : "ЗАПАЗИ ПРОМЕНИТЕ"}
           </Button>
           {alert && (
-            <div className="mt-4">
+            <div>
               <AlertMessage severity={alert.severity} message={alert.message} />
             </div>
           )}

@@ -199,9 +199,9 @@ export default function DashboardEditProductPage() {
         </h2>
         <form
           onSubmit={handleProductSubmit}
-          className="bg-white shadow-lg rounded-lg p-6"
+          className="bg-white shadow-lg rounded-lg p-6 space-y-4"
         >
-          <FormControl fullWidth variant="outlined" className="mb-4" required>
+          <FormControl fullWidth variant="outlined" required>
             <InputLabel htmlFor="product-name">Име на продукт</InputLabel>
             <OutlinedInput
               id="product-name"
@@ -210,7 +210,7 @@ export default function DashboardEditProductPage() {
               label="Име на продукт"
             />
           </FormControl>
-          <FormControl fullWidth variant="outlined" className="mb-4" required>
+          <FormControl fullWidth variant="outlined" required>
             <InputLabel htmlFor="product-code">Код на продукт</InputLabel>
             <OutlinedInput
               id="product-code"
@@ -219,7 +219,7 @@ export default function DashboardEditProductPage() {
               label="Код на продукт"
             />
           </FormControl>
-          <FormControl fullWidth variant="outlined" className="mb-4" required>
+          <FormControl fullWidth variant="outlined" required>
             <InputLabel htmlFor="subcategory-select">
               Изберете подкатегории
             </InputLabel>
@@ -239,7 +239,7 @@ export default function DashboardEditProductPage() {
               ))}
             </Select>
           </FormControl>
-          <FormControl fullWidth variant="outlined" className="mb-4" required>
+          <FormControl fullWidth variant="outlined" required>
             <InputLabel htmlFor="product-price">Цена (лв.)</InputLabel>
             <OutlinedInput
               id="product-price"
@@ -253,7 +253,7 @@ export default function DashboardEditProductPage() {
               label="Цена (лв.) *"
             />
           </FormControl>
-          <FormControl fullWidth variant="outlined" className="mb-4" required>
+          <FormControl fullWidth variant="outlined" required>
             <InputLabel htmlFor="product-description">Описание</InputLabel>
             <OutlinedInput
               id="product-description"
@@ -287,45 +287,44 @@ export default function DashboardEditProductPage() {
               </Button>
             </label>
           </Box>
-          <div className="flex justify-center">
-            {productImageUrls.length > 0 && (
-              <div className="flex flex-wrap justify-center gap-10 mt-4">
-                {productImageUrls.map((url, index) => (
-                  <div
-                    key={index}
-                    className="relative flex justify-center items-center"
+          {productImageUrls.length > 0 && (
+            <div className="flex flex-wrap justify-center gap-10">
+              {productImageUrls.map((url, index) => (
+                <div
+                  key={index}
+                  className="relative flex justify-center items-center"
+                >
+                  <Image
+                    src={url}
+                    alt={`Продукт изображение ${index + 1}`}
+                    width={200}
+                    height={200}
+                    className="rounded-md"
+                  />
+                  <button
+                    type="button"
+                    className="absolute top-0 right-0 p-2 bg-red-600 hover:bg-red-800 transition text-white rounded-full"
+                    onClick={() => handleImageRemove(index)}
                   >
-                    <Image
-                      src={url}
-                      alt={`Продукт изображение ${index + 1}`}
-                      width={200}
-                      height={200}
-                      className="rounded-md"
-                    />
-                    <button
-                      type="button"
-                      className="absolute top-0 right-0 p-2 bg-red-600 hover:bg-red-800 transition text-white rounded-full"
-                      onClick={() => handleImageRemove(index)}
-                    >
-                      <FaTrash />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
+                    <FaTrash />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+          <div>
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+              sx={getCustomButtonStyles}
+              disabled={isEditing}
+            >
+              {isEditing ? "ЗАПАЗВАНЕ..." : "ЗАПАЗИ ПРОМЕНИТЕ"}
+            </Button>
           </div>
-          <Button
-            type="submit"
-            variant="contained"
-            color="primary"
-            className="mt-4"
-            sx={getCustomButtonStyles}
-            disabled={isEditing}
-          >
-            {isEditing ? "ЗАПАЗВАНЕ..." : "ЗАПАЗИ ПРОМЕНИТЕ"}
-          </Button>
           {alert && (
-            <div className="mt-4">
+            <div>
               <AlertMessage severity={alert.severity} message={alert.message} />
             </div>
           )}

@@ -176,7 +176,6 @@ export default function CategoryPageServerComponent({
             <span>{priceRange[1]} лв</span>
           </div>
         </Box>
-
         {filteredProducts.length > 0 && (
           <div className="pb-2">
             <PaginationButtons

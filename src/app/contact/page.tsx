@@ -92,9 +92,9 @@ export default function ContactPage() {
       </p>
       <form
         onSubmit={handleSubmit}
-        className="bg-white shadow-lg rounded-lg p-6"
+        className="bg-white shadow-lg rounded-lg p-6 space-y-4"
       >
-        <FormControl fullWidth variant="outlined" className="mb-4" required>
+        <FormControl fullWidth variant="outlined" required>
           <InputLabel htmlFor="name">Име</InputLabel>
           <OutlinedInput
             id="name"
@@ -105,7 +105,7 @@ export default function ContactPage() {
             inputProps={{ maxLength: 100 }}
           />
         </FormControl>
-        <FormControl fullWidth variant="outlined" className="mb-4" required>
+        <FormControl fullWidth variant="outlined" required>
           <InputLabel htmlFor="email">E-mail</InputLabel>
           <OutlinedInput
             id="email"
@@ -117,7 +117,7 @@ export default function ContactPage() {
             inputProps={{ maxLength: 255 }}
           />
         </FormControl>
-        <FormControl fullWidth variant="outlined" className="mb-4" required>
+        <FormControl fullWidth variant="outlined" required>
           <InputLabel htmlFor="title">Тема</InputLabel>
           <OutlinedInput
             id="title"
@@ -139,7 +139,6 @@ export default function ContactPage() {
           onChange={(e) => setContent(e.target.value)}
           fullWidth
           variant="outlined"
-          className="mb-4"
           slotProps={{
             htmlInput: { maxLength: 500 },
           }}
@@ -155,7 +154,7 @@ export default function ContactPage() {
           {loading ? "Изпращане..." : "Изпрати съобщение"}
         </Button>
         {alert && (
-          <div className="mt-4">
+          <div>
             <AlertMessage severity={alert.severity} message={alert.message} />
           </div>
         )}

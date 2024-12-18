@@ -45,7 +45,7 @@ export default async function HomePage() {
                 className="w-full h-48 object-cover mb-4 rounded"
               />
               <p className="text-md text-gray-500 font-semibold">
-                {category.code}
+                Код: {category.code}
               </p>
               <h2 className="text-lg font-bold">{category.name}</h2>
             </Link>

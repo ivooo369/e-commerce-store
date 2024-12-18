@@ -177,17 +177,12 @@ export default function DashboardAddCategoriesAndSubcategoriesPage() {
           <div className="flex-1">
             <form
               onSubmit={handleCategorySubmit}
-              className="bg-white shadow-lg rounded-lg p-6"
+              className="bg-white shadow-lg rounded-lg p-6 space-y-4"
             >
-              <h2 className="text-2xl font-semibold mb-6 text-center">
+              <h2 className="text-2xl font-semibold text-center">
                 Нова категория
               </h2>
-              <FormControl
-                fullWidth
-                variant="outlined"
-                className="mb-4"
-                required
-              >
+              <FormControl fullWidth variant="outlined" required>
                 <InputLabel htmlFor="category-name">
                   Име на категория
                 </InputLabel>
@@ -198,12 +193,7 @@ export default function DashboardAddCategoriesAndSubcategoriesPage() {
                   label="Име на категория"
                 />
               </FormControl>
-              <FormControl
-                fullWidth
-                variant="outlined"
-                className="mb-4"
-                required
-              >
+              <FormControl fullWidth variant="outlined" required>
                 <InputLabel htmlFor="category-code">
                   Код на категория
                 </InputLabel>
@@ -228,39 +218,38 @@ export default function DashboardAddCategoriesAndSubcategoriesPage() {
                     variant="outlined"
                     component="span"
                     fullWidth
-                    sx={{ textTransform: "none", height: "100%" }}
+                    sx={{ textTransform: "none" }}
                   >
                     {selectedFile ? selectedFile.name : "Качете изображение *"}
                   </Button>
                 </label>
               </Box>
-              <div className="flex justify-center">
+              <div>
                 {selectedFile && (
-                  <div className="flex justify-center mt-4">
-                    <div className="w-[200px] h-auto">
-                      <Image
-                        src={categoryImageUrl}
-                        alt="Selected Category"
-                        width={200}
-                        height={200}
-                        style={{ maxHeight: "250px" }}
-                      />
-                    </div>
+                  <div className="relative flex justify-center items-center">
+                    <Image
+                      src={categoryImageUrl}
+                      alt={`Изображение с име: ${selectedFile}`}
+                      width={200}
+                      height={200}
+                      className="rounded-md"
+                    />
                   </div>
                 )}
               </div>
-              <Button
-                type="submit"
-                variant="contained"
-                color="primary"
-                className="mt-4"
-                sx={getCustomButtonStyles}
-                disabled={loadingCategory}
-              >
-                {loadingCategory ? "Добавяне..." : "Добави нова категория"}
-              </Button>
+              <div>
+                <Button
+                  type="submit"
+                  variant="contained"
+                  color="primary"
+                  sx={getCustomButtonStyles}
+                  disabled={loadingCategory}
+                >
+                  {loadingCategory ? "Добавяне..." : "Добави нова категория"}
+                </Button>
+              </div>
               {alertCategory && (
-                <div className="mt-4">
+                <div>
                   <AlertMessage
                     severity={alertCategory.severity}
                     message={alertCategory.message}
@@ -272,17 +261,12 @@ export default function DashboardAddCategoriesAndSubcategoriesPage() {
           <div className="flex-1">
             <form
               onSubmit={handleSubcategorySubmit}
-              className="bg-white shadow-lg rounded-lg p-6"
+              className="bg-white shadow-lg rounded-lg p-6 space-y-4"
             >
-              <h2 className="text-2xl font-semibold mb-6 text-center">
+              <h2 className="text-2xl font-semibold text-center">
                 Нова подкатегория
               </h2>
-              <FormControl
-                fullWidth
-                variant="outlined"
-                className="mb-4"
-                required
-              >
+              <FormControl fullWidth variant="outlined" required>
                 <InputLabel htmlFor="subcategory-name">
                   Име на подкатегория
                 </InputLabel>
@@ -293,12 +277,7 @@ export default function DashboardAddCategoriesAndSubcategoriesPage() {
                   label="Име на подкатегория"
                 />
               </FormControl>
-              <FormControl
-                fullWidth
-                variant="outlined"
-                className="mb-4"
-                required
-              >
+              <FormControl fullWidth variant="outlined" required>
                 <InputLabel htmlFor="subcategory-code">
                   Код на подкатегория
                 </InputLabel>
@@ -309,7 +288,7 @@ export default function DashboardAddCategoriesAndSubcategoriesPage() {
                   label="Код на подкатегория"
                 />
               </FormControl>
-              <FormControl fullWidth className="mb-4">
+              <FormControl fullWidth>
                 <InputLabel>Категория</InputLabel>
                 <Select
                   label="Категория"
@@ -336,7 +315,7 @@ export default function DashboardAddCategoriesAndSubcategoriesPage() {
                   : "Добави нова подкатегория"}
               </Button>
               {alertSubcategory && (
-                <div className="mt-4">
+                <div>
                   <AlertMessage
                     severity={alertSubcategory.severity}
                     message={alertSubcategory.message}
