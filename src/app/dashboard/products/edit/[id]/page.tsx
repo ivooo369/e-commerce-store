@@ -44,9 +44,7 @@ export default function DashboardEditProductPage() {
         if (id) {
           const productResponse = await fetch(`/api/dashboard/products/${id}`);
           if (!productResponse.ok)
-            throw new Error(
-              "Възникна грешка при извличане на данните на продукта!"
-            );
+            throw new Error("Възникна грешка при извличане на продукта!");
           const productData = await productResponse.json();
           setProductName(productData.name);
           setProductCode(productData.code);
@@ -320,7 +318,7 @@ export default function DashboardEditProductPage() {
               sx={getCustomButtonStyles}
               disabled={isEditing}
             >
-              {isEditing ? "ЗАПАЗВАНЕ..." : "ЗАПАЗИ ПРОМЕНИТЕ"}
+              {isEditing ? "Запазване..." : "Запази промените"}
             </Button>
           </div>
           {alert && (

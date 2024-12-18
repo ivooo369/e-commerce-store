@@ -35,7 +35,7 @@ export default function MainSearch() {
           setLoading(false);
         })
         .catch((error) => {
-          console.error("Error fetching products:", error);
+          console.error("Възникна грешка при извличане на продуктите:", error);
           setLoading(false);
         });
     } else {

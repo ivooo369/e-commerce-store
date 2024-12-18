@@ -24,13 +24,13 @@ export default function Header() {
       try {
         const response = await fetch("/api/public/categories");
         if (!response.ok) {
-          throw new Error("Неуспешно извличане на категориите");
+          throw new Error("Възникна грешка при извличане на категориите!");
         }
         const data = await response.json();
         setCategories(data.map((category: { name: string }) => category.name));
         setIsLoading(false);
       } catch (error) {
-        console.error("Грешка при извличане на категориите:", error);
+        console.error("Възникна грешка при извличане на категориите:", error);
         setIsLoading(false);
       }
     };

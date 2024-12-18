@@ -40,7 +40,7 @@ function Results() {
           setLoading(false);
         })
         .catch((error) => {
-          console.error("Error fetching products:", error);
+          console.error("Възникна грешка при извличане на продуктите:", error);
           setFilteredProducts([]);
           setLoading(false);
         });

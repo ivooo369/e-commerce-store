@@ -10,8 +10,15 @@ export default function AlertMessage({ severity, message }: AlertMessageProps) {
     <Alert
       variant="filled"
       severity={severity}
-      sx={{ marginBottom: "1rem" }}
-      className="justify-center gap-1 text-base m-0 font-bold"
+      sx={{
+        display: "flex",
+        justifyContent: "center",
+        gap: "0.25rem",
+        fontSize: "1rem",
+        marginBottom: "1rem",
+        margin: 0,
+        fontWeight: "bold",
+      }}
     >
       {message}
     </Alert>

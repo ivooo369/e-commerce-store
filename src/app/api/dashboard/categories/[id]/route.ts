@@ -37,12 +37,9 @@ export async function GET(
       { status: 200 }
     );
   } catch (error) {
-    console.error(
-      "Възникна грешка при извличане на данните на категорията:",
-      error
-    );
+    console.error("Възникна грешка при извличане на категорията:", error);
     return NextResponse.json(
-      { error: "Възникна грешка при извличане на данните на категорията!" },
+      { error: "Възникна грешка при извличане на категорията!" },
       { status: 500 }
     );
   }
@@ -142,9 +139,9 @@ export async function PUT(
       { status: 200 }
     );
   } catch (error) {
-    console.error("Грешка при редактиране на категория:", error);
+    console.error("Възникна грешка при редактиране на категорията:", error);
     return NextResponse.json(
-      { error: "Възникна грешка! Моля, опитайте отново!" },
+      { error: "Възникна грешка при редактиране на категорията!" },
       { status: 500 }
     );
   }

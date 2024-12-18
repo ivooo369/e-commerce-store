@@ -23,7 +23,10 @@ export default async function CategoryPage({
       });
     }
   } catch (error) {
-    console.error("Error fetching data:", error);
+    console.error(
+      "Възникна грешка при извличане на категориите или подкатегориите:",
+      error
+    );
   }
 
   if (!category) {

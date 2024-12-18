@@ -83,13 +83,13 @@ export default function CategoryPageServerComponent({
           setProducts(fetchedProducts);
         } else {
           console.error(
-            "Expected an array of products, received:",
+            "Очакван е масив от продукти, а е получено:",
             fetchedProducts
           );
           setProducts([]);
         }
       } catch (error) {
-        console.error("Error fetching products:", error);
+        console.error("Възникна грешка при извличане на продуктите:", error);
         setProducts([]);
       } finally {
         setLoading(false);

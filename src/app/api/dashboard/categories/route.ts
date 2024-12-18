@@ -9,12 +9,9 @@ export async function GET() {
     const categories = await prisma.category.findMany();
     return NextResponse.json(categories, { status: 200 });
   } catch (error) {
-    console.error(
-      "Възникна грешка при извличане на данните на категориите:",
-      error
-    );
+    console.error("Възникна грешка при извличане на категориите:", error);
     return NextResponse.json(
-      { error: "Възникна грешка при извличане на данните на категориите!" },
+      { error: "Възникна грешка при извличане на категориите!" },
       { status: 500 }
     );
   }
@@ -82,9 +79,9 @@ export async function POST(request: Request) {
       { status: 201 }
     );
   } catch (error) {
-    console.error("Грешка при добавяне на категория:", error);
+    console.error("Възникна грешка при добавяне на категорията:", error);
     return NextResponse.json(
-      { error: "Възникна грешка! Моля, опитайте отново!" },
+      { error: "Възникна грешка при добавяне на категорията!" },
       { status: 500 }
     );
   }

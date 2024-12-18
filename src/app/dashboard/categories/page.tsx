@@ -36,19 +36,14 @@ export default function DashboardCategoriesPage() {
       try {
         const response = await fetch("/api/dashboard/categories");
         if (!response.ok)
-          throw new Error(
-            "Възникна грешка при извличане на данните на категорията!"
-          );
+          throw new Error("Възникна грешка при извличане на категорията!");
         const data: Category[] = await response.json();
 
         data.sort((a, b) => a.code.localeCompare(b.code));
 
         setCategories(data);
       } catch (error) {
-        console.error(
-          "Възникна грешка при извличане на данните на категорията:",
-          error
-        );
+        console.error("Възникна грешка при извличане на категорията:", error);
       } finally {
         setLoading(false);
       }

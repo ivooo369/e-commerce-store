@@ -24,15 +24,10 @@ export default function DashboardMessagesPage() {
           const data = await response.json();
           setMessages(data);
         } else {
-          console.error(
-            "Възникна грешка при извличане на данните на съобщенията!"
-          );
+          console.error("Възникна грешка при извличане на съобщенията!");
         }
       } catch (error) {
-        console.error(
-          "Възникна грешка при извличане на данните на съобщенията:",
-          error
-        );
+        console.error("Възникна грешка при извличане на съобщенията:", error);
       } finally {
         setLoading(false);
       }

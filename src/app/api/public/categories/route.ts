@@ -8,12 +8,9 @@ export async function GET() {
     const categories = await prisma.category.findMany();
     return NextResponse.json(categories, { status: 200 });
   } catch (error) {
-    console.error(
-      "Възникна грешка при извличане на данните на категориите:",
-      error
-    );
+    console.error("Възникна грешка при извличане на категориите:", error);
     return NextResponse.json(
-      { error: "Възникна грешка при извличане на данните на категориите!" },
+      { error: "Възникна грешка при извличане на категориите!" },
       { status: 500 }
     );
   }

@@ -23,12 +23,9 @@ export async function GET(
 
     return NextResponse.json(subcategory, { status: 200 });
   } catch (error) {
-    console.error(
-      "Възникна грешка при извличане на данните на подкатегорията:",
-      error
-    );
+    console.error("Възникна грешка при извличане на подкатегорията:", error);
     return NextResponse.json(
-      { error: "Възникна грешка при извличане на данните на подкатегорията!" },
+      { error: "Възникна грешка при извличане на подкатегорията!" },
       { status: 500 }
     );
   }

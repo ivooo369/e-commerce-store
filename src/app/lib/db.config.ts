@@ -16,7 +16,7 @@ export const connectToDatabase = async () => {
     await dbClient.connect();
     console.log("Успешно свързване с базата данни");
   } catch (error) {
-    console.error("Грешка при свързване с базата данни:", error);
+    console.error("Възникна грешка при свързване с базата данни:", error);
   }
 };
 

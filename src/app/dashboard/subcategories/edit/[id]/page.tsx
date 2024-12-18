@@ -45,14 +45,17 @@ export default function DashboardEditSubcategoryPage() {
             `/api/dashboard/subcategories/${id}`
           );
           if (!subcategoryResponse.ok)
-            throw new Error("Failed to fetch subcategory data");
+            throw new Error("Възникна грешка при извличане на подкатегорията!");
           const subcategoryData = await subcategoryResponse.json();
           setSubcategoryName(subcategoryData.name);
           setSubcategoryCode(subcategoryData.code);
           setSelectedCategoryId(subcategoryData.categoryId);
         }
       } catch (error) {
-        console.error("Error fetching data:", error);
+        console.error(
+          "Възникна грешка при извличане на подкатегорията:",
+          error
+        );
       } finally {
         setLoading(false);
       }
@@ -182,7 +185,7 @@ export default function DashboardEditSubcategoryPage() {
             sx={getCustomButtonStyles}
             disabled={isEditing}
           >
-            {isEditing ? "ЗАПАЗВАНЕ..." : "ЗАПАЗИ ПРОМЕНИТЕ"}
+            {isEditing ? "Запазване..." : "Запази промените"}
           </Button>
           {alert && (
             <div>

@@ -276,7 +276,7 @@ export default function DashboardAddNewProductPage() {
             sx={getCustomButtonStyles}
             disabled={loading}
           >
-            {loading ? "ДОБАВЯНЕ..." : "ДОБАВИ НОВ ПРОДУКТ"}
+            {loading ? "Добавяне..." : "Добави нов продукт"}
           </Button>
           {alert && (
             <AlertMessage message={alert.message} severity={alert.severity} />

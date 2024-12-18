@@ -110,7 +110,7 @@ export default function DashboardLoginPage() {
             {loading ? "Влизане..." : "Вход"}
           </Button>
           {alert && (
-            <div className="mb-4">
+            <div>
               <AlertMessage severity={alert.severity} message={alert.message} />
             </div>
           )}

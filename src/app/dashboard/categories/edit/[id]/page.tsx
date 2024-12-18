@@ -37,19 +37,14 @@ export default function DashboardEditCategoryPage() {
             `/api/dashboard/categories/${id}`
           );
           if (!categoryResponse.ok)
-            throw new Error(
-              "Възникна грешка при извличане на данните на категорията!"
-            );
+            throw new Error("Възникна грешка при извличане на категорията!");
           const categoryData = await categoryResponse.json();
           setCategoryName(categoryData.name);
           setCategoryCode(categoryData.code);
           setCategoryImageUrl(categoryData.imageUrl || "");
         }
       } catch (error) {
-        console.error(
-          "Възникна грешка при извличане на данните на категорията:",
-          error
-        );
+        console.error("Възникна грешка при извличане на категорията:", error);
       } finally {
         setLoading(false);
       }
@@ -208,7 +203,7 @@ export default function DashboardEditCategoryPage() {
             sx={getCustomButtonStyles}
             disabled={isEditing}
           >
-            {isEditing ? "ЗАПАЗВАНЕ..." : "ЗАПАЗИ ПРОМЕНИТЕ"}
+            {isEditing ? "Запазване..." : "Запази промените"}
           </Button>
           {alert && (
             <div>

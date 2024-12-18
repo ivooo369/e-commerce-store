@@ -18,11 +18,10 @@ export async function GET() {
 
     return NextResponse.json(products, { status: 200 });
   } catch (error) {
-    console.error("Грешка при зареждане на продуктите:", error);
+    console.error("Възникна грешка при извличане на продуктите:", error);
     return NextResponse.json(
       {
-        error:
-          "Възникна грешка при зареждане на продуктите! Моля, опитайте отново по-късно!",
+        error: "Възникна грешка при извличане на продуктите!",
       },
       { status: 500 }
     );
@@ -101,6 +100,6 @@ export async function POST(request: Request) {
       { status: 201 }
     );
   } catch (error) {
-    console.error("Грешка при добавяне на продукта:", error);
+    console.error("Възникна грешка при добавяне на продукта:", error);
   }
 }

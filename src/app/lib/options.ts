@@ -25,7 +25,7 @@ export const authOptions = {
 
           return user;
         } catch (error) {
-          console.error("Грешка при оторизация:", error);
+          console.error("Възникна грешка при оторизацията:", error);
           throw new Error("Неправилно потребителско име или парола!");
         }
       },

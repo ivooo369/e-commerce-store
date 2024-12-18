@@ -54,9 +54,9 @@ export async function GET(request: Request) {
 
     return NextResponse.json(products, { status: 200 });
   } catch (error) {
-    console.error("Error fetching products:", error);
+    console.error("Възникна грешка при извличане на продуктите:", error);
     return NextResponse.json(
-      { error: "Грешка при зареждане на продуктите." },
+      { error: "Възникна грешка при извличане на продуктите!" },
       { status: 500 }
     );
   }

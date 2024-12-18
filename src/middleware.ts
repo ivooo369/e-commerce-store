@@ -18,7 +18,10 @@ export async function middleware(request: NextRequest) {
   }
 
   if (isApiRoute && !token) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json(
+      { error: "Неоторизиран достъп!" },
+      { status: 401 }
+    );
   }
 
   return NextResponse.next();

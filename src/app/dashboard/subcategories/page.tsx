@@ -56,7 +56,9 @@ export default function DashboardSubcategoriesPage() {
         ]);
 
         if (!categoriesResponse.ok || !subcategoriesResponse.ok) {
-          throw new Error("Възникна грешка при извличане на данните!");
+          throw new Error(
+            "Възникна грешка при извличане на категориите или подкатегориите!"
+          );
         }
 
         const categoriesData = await categoriesResponse.json();
@@ -70,7 +72,7 @@ export default function DashboardSubcategoriesPage() {
         setSubcategories(subcategoriesData);
       } catch (error) {
         console.error(
-          "Възникна грешка при изтриване на категориите или подкатегориите:",
+          "Възникна грешка при извличане на категориите или подкатегориите:",
           error
         );
       } finally {

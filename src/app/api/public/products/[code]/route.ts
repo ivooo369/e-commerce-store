@@ -44,12 +44,9 @@ export async function GET(
       { status: 200 }
     );
   } catch (error) {
-    console.error(
-      "Възникна грешка при извличане на данните на продукта:",
-      error
-    );
+    console.error("Възникна грешка при извличане на продукта:", error);
     return NextResponse.json(
-      { error: "Възникна грешка при извличане на данните на продукта!" },
+      { error: "Възникна грешка при извличане на продукта!" },
       { status: 500 }
     );
   }

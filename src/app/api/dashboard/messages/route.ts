@@ -20,12 +20,9 @@ export async function GET() {
 
     return NextResponse.json(messages, { status: 200 });
   } catch (error) {
-    console.error(
-      "Възникна грешка при извличане на данните на съобщенията:",
-      error
-    );
+    console.error("Възникна грешка при извличане на съобщенията:", error);
     return NextResponse.json(
-      { error: "Възникна грешка при извличане на данните на съобщенията!" },
+      { error: "Възникна грешка при извличане на съобщенията!" },
       { status: 500 }
     );
   }
@@ -97,7 +94,7 @@ export async function POST(request: Request) {
       { status: 201 }
     );
   } catch (error) {
-    console.error("Грешка при обработка на съобщението:", error);
+    console.error("Възникна грешка при обработка на съобщението:", error);
     return NextResponse.json(
       { error: "Възникна грешка при обработка на съобщението!" },
       { status: 500 }

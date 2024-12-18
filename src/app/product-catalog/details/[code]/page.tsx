@@ -21,13 +21,13 @@ export default function ProductDetailsPage({
     try {
       const response = await fetch(`/api/public/products/${code}`);
       if (!response.ok) {
-        throw new Error("Неуспешно зареждане на данните на продукта!");
+        throw new Error("Възникна грешка при извличане на продукта!");
       }
       const data: Product = await response.json();
       setProduct(data);
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
-      setError("Възникна грешка при зареждане на данните на продукта!");
+      setError("Възникна грешка при извличане на продукта!");
     } finally {
       setLoading(false);
     }
