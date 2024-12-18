@@ -140,7 +140,9 @@ export default function ContactPage() {
           fullWidth
           variant="outlined"
           className="mb-4"
-          inputProps={{ maxLength: 500 }}
+          slotProps={{
+            htmlInput: { maxLength: 500 },
+          }}
         />
         <Button
           type="submit"

@@ -52,11 +52,11 @@ export async function POST(request: Request) {
       );
     }
 
-    const existingCategory = await prisma.category.findUnique({
+    const existingCategoryCode = await prisma.category.findUnique({
       where: { code },
     });
 
-    if (existingCategory) {
+    if (existingCategoryCode) {
       return NextResponse.json(
         {
           error: "Категория с този код вече съществува!",
