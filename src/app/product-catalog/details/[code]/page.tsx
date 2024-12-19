@@ -56,7 +56,7 @@ export default function ProductDetailsPage({
         <Button
           variant="contained"
           onClick={handleBackClick}
-          sx={{ marginTop: 2 }}
+          sx={{ marginTop: 2, fontWeight: "bold" }}
         >
           Назад
         </Button>
@@ -70,10 +70,9 @@ export default function ProductDetailsPage({
         <p className="text-center text-2xl p-16 bg-white rounded-md text-gray-600">
           Продуктът не е намерен
         </p>
-
         <Button
           variant="contained"
-          sx={{ marginTop: 2 }}
+          sx={{ marginTop: 2, fontWeight: "bold" }}
           onClick={handleBackClick}
         >
           Обратно към каталога
@@ -105,7 +104,7 @@ export default function ProductDetailsPage({
           <Button
             variant="contained"
             color="primary"
-            className="font-bold"
+            sx={{ fontWeight: "bold" }}
             startIcon={<ShoppingCartIcon />}
           >
             Добави в количката
@@ -113,7 +112,7 @@ export default function ProductDetailsPage({
           <Button
             variant="contained"
             color="error"
-            className="font-bold"
+            sx={{ fontWeight: "bold" }}
             onClick={handleBackClick}
           >
             Назад

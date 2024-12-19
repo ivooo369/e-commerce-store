@@ -27,30 +27,37 @@ export default function ConfirmationModal({
     <Modal open={open} onClose={onClose}>
       {isDeleting ? (
         <Box
-          className="flex items-center justify-center p-8 bg-white rounded-lg shadow-md"
           sx={{
+            display: "flex",
+            flexDirection: "column",
             boxShadow: 24,
             position: "absolute",
             top: "50%",
             left: "50%",
             transform: "translate(-50%, -50%)",
-            display: "flex",
-            flexDirection: "column",
             textAlign: "center",
+            padding: 8,
+            backgroundColor: "white",
+            borderRadius: "0.5rem",
           }}
         >
           <CircularProgress message={deletingMessage || "Изтриване..."} />
         </Box>
       ) : (
         <Box
-          className="flex flex-col items-center justify-center p-8 shadow-lg bg-white max-w-xl mx-auto"
           sx={{
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+            padding: 4,
             border: "5px solid #d32f2f",
             boxShadow: 24,
             position: "absolute",
             top: "50%",
             left: "50%",
             transform: "translate(-50%, -50%)",
+            backgroundColor: "white",
           }}
         >
           <div className="flex items-center mb-4 text-red-600">
@@ -58,14 +65,35 @@ export default function ConfirmationModal({
             <Typography
               variant="h5"
               component="h2"
-              className="font-semibold text-center text-lg md:text-xl lg:text-2xl font-bold"
+              sx={{
+                fontWeight: "bold",
+                textAlign: "center",
+                fontSize: "1.125rem",
+                "@media (min-width: 768px)": {
+                  fontSize: "1.25rem",
+                },
+                "@media (min-width: 1024px)": {
+                  fontSize: "1.5rem",
+                },
+              }}
             >
               Внимание!
             </Typography>
           </div>
           <Typography
             variant="h6"
-            className="text-center mb-4 text-base md:text-lg lg:text-xl font-bold"
+            sx={{
+              textAlign: "center",
+              marginBottom: "1rem",
+              fontSize: "1rem",
+              fontWeight: "bold",
+              "@media (min-width: 768px)": {
+                fontSize: "1.125rem",
+              },
+              "@media (min-width: 1024px)": {
+                fontSize: "1.25rem",
+              },
+            }}
           >
             {mainMessage}
           </Typography>
@@ -74,14 +102,23 @@ export default function ConfirmationModal({
               variant="contained"
               color="error"
               onClick={onConfirm}
-              className="flex-1 mr-2 font-bold gap-1.5"
+              sx={{
+                flex: 1,
+                marginRight: "0.5rem",
+                fontWeight: "bold",
+                gap: "0.375rem",
+              }}
             >
               <FaTrash /> Изтрий
             </Button>
             <Button
               variant="contained"
               onClick={onClose}
-              className="flex-1 ml-2 font-bold"
+              sx={{
+                flex: 1,
+                marginLeft: "0.5rem",
+                fontWeight: "bold",
+              }}
             >
               Отказ
             </Button>

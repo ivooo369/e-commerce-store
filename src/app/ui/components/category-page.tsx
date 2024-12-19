@@ -171,7 +171,7 @@ export default function CategoryPageServerComponent({
             min={0}
             max={500}
           />
-          <div className="flex justify-between text-sm">
+          <div className="flex justify-between text-base">
             <span>{priceRange[0]} лв</span>
             <span>{priceRange[1]} лв</span>
           </div>

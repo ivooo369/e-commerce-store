@@ -30,14 +30,14 @@ export default function CategoryCard({
         <p className="text-sm text-gray-500 font-bold">Код: {category.code}</p>
         <div className="mt-4 flex justify-center gap-2">
           <Link href={`/dashboard/categories/edit/${category.id}`}>
-            <Button variant="contained" className="font-bold w-32">
+            <Button variant="contained" sx={{ fontWeight: "bold" }}>
               Редактирай
             </Button>
           </Link>
           <Button
             variant="contained"
             color="error"
-            className="flex font-bold w-32 gap-1.5"
+            sx={{ fontWeight: "bold" }}
             onClick={() => onDelete(category.id)}
           >
             <FaTrash /> Изтрий

@@ -98,7 +98,7 @@ export default function DashboardSubcategoriesPage() {
       setDeleting(true);
       try {
         const response = await fetch(
-          `/api/subcategories/${subcategoryToDelete}`,
+          `/api/dashboard/subcategories/${subcategoryToDelete}`,
           {
             method: "DELETE",
           }

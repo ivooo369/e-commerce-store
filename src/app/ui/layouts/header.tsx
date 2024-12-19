@@ -102,7 +102,6 @@ export default function Header() {
           </Link>
         </div>
       </header>
-
       <nav
         className="text-black bg-gray-100 py-3 border-t-4 border-b-4 font-medium"
         aria-label="Основна навигация"

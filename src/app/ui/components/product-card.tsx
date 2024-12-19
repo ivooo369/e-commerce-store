@@ -17,27 +17,14 @@ export default function ProductCard({
   onAddToCart,
 }: ProductCardProps) {
   return (
-    <Card
-      className="max-w-xs mx-auto text-center min-w-full flex flex-col justify-between shadow-lg border-2 border-gray-200"
-      sx={{
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "space-between",
-        boxShadow: 3,
-        borderRadius: 2,
-      }}
-    >
+    <Card className="max-w-xs mx-auto text-center min-w-full flex flex-col justify-between shadow-lg">
       <CardMedia
         className="min-w-80 h-52 object-cover"
-        sx={{
-          backgroundImage: `url(${product.images[0]})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          height: 200,
-        }}
+        component="img"
+        image={product.images[0]}
+        alt={product.name}
         onContextMenu={(e) => e.preventDefault()}
       />
-
       <CardContent>
         <p className="text-xl font-bold truncate whitespace-nowrap">
           {product.name}
@@ -50,8 +37,10 @@ export default function ProductCard({
           <Link href={`/product-catalog/details/${product.code}`}>
             <Button
               variant="contained"
-              className="font-bold w-32"
-              sx={{ fontWeight: "bold", width: 120 }}
+              sx={{
+                fontWeight: "bold",
+                width: "8rem",
+              }}
             >
               Детайли
             </Button>
@@ -59,8 +48,10 @@ export default function ProductCard({
           <Button
             variant="contained"
             color="error"
-            className="font-bold w-32"
-            sx={{ fontWeight: "bold", width: 120 }}
+            sx={{
+              fontWeight: "bold",
+              width: "8rem",
+            }}
             onClick={() => onAddToCart(product.id)}
             startIcon={<ShoppingCartIcon />}
           >

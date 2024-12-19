@@ -34,14 +34,25 @@ export default function SubcategoryCard({
         </p>
         <div className="mt-4 flex justify-center gap-2">
           <Link href={`/dashboard/subcategories/edit/${subcategory.id}`}>
-            <Button variant="contained" className="font-bold w-32">
+            <Button
+              variant="contained"
+              sx={{
+                fontWeight: "bold",
+                width: "8rem",
+              }}
+            >
               Редактирай
             </Button>
           </Link>
           <Button
             variant="contained"
             color="error"
-            className="flex font-bold w-32 gap-1.5"
+            sx={{
+              display: "flex",
+              fontWeight: "bold",
+              width: "8rem",
+              gap: "0.375rem",
+            }}
             onClick={() => onDelete(subcategory.id)}
           >
             <FaTrash /> Изтрий

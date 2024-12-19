@@ -36,7 +36,12 @@ export default function MessageCard({
           <Button
             variant="contained"
             color="error"
-            className="w-32 flex justify-center items-center gap-2 font-medium py-2"
+            sx={{
+              display: "flex",
+              width: "8rem",
+              gap: "0.5rem",
+              fontWeight: "bold",
+            }}
             onClick={() => onDelete(message.id)}
           >
             <FaTrash /> Изтрий
