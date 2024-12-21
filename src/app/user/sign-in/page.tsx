@@ -147,7 +147,7 @@ export default function SignInPage() {
           sx={getCustomButtonStyles}
           disabled={loading}
         >
-          {loading ? "Влизане..." : "Влезте в акаунта си"}
+          {loading ? "Влизане..." : "Влез в акаунта си"}
         </Button>
         {alert && (
           <div>
