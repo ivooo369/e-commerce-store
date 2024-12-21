@@ -1,7 +1,6 @@
-"use client";
-
 import Link from "next/link";
 import Image from "next/image";
+import { MdAccountCircle } from "react-icons/md";
 import { usePathname } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
 import HomeIcon from "@mui/icons-material/Home";
@@ -11,15 +10,66 @@ import ContactMailIcon from "@mui/icons-material/ContactMail";
 import PhoneIcon from "@mui/icons-material/Phone";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import MainSearch from "../components/main-search";
+import { jwtDecode } from "jwt-decode";
+import { RootState } from "@/app/lib/store";
+import { useDispatch, useSelector } from "react-redux";
+import { clearUser } from "@/app/lib/userSlice";
+
+interface DecodedToken {
+  exp: number;
+}
 
 export default function Header() {
   const pathname = usePathname();
   const [isCatalogOpen, setIsCatalogOpen] = useState(false);
   const [categories, setCategories] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [userName, setUserName] = useState<string | null>(null);
+  const dispatch = useDispatch();
+  const signedInUser = useSelector((state: RootState) => state.user);
+
   const menuRef = useRef<HTMLDivElement>(null);
 
+  const handleClickOutside = (event: MouseEvent) => {
+    if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+      setIsCatalogOpen(false);
+    }
+  };
+
   useEffect(() => {
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const token = localStorage.getItem("userData");
+
+      if (token) {
+        try {
+          const decoded: DecodedToken = jwtDecode(token);
+          const currentTime = Math.floor(Date.now() / 1000);
+
+          if (decoded.exp < currentTime) {
+            localStorage.removeItem("userData");
+            dispatch(clearUser());
+          } else {
+            const userData = JSON.parse(
+              localStorage.getItem("userData") || "{}"
+            );
+            setUserName(userData.firstName + " " + userData.lastName);
+          }
+        } catch (error) {
+          console.error("Възникна грешка при декодиране на токена:", error);
+          localStorage.removeItem("userData");
+          dispatch(clearUser());
+        }
+      }
+    }
+
     const fetchCategories = async () => {
       try {
         const response = await fetch("/api/public/categories");
@@ -36,17 +86,14 @@ export default function Header() {
     };
 
     fetchCategories();
-
-    const handleClickOutside = (event: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        setIsCatalogOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  }, [dispatch, signedInUser.authToken]);
 
   const toggleCatalog = () => setIsCatalogOpen(!isCatalogOpen);
+  const handleSignOut = () => {
+    localStorage.removeItem("userData");
+    dispatch(clearUser());
+    setUserName(null);
+  };
 
   return (
     <>
@@ -73,21 +120,37 @@ export default function Header() {
         </div>
         <MainSearch />
         <div className="flex items-center font-medium order-1 md:order-2">
-          <Link
-            href="/user/sign-in"
-            className="hover:underline mr-2 text-sm md:text-base"
-            aria-label="Вход в потребителски акаунт"
-          >
-            ВХОД
-          </Link>
-          <span className="text-sm md:text-base">/</span>
-          <Link
-            href="/user/sign-up"
-            className="hover:underline ml-2 text-sm md:text-base"
-            aria-label="Изход от потребителски акаунт"
-          >
-            РЕГИСТРАЦИЯ
-          </Link>
+          {userName ? (
+            <div className="flex items-center gap-5">
+              <span className="flex gap-1 items-center text-sm md:text-base truncate max-w-[200px]">
+                <MdAccountCircle className="w-7 h-7 text-gray-700" /> {userName}
+              </span>
+              <button
+                onClick={handleSignOut}
+                className="text-sm md:text-base text-blue-500 hover:underline"
+              >
+                ИЗХОД
+              </button>
+            </div>
+          ) : (
+            <>
+              <Link
+                href="/user/sign-in"
+                className="hover:underline mr-2 text-sm md:text-base"
+                aria-label="Вход в потребителски акаунт"
+              >
+                ВХОД
+              </Link>
+              <span className="text-sm md:text-base">/</span>
+              <Link
+                href="/user/sign-up"
+                className="hover:underline ml-2 text-sm md:text-base"
+                aria-label="Изход от потребителски акаунт"
+              >
+                РЕГИСТРАЦИЯ
+              </Link>
+            </>
+          )}
           <Link
             href="/cart"
             className={`flex items-center rounded px-3 py-2 transition duration-300 ml-0 sm:ml-4 md:ml-6 lg:ml-8 text-sm md:text-base ${
@@ -124,7 +187,6 @@ export default function Header() {
               НАЧАЛО
             </Link>
             <div
-              ref={menuRef}
               className="relative flex items-center rounded px-3 py-2 transition duration-300 text-sm md:text-base hover:bg-gray-300 cursor-pointer"
               onClick={toggleCatalog}
               aria-label="Каталог"
@@ -135,7 +197,10 @@ export default function Header() {
               />
               КАТАЛОГ
               {isCatalogOpen && (
-                <div className="absolute top-full left-0 bg-white shadow-lg rounded mt-2 p-2 z-50 w-48">
+                <div
+                  ref={menuRef}
+                  className="absolute top-full left-0 bg-white shadow-lg rounded mt-2 p-2 z-50 w-48"
+                >
                   {isLoading ? (
                     <p>Зареждане...</p>
                   ) : categories.length > 0 ? (

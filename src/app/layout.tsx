@@ -1,6 +1,5 @@
-import MainLayout from "@/app/ui/layouts/main-layout";
 import "@/app/globals.css";
-
+import MainLayout from "@/app/ui/layouts/main-layout";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {

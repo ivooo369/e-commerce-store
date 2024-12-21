@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import AlertMessage from "@/app/ui/components/alert-message";
 import { getCustomButtonStyles } from "@/app/ui/mui-custom-styles/custom-button";
 import Visibility from "@mui/icons-material/Visibility";
@@ -14,6 +13,9 @@ import {
   IconButton,
   Button,
 } from "@mui/material";
+import { setUser } from "@/app/lib/userSlice";
+import { useDispatch } from "react-redux";
+import { useRouter } from "next/navigation";
 
 export default function SignInPage() {
   const [email, setEmail] = useState("");
@@ -24,6 +26,7 @@ export default function SignInPage() {
     message: string;
     severity: "success" | "error";
   } | null>(null);
+  const dispatch = useDispatch();
   const router = useRouter();
 
   const handleClickShowPassword = () => setShowPassword((show) => !show);
@@ -36,17 +39,12 @@ export default function SignInPage() {
 
     setLoading(true);
 
-    const formData = {
-      email,
-      password,
-    };
+    const formData = { email, password };
 
     try {
       const response = await fetch("/api/users/sign-in", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
 
@@ -54,7 +52,7 @@ export default function SignInPage() {
 
       if (!response.ok) {
         setAlert({
-          message: responseData.error || "Възникна грешка при входа!",
+          message: responseData.error,
           severity: "error",
         });
         setLoading(false);
@@ -62,24 +60,29 @@ export default function SignInPage() {
         return;
       }
 
+      localStorage.setItem(
+        "userData",
+        JSON.stringify({
+          token: responseData.token,
+          firstName: responseData.user.firstName,
+          lastName: responseData.user.lastName,
+        })
+      );
+
+      dispatch(
+        setUser({
+          firstName: responseData.user.firstName,
+          lastName: responseData.user.lastName,
+          authToken: responseData.token,
+        })
+      );
+
       setAlert({
-        message: responseData.message || "Успешен вход!",
+        message: responseData.message,
         severity: "success",
       });
       setLoading(false);
-      setTimeout(() => {
-        setAlert({
-          message: responseData.message || "Успешен вход!",
-          severity: "success",
-        });
-        setLoading(false);
-
-        const redirectUrl = new URLSearchParams(window.location.search).get(
-          "redirect"
-        );
-        router.push(redirectUrl || "/");
-      }, 1000);
-
+      router.push("/");
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       setLoading(false);
@@ -90,7 +93,6 @@ export default function SignInPage() {
       setTimeout(() => setAlert(null), 5000);
     }
   };
-
   return (
     <div className="container m-auto p-8">
       <h2 className="text-3xl font-bold text-center text-gray-800 mb-4 tracking-wide">
@@ -147,7 +149,7 @@ export default function SignInPage() {
           sx={getCustomButtonStyles}
           disabled={loading}
         >
-          {loading ? "Влизане..." : "Влезте в акаунта си"}
+          {loading ? "Влизане..." : "Влез в акаунта си"}
         </Button>
         {alert && (
           <div>

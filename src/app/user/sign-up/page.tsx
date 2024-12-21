@@ -12,8 +12,11 @@ import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import Button from "@mui/material/Button";
 import AlertMessage from "@/app/ui/components/alert-message";
+import { useDispatch } from "react-redux";
+import { setUser } from "@/app/lib/userSlice";
 
 export default function SignUpPage() {
+  const dispatch = useDispatch();
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -85,7 +88,7 @@ export default function SignUpPage() {
 
       if (!response.ok) {
         setAlert({
-          message: responseData.error || "Възникна грешка при регистрацията!",
+          message: responseData.message,
           severity: "error",
         });
         setLoading(false);
@@ -93,24 +96,38 @@ export default function SignUpPage() {
         return;
       }
 
+      localStorage.setItem(
+        "userData",
+        JSON.stringify({
+          token: responseData.token,
+          firstName: responseData.user.firstName,
+          lastName: responseData.user.lastName,
+        })
+      );
+
+      dispatch(
+        setUser({
+          firstName: responseData.user.firstName,
+          lastName: responseData.user.lastName,
+          authToken: responseData.token,
+        })
+      );
+
       setAlert({
-        message: responseData.message || "Успешна регистрация!",
+        message: responseData.message,
         severity: "success",
       });
-      setLoading(false);
-      setTimeout(() => {
-        setAlert({
-          message: responseData.message || "Успешна регистрация!",
-          severity: "success",
-        });
-        setLoading(false);
 
+      setLoading(false);
+
+      setTimeout(() => {
         const redirectUrl = new URLSearchParams(window.location.search).get(
           "redirect"
         );
         router.push(redirectUrl || "/");
       }, 1000);
 
+      // Reset the form fields
       setFirstName("");
       setLastName("");
       setEmail("");
@@ -249,33 +266,26 @@ export default function SignUpPage() {
           <OutlinedInput
             id="phone"
             name="phone"
-            type="tel"
             value={phone}
-            onChange={(e) => {
-              const value = e.target.value;
-              if (/^\d{0,20}$/.test(value)) {
-                setPhone(value);
-              }
-            }}
+            onChange={(e) => setPhone(e.target.value)}
             label="Телефон"
+            inputProps={{ maxLength: 20 }}
           />
         </FormControl>
         <Button
-          type="submit"
           variant="contained"
           color="primary"
-          fullWidth
-          sx={getCustomButtonStyles}
+          type="submit"
           disabled={loading}
+          fullWidth
+          sx={getCustomButtonStyles()}
         >
-          {loading ? "Регистрация..." : "Регистрирай се"}
+          {loading ? "Зареждане..." : "Регистрация"}
         </Button>
-        {alert && (
-          <div>
-            <AlertMessage severity={alert.severity} message={alert.message} />
-          </div>
-        )}
       </form>
+      {alert && (
+        <AlertMessage message={alert.message} severity={alert.severity} />
+      )}
     </div>
   );
 }
