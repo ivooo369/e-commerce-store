@@ -139,15 +139,8 @@ export default function ProductDetailsPage({
             backgroundImage: `url(${product.images[currentImageIndex]})`,
           }}
           onClick={openModal}
-        >
-          <div className="absolute inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-            <span className="text-white text-xl font-bold">
-              Виж изображението в цял размер
-            </span>
-          </div>
-        </div>
+        ></div>
       </div>
-
       <div className="flex justify-start gap-2 mt-4 relative">
         <div className="flex flex-wrap justify-center">
           <div className="flex flex-wrap justify-center items-center">
@@ -224,7 +217,7 @@ export default function ProductDetailsPage({
       </div>
       {isModalOpen && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-80 flex justify-center items-center z-50"
+          className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"
           onClick={handleOutsideClick}
         >
           <div className="relative" onClick={(e) => e.stopPropagation()}>
@@ -238,13 +231,13 @@ export default function ProductDetailsPage({
             />
             <button
               onClick={showPrevImage}
-              className="absolute font-bold text-2xl left-[-100px] top-1/2 transform -translate-y-1/2 bg-gray-300 bg-opacity-80 p-5 rounded-full shadow-lg hover:bg-gray-400 transition-all duration-300"
+              className="absolute font-bold text-xl left-[-100px] top-1/2 transform -translate-y-1/2 text-white bg-gray-700 bg-opacity-75 p-5 rounded-full shadow-lg hover:bg-gray-800 transition-all duration-300"
             >
               &lt;
             </button>
             <button
               onClick={showNextImage}
-              className="absolute font-bold text-2xl right-[-100px] top-1/2 transform -translate-y-1/2 bg-gray-300 bg-opacity-80 p-5 rounded-full shadow-lg hover:bg-gray-400 transition-all duration-300"
+              className="absolute font-bold text-xl right-[-100px] top-1/2 transform -translate-y-1/2 text-white bg-gray-700 bg-opacity-75 p-5 rounded-full shadow-lg hover:bg-gray-800 transition-all duration-300"
             >
               &gt;
             </button>
