@@ -139,8 +139,15 @@ export default function ProductDetailsPage({
             backgroundImage: `url(${product.images[currentImageIndex]})`,
           }}
           onClick={openModal}
-        ></div>
+        >
+          <div className="absolute inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+            <span className="text-white text-xl font-bold">
+              Вижте изображението в цял размер
+            </span>
+          </div>
+        </div>
       </div>
+
       <div className="flex justify-start gap-2 mt-4 relative">
         <div className="flex flex-wrap justify-center">
           <div className="flex flex-wrap justify-center items-center">
@@ -215,9 +222,10 @@ export default function ProductDetailsPage({
           </Button>
         </div>
       </div>
+
       {isModalOpen && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"
+          className="fixed inset-0 bg-black bg-opacity-80 flex justify-center items-center z-50"
           onClick={handleOutsideClick}
         >
           <div className="relative" onClick={(e) => e.stopPropagation()}>
