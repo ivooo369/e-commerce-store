@@ -1,49 +1,28 @@
-import Card from "@mui/material/Card";
-import CardContent from "@mui/material/CardContent";
-import CardMedia from "@mui/material/CardMedia";
-import Button from "@mui/material/Button";
-import { FaTrash } from "react-icons/fa";
-import { Category } from "@prisma/client";
 import Link from "next/link";
+import Image from "next/image";
+import { Category } from "@prisma/client";
 
 interface CategoryCardProps {
   category: Category;
-  onDelete: (id: string) => void;
 }
 
-export default function CategoryCard({
-  category,
-  onDelete,
-}: CategoryCardProps) {
+export default function CategoryCard({ category }: CategoryCardProps) {
   return (
-    <Card className="max-w-xs mx-auto text-center min-w-full flex flex-col justify-between shadow-lg">
-      <CardMedia
-        className="min-w-80 h-52 object-cover"
-        component="img"
-        image={category.imageUrl}
+    <Link
+      href={`/product-catalog/categories/${category.name}`}
+      className="border-4 border-gray-200 rounded-lg shadow-lg p-4 flex flex-col items-center justify-center bg-white hover:bg-gray-100 transition duration-200"
+    >
+      <Image
+        src={category.imageUrl}
         alt={category.name}
+        width={300}
+        height={200}
+        className="w-full h-48 object-cover mb-4 rounded"
       />
-      <CardContent>
-        <p className="text-xl font-bold truncate whitespace-nowrap">
-          {category.name}
-        </p>
-        <p className="text-sm text-gray-500 font-bold">Код: {category.code}</p>
-        <div className="mt-4 flex justify-center gap-2">
-          <Link href={`/dashboard/categories/edit/${category.id}`}>
-            <Button variant="contained" sx={{ fontWeight: "bold" }}>
-              Редактирай
-            </Button>
-          </Link>
-          <Button
-            variant="contained"
-            color="error"
-            sx={{ fontWeight: "bold" }}
-            onClick={() => onDelete(category.id)}
-          >
-            <FaTrash /> Изтрий
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
+      <p className="text-md text-gray-500 font-semibold">
+        Код: {category.code}
+      </p>
+      <h2 className="text-lg text-center font-bold">{category.name}</h2>
+    </Link>
   );
 }

@@ -131,13 +131,13 @@ export default function DashboardEditSubcategoryPage() {
   return (
     <>
       <DashboardNav />
-      <div className="container mx-auto p-8">
-        <h2 className="text-3xl font-bold text-center text-gray-800 mb-8 tracking-wide">
+      <div className="container mx-auto p-8 max-w-5xl">
+        <h1 className="text-3xl font-bold text-center text-gray-800 mb-8 tracking-wide">
           Редактиране на подкатегория
-        </h2>
+        </h1>
         <form
           onSubmit={handleSubcategorySubmit}
-          className="bg-white shadow-lg rounded-lg p-6 space-y-4"
+          className="bg-white shadow-lg rounded-lg p-4 sm:p-6 space-y-4"
         >
           <FormControl fullWidth variant="outlined" required>
             <InputLabel htmlFor="subcategory-name">

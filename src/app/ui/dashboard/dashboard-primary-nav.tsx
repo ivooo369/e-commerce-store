@@ -15,11 +15,11 @@ export default function DashboardNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="w-full p-8 bg-gray-300">
-      <div className="flex justify-center items-center mb-6">
+    <nav className="w-full p-4 bg-gray-300">
+      <div className="flex flex-wrap justify-center items-center mb-6 space-y-4 sm:space-y-0 sm:flex-nowrap">
         <Link
           href="/dashboard/products"
-          className="flex items-center"
+          className="flex items-center mb-4 sm:mb-0"
           aria-label="Лого"
         >
           <Image
@@ -32,12 +32,14 @@ export default function DashboardNav() {
             style={{ width: "auto", height: "auto" }}
           />
         </Link>
-        <h1 className="text-4xl font-bold">АДМИНИСТРАТОРСКИ ПАНЕЛ</h1>
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center sm:text-left tracking-wide">
+          АДМИНИСТРАТОРСКИ ПАНЕЛ
+        </h1>
       </div>
-      <div className="flex justify-center space-x-6">
+      <div className="flex flex-wrap justify-center gap-4 sm:gap-6">
         <Link
           href="/dashboard/products"
-          area-label="Инвентар"
+          aria-label="Инвентар"
           className={`flex items-center text-white font-bold py-2 px-4 rounded-lg shadow-lg transition ${
             pathname === "/dashboard/products" ||
             pathname === "/dashboard/categories-and-subcategories"
@@ -50,7 +52,7 @@ export default function DashboardNav() {
         </Link>
         <Link
           href="/dashboard/products/add"
-          area-label="Добавяне на нов продукт"
+          aria-label="Добавяне на нов продукт"
           className={`flex items-center text-white font-bold py-2 px-4 rounded-lg shadow-lg transition ${
             pathname === "/dashboard/products/add"
               ? "bg-gray-800"
@@ -62,7 +64,7 @@ export default function DashboardNav() {
         </Link>
         <Link
           href="/dashboard/categories-and-subcategories/add"
-          area-label="Добавяне на нови категории и подкатегории"
+          aria-label="Добавяне на нови категории и подкатегории"
           className={`flex items-center text-white font-bold py-2 px-4 rounded-lg shadow-lg transition ${
             pathname === "/dashboard/categories-and-subcategories/add"
               ? "bg-gray-800"

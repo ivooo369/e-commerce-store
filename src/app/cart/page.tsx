@@ -1,3 +1,3 @@
 export default function CartPage() {
-  return <h1>КОЛИЧКА</h1>;
+  return <h1 className="tracking-wide">КОЛИЧКА</h1>;
 }

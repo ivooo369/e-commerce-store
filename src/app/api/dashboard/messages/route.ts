@@ -58,9 +58,9 @@ export async function POST(request: Request) {
       html: `
         <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 20px auto; border: 1px solid #e5e7eb; border-radius: 8px; max-width: 800px; overflow: hidden;">
           <header style="background-color: #1E3A8A; color: #ffffff; padding: 0.6rem; text-align: center;">
-            <h2 class="header-text" style="margin: 0; font-size: 1.2rem;">
+            <h1 class="header-text" style="margin: 0; font-size: 1.2rem;">
               Ново съобщение от контактната форма
-            </h2>
+            </h1>
           </header>
           <div class="content" style="font-size: 1rem; padding: 1rem 1.5rem 1rem 1.5rem; background-color: #f8fafc;">
             <section style="margin-bottom: 1rem;">

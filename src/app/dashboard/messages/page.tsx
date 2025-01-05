@@ -86,10 +86,10 @@ export default function DashboardMessagesPage() {
   return (
     <>
       <DashboardNav />
-      <div className="container mx-auto p-8">
-        <h2 className="text-3xl font-bold text-center text-gray-800 mb-8 tracking-wide">
+      <div className="container mx-auto px-4 py-4 sm:py-6 max-w-5xl">
+        <h1 className="text-2xl sm:text-3xl font-bold text-center text-gray-800 mb-4 sm:mb-6 tracking-wide">
           Съобщения
-        </h2>
+        </h1>
         {loading ? (
           <Box className="flex justify-center items-center py-10">
             <CircularProgress message="Зареждане на съобщенията..." />
@@ -101,7 +101,7 @@ export default function DashboardMessagesPage() {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-6">
+          <div className="grid grid-cols-1 gap-5">
             {messages.map((message) => (
               <MessageCard
                 key={message.id}

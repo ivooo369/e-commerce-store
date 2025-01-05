@@ -63,7 +63,7 @@ export default function DashboardLoginPage() {
   return (
     <div className="min-h-screen flex flex-col justify-center items-center bg-gray-200">
       <div className="bg-white p-6 rounded-lg shadow-2xl w-full max-w-lg">
-        <h1 className="text-2xl font-bold text-center mb-6">
+        <h1 className="text-2xl font-bold text-center mb-6 tracking-wide">
           Администраторски Панел - Вход
         </h1>
         <form className="space-y-4" onSubmit={handleSubmit}>

@@ -191,13 +191,13 @@ export default function DashboardEditProductPage() {
   return (
     <>
       <DashboardNav />
-      <div className="container mx-auto p-8">
-        <h2 className="text-3xl font-bold text-center text-gray-800 mb-8 tracking-wide">
+      <div className="container mx-auto px-4 py-4 sm:py-6 max-w-5xl">
+        <h1 className="text-2xl sm:text-3xl font-bold text-center text-gray-800 mb-4 sm:mb-6 tracking-wide">
           Редактиране на продукт
-        </h2>
+        </h1>
         <form
           onSubmit={handleProductSubmit}
-          className="bg-white shadow-lg rounded-lg p-6 space-y-4"
+          className="bg-white shadow-lg rounded-lg p-4 sm:p-6 space-y-4"
         >
           <FormControl fullWidth variant="outlined" required>
             <InputLabel htmlFor="product-name">Име на продукт</InputLabel>

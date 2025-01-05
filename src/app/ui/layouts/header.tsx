@@ -119,10 +119,10 @@ export default function Header() {
           </span>
         </div>
         <MainSearch />
-        <div className="flex items-center font-medium order-1 md:order-2">
+        <div className="flex flex-col gap-1 sm:gap-0 sm:flex-row items-center font-medium order-1 md:order-2">
           {userName ? (
-            <div className="flex items-center gap-5">
-              <span className="flex gap-1 items-center text-sm md:text-base truncate max-w-[200px]">
+            <div className="flex items-center gap-3">
+              <span className="flex flex-wrap gap-1 items-center text-sm md:text-base truncate max-w-[300px]">
                 <MdAccountCircle className="w-7 h-7 text-gray-700" /> {userName}
               </span>
               <button
@@ -133,7 +133,7 @@ export default function Header() {
               </button>
             </div>
           ) : (
-            <>
+            <div>
               <Link
                 href="/user/sign-in"
                 className="hover:underline mr-2 text-sm md:text-base"
@@ -149,11 +149,11 @@ export default function Header() {
               >
                 РЕГИСТРАЦИЯ
               </Link>
-            </>
+            </div>
           )}
           <Link
             href="/cart"
-            className={`flex items-center rounded px-3 py-2 transition duration-300 ml-0 sm:ml-4 md:ml-6 lg:ml-8 text-sm md:text-base ${
+            className={`flex items-center rounded px-3 py-2 transition duration-300 ml-2 md:ml-4 lg:ml-8 text-sm md:text-base ${
               pathname === "/cart"
                 ? "bg-gray-200 hover:bg-gray-300"
                 : "hover:bg-gray-300"
@@ -207,7 +207,9 @@ export default function Header() {
                     categories.map((category, index) => (
                       <Link
                         key={index}
-                        href={`/product-catalog/categories/${category}`}
+                        href={`/product-catalog/categories/${encodeURIComponent(
+                          category
+                        )}`}
                         className="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded"
                       >
                         {category}

@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { getCustomButtonStyles } from "@/app/ui/mui-custom-styles/custom-button";
 import IconButton from "@mui/material/IconButton";
 import OutlinedInput from "@mui/material/OutlinedInput";
@@ -14,6 +13,8 @@ import Button from "@mui/material/Button";
 import AlertMessage from "@/app/ui/components/alert-message";
 import { useDispatch } from "react-redux";
 import { setUser } from "@/app/lib/userSlice";
+import { FiCheck } from "react-icons/fi";
+import Link from "next/link";
 
 export default function SignUpPage() {
   const dispatch = useDispatch();
@@ -32,7 +33,6 @@ export default function SignUpPage() {
     message: string;
     severity: "success" | "error";
   } | null>(null);
-  const router = useRouter();
 
   const handleClickShowPassword = () => setShowPassword((show) => !show);
   const handleClickShowConfirmPassword = () =>
@@ -88,7 +88,7 @@ export default function SignUpPage() {
 
       if (!response.ok) {
         setAlert({
-          message: responseData.message,
+          message: responseData.error,
           severity: "error",
         });
         setLoading(false);
@@ -120,14 +120,6 @@ export default function SignUpPage() {
 
       setLoading(false);
 
-      setTimeout(() => {
-        const redirectUrl = new URLSearchParams(window.location.search).get(
-          "redirect"
-        );
-        router.push(redirectUrl || "/");
-      }, 1000);
-
-      // Reset the form fields
       setFirstName("");
       setLastName("");
       setEmail("");
@@ -148,19 +140,39 @@ export default function SignUpPage() {
   };
 
   return (
-    <div className="container m-auto p-8">
-      <h2 className="text-3xl font-bold text-center text-gray-800 mb-4 tracking-wide">
+    <div className="container mx-auto px-4 py-4 sm:py-6 max-w-5xl">
+      <h1 className="text-2xl sm:text-3xl font-bold text-center text-gray-800 mb-4 sm:mb-6 tracking-wide">
         Регистрация
-      </h2>
-      <p className="text-center text-lg text-gray-500 mb-8">
-        Чрез създаване на акаунт в електронния магазин ще получите достъп до
-        специални намаления, които не са налични за клиенти, разглеждащи
-        електронния магазин като гости.
-      </p>
+      </h1>
       <form
         onSubmit={handleSubmit}
-        className="bg-white shadow-lg rounded-lg p-6 space-y-4"
+        className="bg-white shadow-lg rounded-lg p-4 sm:p-6 space-y-4"
       >
+        <div>
+          <h3 className="font-semibold text-lg sm:text-xl text-center text-gray-600 mb-3">
+            Когато сте влезли в своя акаунт, имате възможност:
+          </h3>
+          <ul className="space-y-2 text-gray-600 text-base sm:text-lg m-auto w-2/4">
+            <li className="flex items-center gap-4">
+              <FiCheck className="text-green-500 flex-shrink-0" size={35} />
+              <span className="leading-6">
+                Да преглеждате историята на всички поръчки, които сте направили
+              </span>
+            </li>
+            <li className="flex items-center gap-4">
+              <FiCheck className="text-green-500 flex-shrink-0" size={35} />
+              <span className="leading-6">
+                Да се възползвате от специални промоции
+              </span>
+            </li>
+            <li className="flex items-center gap-4">
+              <FiCheck className="text-green-500 flex-shrink-0" size={35} />
+              <span className="leading-6">
+                Да запазвате продукти, които са Ви харесали в &quot;Любими&quot;
+              </span>
+            </li>
+          </ul>
+        </div>
         <FormControl fullWidth variant="outlined" required>
           <InputLabel htmlFor="firstName">Име</InputLabel>
           <OutlinedInput
@@ -169,7 +181,7 @@ export default function SignUpPage() {
             value={firstName}
             onChange={(e) => setFirstName(e.target.value)}
             label="Име"
-            inputProps={{ maxLength: 50 }}
+            inputProps={{ maxLength: 50, autoComplete: "first name" }}
           />
         </FormControl>
         <FormControl fullWidth variant="outlined" required>
@@ -180,7 +192,7 @@ export default function SignUpPage() {
             value={lastName}
             onChange={(e) => setLastName(e.target.value)}
             label="Фамилия"
-            inputProps={{ maxLength: 50 }}
+            inputProps={{ maxLength: 50, autoComplete: "last name" }}
           />
         </FormControl>
         <FormControl fullWidth variant="outlined" required>
@@ -192,7 +204,7 @@ export default function SignUpPage() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             label="E-mail"
-            inputProps={{ maxLength: 255 }}
+            inputProps={{ maxLength: 255, autoComplete: "email" }}
           />
         </FormControl>
         <FormControl fullWidth variant="outlined" required>
@@ -203,7 +215,7 @@ export default function SignUpPage() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             label="Парола"
-            inputProps={{ maxLength: 255 }}
+            inputProps={{ maxLength: 255, autoComplete: "password" }}
             endAdornment={
               <InputAdornment position="end">
                 <IconButton
@@ -225,7 +237,7 @@ export default function SignUpPage() {
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             label="Потвърдете паролата"
-            inputProps={{ maxLength: 255 }}
+            inputProps={{ maxLength: 255, autoComplete: "confirm password" }}
             endAdornment={
               <InputAdornment position="end">
                 <IconButton
@@ -247,7 +259,7 @@ export default function SignUpPage() {
             value={city}
             onChange={(e) => setCity(e.target.value)}
             label="Град"
-            inputProps={{ maxLength: 100 }}
+            inputProps={{ maxLength: 100, autoComplete: "city" }}
           />
         </FormControl>
         <FormControl fullWidth variant="outlined">
@@ -258,7 +270,7 @@ export default function SignUpPage() {
             value={address}
             onChange={(e) => setAddress(e.target.value)}
             label="Адрес"
-            inputProps={{ maxLength: 255 }}
+            inputProps={{ maxLength: 255, autoComplete: "address" }}
           />
         </FormControl>
         <FormControl fullWidth variant="outlined">
@@ -269,7 +281,7 @@ export default function SignUpPage() {
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
             label="Телефон"
-            inputProps={{ maxLength: 20 }}
+            inputProps={{ maxLength: 20, autoComplete: "phone" }}
           />
         </FormControl>
         <Button
@@ -282,10 +294,21 @@ export default function SignUpPage() {
         >
           {loading ? "Зареждане..." : "Регистрация"}
         </Button>
+        {alert && (
+          <AlertMessage severity={alert.severity} message={alert.message} />
+        )}
+        <div className="flex justify-center mt-4">
+          <p className="flex text-center flex-col lg:flex-row text-base sm:text-lg">
+            Имате акаунт?
+            <Link
+              href="/user/sign-in"
+              className="text-blue-600 hover:underline lg:ml-2"
+            >
+              Влезте тук
+            </Link>
+          </p>
+        </div>
       </form>
-      {alert && (
-        <AlertMessage message={alert.message} severity={alert.severity} />
-      )}
     </div>
   );
 }

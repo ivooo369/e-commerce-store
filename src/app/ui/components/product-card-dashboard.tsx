@@ -15,12 +15,13 @@ export default function ProductCard({ product, onDelete }: ProductCardProps) {
   return (
     <Card className="max-w-xs mx-auto text-center min-w-full flex flex-col justify-between shadow-lg">
       <CardMedia
-        className="min-w-80 h-52 object-cover"
+        className="h-52 w-full object-cover"
         component="img"
         image={product.images[0]}
         alt={product.name}
+        onContextMenu={(e) => e.preventDefault()}
       />
-      <CardContent>
+      <CardContent sx={{ paddingBottom: "1rem !important" }}>
         <p className="text-xl font-bold truncate whitespace-nowrap">
           {product.name}
         </p>
@@ -34,7 +35,7 @@ export default function ProductCard({ product, onDelete }: ProductCardProps) {
               variant="contained"
               sx={{
                 fontWeight: "bold",
-                width: "8rem",
+                maxWidth: "8rem",
               }}
             >
               Редактирай
@@ -46,7 +47,7 @@ export default function ProductCard({ product, onDelete }: ProductCardProps) {
             sx={{
               display: "flex",
               fontWeight: "bold",
-              width: "8rem",
+              maxWidth: "8rem",
               gap: "0.375rem",
             }}
             onClick={() => onDelete(product.id)}

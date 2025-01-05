@@ -25,6 +25,12 @@ export default function MainSearch() {
     }
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      handleSearchSubmit();
+    }
+  };
+
   useEffect(() => {
     if (debouncedSearchTerm) {
       setLoading(true);
@@ -82,6 +88,7 @@ export default function MainSearch() {
           aria-label="Търсачка"
           value={searchTerm}
           onChange={handleSearchChange}
+          onKeyDown={handleKeyDown}
         />
         <button
           onClick={handleSearchSubmit}
@@ -102,7 +109,7 @@ export default function MainSearch() {
               {recommendations.map((product) => (
                 <li
                   key={product.id}
-                  className="flex items-center space-x-4 bg-gray-50 p-3 rounded-lg hover:bg-gray-100 cursor-pointer"
+                  className="flex items-center space-x-4 bg-gray-50 p-3 gap-3 rounded-lg hover:bg-gray-100 cursor-pointer"
                   onClick={() =>
                     router.push(`/product-catalog/details/${product.code}`)
                   }
@@ -116,10 +123,10 @@ export default function MainSearch() {
                       className="object-cover rounded"
                     />
                   )}
-                  <div className="flex-1">
+                  <div>
                     <h4 className="text-lg font-semibold">{product.name}</h4>
                     <span className="text-sm text-gray-600">
-                      {product.price} лв
+                      {product.price} лв.
                     </span>
                   </div>
                 </li>

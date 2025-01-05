@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { Category } from "@prisma/client";
 import DashboardNav from "@/app/ui/dashboard/dashboard-primary-nav";
 import DashboardSecondaryNav from "@/app/ui/dashboard/dashboard-secondary-nav";
-import CategoryCard from "@/app/ui/components/category-card";
+import CategoryCard from "@/app/ui/components/category-card-dashboard";
 import ConfirmationModal from "@/app/ui/components/confirmation-modal";
 import DashboardSearch from "@/app/ui/dashboard/dashboard-search";
 import CircularProgress from "@/app/ui/components/circular-progress";

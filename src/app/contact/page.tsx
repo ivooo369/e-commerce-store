@@ -82,17 +82,17 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="container m-auto p-8">
-      <h2 className="text-3xl font-bold text-center text-gray-800 mb-4 tracking-wide">
+    <div className="container mx-auto px-4 py-4 sm:py-6 max-w-5xl">
+      <h1 className="text-2xl sm:text-3xl font-bold text-center text-gray-800 mb-2 tracking-wide">
         Контактна форма
-      </h2>
-      <p className="text-center text-lg text-gray-500 mb-8">
+      </h1>
+      <p className="text-base sm:text-lg text-center text-gray-500 mb-4 sm:mb-6">
         Имате въпрос или предложение? Попълнете формата по-долу и ние ще се
         свържем с вас в най-кратък срок.
       </p>
       <form
         onSubmit={handleSubmit}
-        className="bg-white shadow-lg rounded-lg p-6 space-y-4"
+        className="bg-white shadow-lg rounded-lg p-4 sm:p-6 space-y-4"
       >
         <FormControl fullWidth variant="outlined" required>
           <InputLabel htmlFor="name">Име</InputLabel>

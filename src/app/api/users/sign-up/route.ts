@@ -105,7 +105,7 @@ export async function POST(req: Request) {
     return NextResponse.json(
       {
         message:
-          "Вашата регистрация е успешна! Моля, отворете имейла си и кликнете върху изпратения линк, за да верифицирате акаунта си!",
+          "Регистрацията Ви е почти готова! Моля, отворете имейла си и кликнете върху линка за верификация!",
         token,
         user: {
           firstName: newUser.firstName,

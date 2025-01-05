@@ -124,8 +124,10 @@ export default function CategoryPageServerComponent({
   }, [products, sortOption, priceRange]);
 
   return (
-    <div className="container mx-auto px-4 py-4 font-bold">
-      <h1 className="text-3xl text-center">{category.name}</h1>
+    <div className="container mx-auto py-4 sm:py-6">
+      <h1 className="text-3xl text-center font-bold mb-0 sm:mb-2 tracking-wide">
+        {category.name}
+      </h1>
       <div className="products-filter-container flex flex-col items-center max-w-screen-2xl mx-auto space-y-4 py-4 px-4">
         <FormControl fullWidth variant="outlined">
           <InputLabel htmlFor="subcategory-select">
@@ -162,8 +164,8 @@ export default function CategoryPageServerComponent({
             <MenuItem value="price-desc">Цена: Висока към ниска</MenuItem>
           </Select>
         </FormControl>
-        <Box className="w-full px-4">
-          <InputLabel>Диапазон на цените</InputLabel>
+        <Box className="w-full px-4 font-semibold">
+          <p>Диапазон на цените</p>
           <Slider
             value={priceRange}
             onChange={handlePriceChange}
@@ -172,21 +174,19 @@ export default function CategoryPageServerComponent({
             max={500}
           />
           <div className="flex justify-between text-base">
-            <span>{priceRange[0]} лв</span>
-            <span>{priceRange[1]} лв</span>
+            <span>{priceRange[0]} лв.</span>
+            <span>{priceRange[1]} лв.</span>
           </div>
         </Box>
-        {filteredProducts.length > 0 && (
-          <div className="pb-2">
-            <PaginationButtons
-              itemsPerPage={ITEMS_PER_PAGE}
-              totalItems={filteredProducts.length}
-              paginate={paginate}
-              currentPage={currentPage}
-            />
-          </div>
-        )}
       </div>
+      {filteredProducts.length > 0 && (
+        <PaginationButtons
+          itemsPerPage={ITEMS_PER_PAGE}
+          totalItems={filteredProducts.length}
+          paginate={paginate}
+          currentPage={currentPage}
+        />
+      )}
       <div>
         {loading ? (
           <Box className="flex justify-center items-center py-10 my-auto">
@@ -199,8 +199,8 @@ export default function CategoryPageServerComponent({
             </p>
           </div>
         ) : (
-          <div className="container mx-auto pt-4 lg:px-4">
-            <div className="grid gap-10 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+          <>
+            <div className="grid gap-4 sm:gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 py-4 sm:py-6 md:py-8 px-4">
               {currentItems.map((product) => (
                 <ProductCard
                   key={product.id}
@@ -209,15 +209,13 @@ export default function CategoryPageServerComponent({
                 />
               ))}
             </div>
-            <div className="pt-10">
-              <PaginationButtons
-                itemsPerPage={ITEMS_PER_PAGE}
-                totalItems={filteredProducts.length}
-                paginate={paginate}
-                currentPage={currentPage}
-              />
-            </div>
-          </div>
+            <PaginationButtons
+              itemsPerPage={ITEMS_PER_PAGE}
+              totalItems={filteredProducts.length}
+              paginate={paginate}
+              currentPage={currentPage}
+            />
+          </>
         )}
       </div>
     </div>

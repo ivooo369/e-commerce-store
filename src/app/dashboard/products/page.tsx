@@ -179,106 +179,104 @@ export default function DashboardProductsPage() {
     <>
       <DashboardNav />
       <DashboardSecondaryNav />
-      <div className="products-filter-container flex flex-col items-center max-w-screen-2xl mx-auto space-y-4 py-4 px-4">
-        <DashboardSearch
-          searchTerm={searchTerm}
-          onSearchChange={setSearchTerm}
-        />
-        <FormControl fullWidth variant="outlined">
-          <InputLabel htmlFor="category-select">
-            Филтриране на подкатегориите според избраните категории
-          </InputLabel>
-          <Select
-            multiple
-            value={selectedCategories}
-            onChange={handleCategoryChange}
-            label="Филтриране на подкатегориите според избраните категории"
-            id="category-select"
-          >
-            {categories.map((category) => (
-              <MenuItem key={category.id} value={category.id}>
-                {category.code} - {category.name}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-        <FormControl fullWidth variant="outlined">
-          <InputLabel htmlFor="subcategory-select">
-            Филтриране на продуктите според избраните подкатегории
-          </InputLabel>
-          <Select
-            multiple
-            value={selectedSubcategories}
-            onChange={handleSubcategoryChange}
-            label="Филтриране на продуктите според избраните подкатегории"
-            id="subcategory-select"
-            renderValue={(selected) =>
-              selected
-                .map((id) => {
-                  const subcategory = subcategories.find((s) => s.id === id);
-                  return subcategory
-                    ? `${subcategory.code} - ${subcategory.name}`
-                    : "";
-                })
-                .join(", ")
-            }
-          >
-            {subcategories
-              .filter(
-                (subcategory) =>
-                  selectedCategories.length === 0 ||
-                  selectedCategories.includes(subcategory.categoryId)
-              )
-              .map((subcategory) => (
-                <MenuItem key={subcategory.id} value={subcategory.id}>
-                  {subcategory.code} - {subcategory.name}
+      <div className="container mx-auto pb-4 sm:pb-6">
+        <div className="products-filter-container flex flex-col items-center max-w-screen-2xl mx-auto space-y-4 py-4 px-4">
+          <DashboardSearch
+            searchTerm={searchTerm}
+            onSearchChange={setSearchTerm}
+          />
+          <FormControl fullWidth variant="outlined">
+            <InputLabel htmlFor="category-select">
+              Филтриране на подкатегориите според избраните категории
+            </InputLabel>
+            <Select
+              multiple
+              value={selectedCategories}
+              onChange={handleCategoryChange}
+              label="Филтриране на подкатегориите според избраните категории"
+              id="category-select"
+            >
+              {categories.map((category) => (
+                <MenuItem key={category.id} value={category.id}>
+                  {category.code} - {category.name}
                 </MenuItem>
               ))}
-          </Select>
-        </FormControl>
+            </Select>
+          </FormControl>
+          <FormControl fullWidth variant="outlined">
+            <InputLabel htmlFor="subcategory-select">
+              Филтриране на продуктите според избраните подкатегории
+            </InputLabel>
+            <Select
+              multiple
+              value={selectedSubcategories}
+              onChange={handleSubcategoryChange}
+              label="Филтриране на продуктите според избраните подкатегории"
+              id="subcategory-select"
+              renderValue={(selected) =>
+                selected
+                  .map((id) => {
+                    const subcategory = subcategories.find((s) => s.id === id);
+                    return subcategory
+                      ? `${subcategory.code} - ${subcategory.name}`
+                      : "";
+                  })
+                  .join(", ")
+              }
+            >
+              {subcategories
+                .filter(
+                  (subcategory) =>
+                    selectedCategories.length === 0 ||
+                    selectedCategories.includes(subcategory.categoryId)
+                )
+                .map((subcategory) => (
+                  <MenuItem key={subcategory.id} value={subcategory.id}>
+                    {subcategory.code} - {subcategory.name}
+                  </MenuItem>
+                ))}
+            </Select>
+          </FormControl>
+        </div>
         {filteredProducts.length > 0 && (
-          <div className="pb-2">
-            <PaginationButtons
-              itemsPerPage={ITEMS_PER_PAGE}
-              totalItems={filteredProducts.length}
-              paginate={paginate}
-              currentPage={currentPage}
-            />
-          </div>
+          <PaginationButtons
+            itemsPerPage={ITEMS_PER_PAGE}
+            totalItems={filteredProducts.length}
+            paginate={paginate}
+            currentPage={currentPage}
+          />
         )}
-      </div>
-      <div>
-        {loading ? (
-          <Box className="flex justify-center items-center py-10 my-auto">
-            <CircularProgress message="Зареждане на продуктите..." />
-          </Box>
-        ) : currentItems.length === 0 ? (
-          <div className="container mx-auto px-4 mt-4 font-bold">
-            <p className="text-center text-2xl p-16 bg-white rounded-md text-gray-600">
-              Няма намерени продукти
-            </p>
-          </div>
-        ) : (
-          <div className="container mx-auto py-4 lg:px-4">
-            <div className="grid gap-10 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-              {currentItems.map((product) => (
-                <ProductCard
-                  key={product.id}
-                  product={product}
-                  onDelete={handleOpenModal}
-                />
-              ))}
+        <div>
+          {loading ? (
+            <Box className="flex justify-center items-center py-10 my-auto">
+              <CircularProgress message="Зареждане на продуктите..." />
+            </Box>
+          ) : currentItems.length === 0 ? (
+            <div className="container mx-auto px-4 mt-4 font-bold">
+              <p className="text-center text-2xl p-16 bg-white rounded-md text-gray-600">
+                Няма намерени продукти
+              </p>
             </div>
-            <div className="pt-10">
+          ) : (
+            <>
+              <div className="grid gap-4 sm:gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 py-4 sm:py-6 px-4 max-w-screen-2xl m-auto">
+                {currentItems.map((product) => (
+                  <ProductCard
+                    key={product.id}
+                    product={product}
+                    onDelete={handleOpenModal}
+                  />
+                ))}
+              </div>
               <PaginationButtons
                 itemsPerPage={ITEMS_PER_PAGE}
                 totalItems={filteredProducts.length}
                 paginate={paginate}
                 currentPage={currentPage}
               />
-            </div>
-          </div>
-        )}
+            </>
+          )}
+        </div>
       </div>
       <ConfirmationModal
         open={openModal}

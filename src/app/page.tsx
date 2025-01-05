@@ -1,16 +1,10 @@
-import { PrismaClient } from "@prisma/client";
-import Link from "next/link";
-import Image from "next/image";
+import { PrismaClient, Category } from "@prisma/client";
+import CategoryCard from "./ui/components/category-card";
 
 const prisma = new PrismaClient();
 
 export default async function HomePage() {
-  let categories: {
-    id: string;
-    name: string;
-    code: string;
-    imageUrl: string;
-  }[] = [];
+  let categories: Category[] = [];
 
   try {
     categories = await prisma.category.findMany({
@@ -21,8 +15,8 @@ export default async function HomePage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold text-center mb-8">
+    <div className="container mx-auto px-4 py-4 sm:py-6">
+      <h1 className="text-2xl sm:text-3xl font-bold text-center mb-4 sm:mb-6 tracking-wide">
         Категории продукти
       </h1>
       {categories.length === 0 ? (
@@ -30,25 +24,9 @@ export default async function HomePage() {
           Няма налични категории
         </p>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {categories.map((category) => (
-            <Link
-              key={category.id}
-              href={`/product-catalog/categories/${category.name}`}
-              className="border-4 border-gray-200 rounded-lg shadow-lg p-4 flex flex-col items-center justify-center bg-white hover:bg-gray-100 transition duration-200"
-            >
-              <Image
-                src={category.imageUrl}
-                alt={category.name}
-                width={300}
-                height={200}
-                className="w-full h-48 object-cover mb-4 rounded"
-              />
-              <p className="text-md text-gray-500 font-semibold">
-                Код: {category.code}
-              </p>
-              <h2 className="text-lg font-bold">{category.name}</h2>
-            </Link>
+            <CategoryCard key={category.id} category={category} />
           ))}
         </div>
       )}

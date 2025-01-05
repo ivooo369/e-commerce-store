@@ -19,13 +19,13 @@ export default function ProductCard({
   return (
     <Card className="max-w-xs mx-auto text-center min-w-full flex flex-col justify-between shadow-lg">
       <CardMedia
-        className="min-w-80 h-52 object-cover"
+        className="h-52 w-full object-cover"
         component="img"
         image={product.images[0]}
         alt={product.name}
         onContextMenu={(e) => e.preventDefault()}
       />
-      <CardContent>
+      <CardContent sx={{ paddingBottom: "1rem !important" }}>
         <p className="text-xl font-bold truncate whitespace-nowrap">
           {product.name}
         </p>
@@ -33,13 +33,13 @@ export default function ProductCard({
         <p className="text-base font-bold text-black">
           Цена: {product.price} лв.
         </p>
-        <div className="mt-4 flex justify-center gap-2">
+        <div className="mt-4 flex justify-center gap-3">
           <Link href={`/product-catalog/details/${product.code}`}>
             <Button
               variant="contained"
               sx={{
                 fontWeight: "bold",
-                width: "8rem",
+                maxWidth: "8rem",
               }}
             >
               Детайли
@@ -50,7 +50,7 @@ export default function ProductCard({
             color="error"
             sx={{
               fontWeight: "bold",
-              width: "8rem",
+              maxWidth: "8rem",
             }}
             onClick={() => onAddToCart(product.id)}
             startIcon={<ShoppingCartIcon />}

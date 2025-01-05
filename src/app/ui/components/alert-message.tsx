@@ -24,6 +24,7 @@ export default function AlertMessage({ severity, message }: AlertMessageProps) {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
+        textAlign: "center",
         gap: "0.5rem",
         fontWeight: "bold",
       }}

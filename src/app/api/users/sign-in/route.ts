@@ -6,7 +6,6 @@ import jwt from "jsonwebtoken";
 const prisma = new PrismaClient();
 const JWT_SECRET = process.env.JWT_SECRET;
 
-// Тип за декодирания токен
 interface DecodedToken {
   userId: string;
   email: string;

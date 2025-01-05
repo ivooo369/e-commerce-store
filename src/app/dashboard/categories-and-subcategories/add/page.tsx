@@ -169,15 +169,15 @@ export default function DashboardAddCategoriesAndSubcategoriesPage() {
   return (
     <>
       <DashboardNav />
-      <div className="container mx-auto p-8">
-        <h2 className="text-3xl font-bold text-center text-gray-800 mb-8 tracking-wide">
+      <div className="container mx-auto px-4 py-4 sm:py-6">
+        <h1 className="text-2xl sm:text-3xl font-bold text-center text-gray-800 mb-4 sm:mb-6 tracking-wide">
           Добавяне на категории и подкатегории
-        </h2>
-        <div className="flex space-x-8">
+        </h1>
+        <div className="flex flex-col gap-5 m-auto">
           <div className="flex-1">
             <form
               onSubmit={handleCategorySubmit}
-              className="bg-white shadow-lg rounded-lg p-6 space-y-4"
+              className="bg-white shadow-lg rounded-lg m-auto p-4 space-y-4 max-w-5xl"
             >
               <h2 className="text-2xl font-semibold text-center">
                 Нова категория
@@ -261,7 +261,7 @@ export default function DashboardAddCategoriesAndSubcategoriesPage() {
           <div className="flex-1">
             <form
               onSubmit={handleSubcategorySubmit}
-              className="bg-white shadow-lg rounded-lg p-6 space-y-4"
+              className="bg-white shadow-lg rounded-lg m-auto p-4 space-y-4 max-w-5xl"
             >
               <h2 className="text-2xl font-semibold text-center">
                 Нова подкатегория

@@ -14,24 +14,35 @@ export default function MessageCard({
   return (
     <div
       key={message.id}
-      className="bg-white text-center shadow-lg rounded-lg p-6 w-9/12 mx-auto transform transition-transform hover:scale-105 hover:shadow-2xl"
+      className="bg-white text-center shadow-lg rounded-lg p-4 sm:p-6 w-full mx-auto transform transition-transform hover:scale-105 hover:shadow-2xl"
     >
-      <div className="flex flex-col gap-4">
-        <h3 className="text-3xl font-semibold text-gray-800 whitespace-normal break-words">
+      <div className="flex flex-col gap-3 sm:gap-5">
+        {/* Title */}
+        <h3 className="text-xl sm:text-2xl font-semibold text-gray-800 whitespace-normal break-words">
           {message.title}
         </h3>
-        <p className="text-gray-600 text-base whitespace-normal break-words">
+
+        {/* Name */}
+        <p className="text-gray-600 text-base sm:text-lg whitespace-normal break-words">
           <strong>Име:</strong> {message.name}
         </p>
-        <p className="text-gray-600 text-base whitespace-normal break-words">
+
+        {/* Email */}
+        <p className="text-gray-600 text-base sm:text-lg whitespace-normal break-words">
           <strong>Email:</strong> {message.email}
         </p>
-        <p className="text-gray-700 text-lg whitespace-normal break-words">
+
+        {/* Content */}
+        <p className="text-gray-700 text-base sm:text-lg whitespace-normal break-words">
           {message.content}
         </p>
-        <p className="text-gray-500 text-base">
+
+        {/* Date */}
+        <p className="text-gray-500 text-base sm:text-lg">
           {formatDate(message.createdAt)}
         </p>
+
+        {/* Delete Button */}
         <div className="flex justify-center">
           <Button
             variant="contained"

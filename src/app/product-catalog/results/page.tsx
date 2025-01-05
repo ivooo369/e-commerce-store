@@ -19,7 +19,7 @@ export default function ResultsPage() {
 
 function Results() {
   const searchParams = useSearchParams();
-  const query = searchParams.get("query");
+  const query = searchParams.get("query") || "";
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
@@ -27,12 +27,12 @@ function Results() {
     usePagination(filteredProducts);
 
   useEffect(() => {
-    if (query) {
+    if (query.trim() !== "") {
       setLoading(true);
       fetch(`/api/public/products/search?query=${query}`)
         .then((response) => response.json())
         .then((data) => {
-          if (data && Array.isArray(data)) {
+          if (Array.isArray(data)) {
             setFilteredProducts(data);
           } else {
             setFilteredProducts([]);
@@ -40,7 +40,7 @@ function Results() {
           setLoading(false);
         })
         .catch((error) => {
-          console.error("Възникна грешка при извличане на продуктите:", error);
+          console.error("Error fetching products:", error);
           setFilteredProducts([]);
           setLoading(false);
         });
@@ -55,8 +55,8 @@ function Results() {
   };
 
   return (
-    <div className="products-filter-container flex flex-col items-center max-w-screen-2xl mx-auto p-8">
-      <h1 className="text-3xl font-bold text-center mb-8">
+    <div className="container mx-auto py-4 sm:py-6">
+      <h1 className="text-3xl text-center font-bold mb-4 sm:mb-6 tracking-wide">
         Резултати за &quot;{query}&quot;
       </h1>
       {filteredProducts.length > 0 && (
@@ -80,27 +80,23 @@ function Results() {
           </p>
         </div>
       ) : (
-        <div>
-          <div className="container my-7 py-4 lg:px-4">
-            <div className="grid gap-10 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-              {currentItems.map((product) => (
-                <ProductCard
-                  key={product.id}
-                  product={product}
-                  onAddToCart={handleAddToCart}
-                />
-              ))}
-            </div>
+        <>
+          <div className="grid gap-4 sm:gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 py-4 sm:py-6 md:py-8 px-4">
+            {currentItems.map((product) => (
+              <ProductCard
+                key={product.id}
+                product={product}
+                onAddToCart={handleAddToCart}
+              />
+            ))}
           </div>
-          <div>
-            <PaginationButtons
-              itemsPerPage={ITEMS_PER_PAGE}
-              totalItems={filteredProducts.length}
-              paginate={paginate}
-              currentPage={currentPage}
-            />
-          </div>
-        </div>
+          <PaginationButtons
+            itemsPerPage={ITEMS_PER_PAGE}
+            totalItems={filteredProducts.length}
+            paginate={paginate}
+            currentPage={currentPage}
+          />
+        </>
       )}
     </div>
   );

@@ -31,8 +31,8 @@ export default async function CategoryPage({
 
   if (!category) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold text-center text-red-500">
+      <div className="container mx-auto px-4 py-4 sm:py-6">
+        <h1 className="text-3xl font-bold text-center text-red-500 tracking-wide">
           Категорията не е намерена
         </h1>
       </div>
