@@ -13,8 +13,8 @@ import Button from "@mui/material/Button";
 import AlertMessage from "@/app/ui/components/alert-message";
 import { useDispatch } from "react-redux";
 import { setUser } from "@/app/lib/userSlice";
-import { FiCheck } from "react-icons/fi";
 import Link from "next/link";
+import AccountBenefits from "@/app/ui/components/account-benefits";
 
 export default function SignUpPage() {
   const dispatch = useDispatch();
@@ -141,38 +141,14 @@ export default function SignUpPage() {
 
   return (
     <div className="container mx-auto px-4 py-4 sm:py-6 max-w-5xl">
-      <h1 className="text-2xl sm:text-3xl font-bold text-center text-gray-800 mb-4 sm:mb-6 tracking-wide">
+      <h1 className="text-2xl sm:text-3xl font-bold text-center mb-4 sm:mb-6 tracking-wide">
         Регистрация
       </h1>
       <form
         onSubmit={handleSubmit}
         className="bg-white shadow-lg rounded-lg p-4 sm:p-6 space-y-4"
       >
-        <div>
-          <h3 className="font-semibold text-lg sm:text-xl text-center text-gray-600 mb-3">
-            Когато сте влезли в своя акаунт, имате възможност:
-          </h3>
-          <ul className="space-y-2 text-gray-600 text-base sm:text-lg m-auto w-2/4">
-            <li className="flex items-center gap-4">
-              <FiCheck className="text-green-500 flex-shrink-0" size={35} />
-              <span className="leading-6">
-                Да преглеждате историята на всички поръчки, които сте направили
-              </span>
-            </li>
-            <li className="flex items-center gap-4">
-              <FiCheck className="text-green-500 flex-shrink-0" size={35} />
-              <span className="leading-6">
-                Да се възползвате от специални промоции
-              </span>
-            </li>
-            <li className="flex items-center gap-4">
-              <FiCheck className="text-green-500 flex-shrink-0" size={35} />
-              <span className="leading-6">
-                Да запазвате продукти, които са Ви харесали в &quot;Любими&quot;
-              </span>
-            </li>
-          </ul>
-        </div>
+        <AccountBenefits />
         <FormControl fullWidth variant="outlined" required>
           <InputLabel htmlFor="firstName">Име</InputLabel>
           <OutlinedInput
@@ -294,10 +270,7 @@ export default function SignUpPage() {
         >
           {loading ? "Зареждане..." : "Регистрация"}
         </Button>
-        {alert && (
-          <AlertMessage severity={alert.severity} message={alert.message} />
-        )}
-        <div className="flex justify-center mt-4">
+        <div className="flex justify-center mt-4 text-gray-600 font-semibold">
           <p className="flex text-center flex-col lg:flex-row text-base sm:text-lg">
             Имате акаунт?
             <Link
@@ -308,6 +281,9 @@ export default function SignUpPage() {
             </Link>
           </p>
         </div>
+        {alert && (
+          <AlertMessage severity={alert.severity} message={alert.message} />
+        )}
       </form>
     </div>
   );
