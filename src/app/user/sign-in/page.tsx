@@ -149,27 +149,12 @@ export default function SignInPage() {
         >
           {loading ? "Влизане..." : "Влез в акаунта си"}
         </Button>
-        <div className="flex justify-center gap-5 sm:gap-8 mt-4 text-gray-600 font-semibold">
-          <p className="flex text-center flex-col lg:flex-row text-base sm:text-lg">
-            Нямате акаунт?
-            <Link
-              href="/user/sign-up"
-              className="text-blue-600 hover:underline lg:ml-2"
-            >
-              Регистрирайте се тук
-            </Link>
-          </p>
-          <p>|</p>
-          <p className="flex text-center flex-col lg:flex-row text-base sm:text-lg">
-            Забравена парола?
-            <Link
-              href="/forgot-password"
-              className="text-blue-600 hover:underline lg:ml-2"
-            >
-              Създайте нова парола
-            </Link>
-          </p>
-        </div>
+        <p className="flex justify-center items-center gap-1.5 text-base sm:text-lg font-semibold">
+          Нямате акаунт?
+          <Link href="/user/sign-up" className="text-blue-600 hover:underline">
+            Регистрирайте се тук
+          </Link>
+        </p>
         {alert && (
           <div>
             <AlertMessage severity={alert.severity} message={alert.message} />

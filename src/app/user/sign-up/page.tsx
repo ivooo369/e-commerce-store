@@ -15,6 +15,7 @@ import { useDispatch } from "react-redux";
 import { setUser } from "@/app/lib/userSlice";
 import Link from "next/link";
 import AccountBenefits from "@/app/ui/components/account-benefits";
+import { Checkbox, FormControlLabel } from "@mui/material";
 
 export default function SignUpPage() {
   const dispatch = useDispatch();
@@ -33,6 +34,7 @@ export default function SignUpPage() {
     message: string;
     severity: "success" | "error";
   } | null>(null);
+  const [termsAccepted, setTermsAccepted] = useState(false);
 
   const handleClickShowPassword = () => setShowPassword((show) => !show);
   const handleClickShowConfirmPassword = () =>
@@ -260,6 +262,36 @@ export default function SignUpPage() {
             inputProps={{ maxLength: 20, autoComplete: "phone" }}
           />
         </FormControl>
+        <div className="flex justify-center">
+          <FormControlLabel
+            style={{ margin: 0 }}
+            control={
+              <Checkbox
+                checked={termsAccepted}
+                onChange={(event) => {
+                  const checkbox = event.target as HTMLInputElement;
+                  setTermsAccepted(checkbox.checked);
+                  if (checkbox.checked) {
+                    checkbox.setCustomValidity("");
+                  }
+                }}
+                color="primary"
+                required
+                onInvalid={(event) => {
+                  const checkbox = event.target as HTMLInputElement;
+                  checkbox.setCustomValidity(
+                    "Моля, дайте съгласие за обработка на вашите данни, за да продължите."
+                  );
+                }}
+              />
+            }
+            label={
+              <span className="text-sm sm:text-base text-gray-700">
+                Съгласявам се личните ми данни да бъдат обработвани
+              </span>
+            }
+          />
+        </div>
         <Button
           variant="contained"
           color="primary"
@@ -270,17 +302,12 @@ export default function SignUpPage() {
         >
           {loading ? "Зареждане..." : "Регистрация"}
         </Button>
-        <div className="flex justify-center mt-4 text-gray-600 font-semibold">
-          <p className="flex text-center flex-col lg:flex-row text-base sm:text-lg">
-            Имате акаунт?
-            <Link
-              href="/user/sign-in"
-              className="text-blue-600 hover:underline lg:ml-2"
-            >
-              Влезте тук
-            </Link>
-          </p>
-        </div>
+        <p className="flex justify-center items-center gap-1.5 text-base sm:text-lg font-semibold">
+          Имате акаунт?
+          <Link href="/user/sign-in" className="text-blue-600 hover:underline">
+            Влезте тук
+          </Link>
+        </p>
         {alert && (
           <AlertMessage severity={alert.severity} message={alert.message} />
         )}
