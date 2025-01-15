@@ -21,7 +21,7 @@ export default function DashboardEditCategoryPage() {
   const [categoryCode, setCategoryCode] = useState("");
   const [categoryImageUrl, setCategoryImageUrl] = useState<string>("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [alert, setAlert] = useState<{
@@ -46,7 +46,7 @@ export default function DashboardEditCategoryPage() {
       } catch (error) {
         console.error("Възникна грешка при извличане на категорията:", error);
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
     };
 
@@ -122,7 +122,7 @@ export default function DashboardEditCategoryPage() {
     }
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex justify-center items-center h-screen">
         <CircularProgress message="Зареждане на данните на категорията..." />

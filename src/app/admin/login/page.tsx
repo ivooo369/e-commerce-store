@@ -18,23 +18,23 @@ import AlertMessage from "@/app/ui/components/alert-message";
 export default function DashboardLoginPage() {
   const [customerUsername, setCustomerUsername] = useState("");
   const [customerPassword, setCustomerPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [alert, setAlert] = useState<{
     message: string;
     severity: "success" | "error";
   } | null>(null);
   const router = useRouter();
 
-  const handleClickShowPassword = () => setShowPassword((show) => !show);
+  const handleClickShowPassword = () => setIsPasswordVisible((show) => !show);
 
   const handleMouseDownPassword = (event: { preventDefault: () => void }) => {
     event.preventDefault();
   };
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSignIn = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setLoading(true);
+    setIsLoading(true);
 
     const result = await signIn("credentials", {
       redirect: false,
@@ -42,7 +42,7 @@ export default function DashboardLoginPage() {
       password: customerPassword,
     });
 
-    setLoading(false);
+    setIsLoading(false);
 
     if (result?.error) {
       setAlert({
@@ -66,7 +66,7 @@ export default function DashboardLoginPage() {
         <h1 className="text-2xl font-bold text-center mb-6 tracking-wide">
           Администраторски Панел - Вход
         </h1>
-        <form className="space-y-4" onSubmit={handleSubmit}>
+        <form className="space-y-4" onSubmit={handleSignIn}>
           <TextField
             label="Потребителско име"
             autoComplete="current-username"
@@ -82,7 +82,7 @@ export default function DashboardLoginPage() {
               id="password"
               label="Парола"
               autoComplete="current-password"
-              type={showPassword ? "text" : "password"}
+              type={isPasswordVisible ? "text" : "password"}
               value={customerPassword}
               onChange={(e) => setCustomerPassword(e.target.value)}
               endAdornment={
@@ -93,7 +93,7 @@ export default function DashboardLoginPage() {
                     onMouseDown={handleMouseDownPassword}
                     edge="end"
                   >
-                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                    {isPasswordVisible ? <VisibilityOff /> : <Visibility />}
                   </IconButton>
                 </InputAdornment>
               }
@@ -105,9 +105,9 @@ export default function DashboardLoginPage() {
             color="primary"
             fullWidth
             sx={getCustomButtonStyles}
-            disabled={loading}
+            disabled={isLoading}
           >
-            {loading ? "Влизане..." : "Вход"}
+            {isLoading ? "Влизане..." : "Вход"}
           </Button>
           {alert && (
             <div>

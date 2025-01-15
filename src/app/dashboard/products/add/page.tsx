@@ -22,7 +22,7 @@ export default function DashboardAddNewProductPage() {
   const [description, setDescription] = useState("");
   const [productImageUrls, setProductImageUrls] = useState<string[]>([]);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [subcategories, setSubcategories] = useState<
     { id: string; name: string; code: string }[]
   >([]);
@@ -80,7 +80,7 @@ export default function DashboardAddNewProductPage() {
 
   const handleProductSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+    setIsLoading(true);
 
     try {
       const imageUrls = selectedFiles.length
@@ -141,7 +141,7 @@ export default function DashboardAddNewProductPage() {
         severity: "error",
       });
     } finally {
-      setLoading(false);
+      setIsLoading(false);
       setTimeout(() => setAlert(null), 5000);
     }
   };
@@ -274,9 +274,9 @@ export default function DashboardAddNewProductPage() {
             color="primary"
             fullWidth
             sx={getCustomButtonStyles}
-            disabled={loading}
+            disabled={isLoading}
           >
-            {loading ? "Добавяне..." : "Добави нов продукт"}
+            {isLoading ? "Добавяне..." : "Добави нов продукт"}
           </Button>
           {alert && (
             <AlertMessage message={alert.message} severity={alert.severity} />

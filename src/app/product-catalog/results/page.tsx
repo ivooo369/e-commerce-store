@@ -21,14 +21,14 @@ function Results() {
   const searchParams = useSearchParams();
   const query = searchParams.get("query") || "";
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const { currentPage, currentItems, paginate } =
     usePagination(filteredProducts);
 
   useEffect(() => {
     if (query.trim() !== "") {
-      setLoading(true);
+      setIsLoading(true);
       fetch(`/api/public/products/search?query=${query}`)
         .then((response) => response.json())
         .then((data) => {
@@ -37,16 +37,16 @@ function Results() {
           } else {
             setFilteredProducts([]);
           }
-          setLoading(false);
+          setIsLoading(false);
         })
         .catch((error) => {
           console.error("Error fetching products:", error);
           setFilteredProducts([]);
-          setLoading(false);
+          setIsLoading(false);
         });
     } else {
       setFilteredProducts([]);
-      setLoading(false);
+      setIsLoading(false);
     }
   }, [query]);
 
@@ -69,7 +69,7 @@ function Results() {
           />
         </div>
       )}
-      {loading ? (
+      {isLoading ? (
         <Box className="flex justify-center items-center py-10 my-auto">
           <CircularProgress message="Зареждане на продуктите..." />
         </Box>

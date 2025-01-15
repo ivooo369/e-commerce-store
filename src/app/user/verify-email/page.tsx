@@ -5,7 +5,7 @@ import Link from "next/link";
 
 export default function VerifyEmail() {
   const [message, setMessage] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const [successMessage, setSuccessMessage] = useState("");
   const [customerName, setCustomerName] = useState("");
 
@@ -32,14 +32,14 @@ export default function VerifyEmail() {
           setMessage("Възникна грешка при потвърждаване на имейла!");
           console.error("Възникна грешка при потвърждаване на имейла:", error);
         })
-        .finally(() => setLoading(false));
+        .finally(() => setIsLoading(false));
     } else {
       setMessage("Токенът е невалиден!");
-      setLoading(false);
+      setIsLoading(false);
     }
   }, [successMessage]);
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-50">
         <div className="flex flex-col items-center">

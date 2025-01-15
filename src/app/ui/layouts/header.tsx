@@ -21,33 +21,53 @@ interface DecodedToken {
 
 export default function Header() {
   const pathname = usePathname();
-  const [isCatalogOpen, setIsCatalogOpen] = useState(false);
+  const [isCatalogMenuOpen, setIsCatalogMenuOpen] = useState(false);
+  const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
   const [categories, setCategories] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [userName, setUserName] = useState<string | null>(null);
   const dispatch = useDispatch();
   const signedInUser = useSelector((state: RootState) => state.user);
+  const catalogMenuRef = useRef<HTMLDivElement>(null);
+  const accountMenuRef = useRef<HTMLDivElement>(null);
 
-  const menuRef = useRef<HTMLDivElement>(null);
+  const handleClickCatalogMenuOutside = (event: MouseEvent) => {
+    if (
+      catalogMenuRef.current &&
+      !catalogMenuRef.current.contains(event.target as Node)
+    ) {
+      setIsCatalogMenuOpen(false);
+    }
+  };
 
-  const handleClickOutside = (event: MouseEvent) => {
-    if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-      setIsCatalogOpen(false);
+  const handleClickAccountMenuOutside = (event: MouseEvent) => {
+    if (
+      accountMenuRef.current &&
+      !accountMenuRef.current.contains(event.target as Node)
+    ) {
+      setIsAccountMenuOpen(false);
     }
   };
 
   useEffect(() => {
-    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("mousedown", handleClickCatalogMenuOutside);
+    document.addEventListener("mousedown", handleClickAccountMenuOutside);
 
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("mousedown", handleClickCatalogMenuOutside);
+      document.removeEventListener("mousedown", handleClickAccountMenuOutside);
     };
   }, []);
 
   useEffect(() => {
+    if (signedInUser.isLoggedIn) {
+      setUserName(signedInUser.firstName + " " + signedInUser.lastName);
+    } else {
+      setUserName(null);
+    }
+
     if (typeof window !== "undefined") {
       const token = localStorage.getItem("userData");
-
       if (token) {
         try {
           const decoded: DecodedToken = jwtDecode(token);
@@ -57,13 +77,11 @@ export default function Header() {
             localStorage.removeItem("userData");
             dispatch(clearUser());
           } else {
-            const userData = JSON.parse(
-              localStorage.getItem("userData") || "{}"
-            );
+            const userData = JSON.parse(token);
             setUserName(userData.firstName + " " + userData.lastName);
           }
         } catch (error) {
-          console.error("Възникна грешка при декодиране на токена:", error);
+          console.error("Error decoding token:", error);
           localStorage.removeItem("userData");
           dispatch(clearUser());
         }
@@ -86,11 +104,21 @@ export default function Header() {
     };
 
     fetchCategories();
-  }, [dispatch, signedInUser.authToken]);
+  }, [
+    dispatch,
+    signedInUser.id,
+    signedInUser.firstName,
+    signedInUser.lastName,
+    signedInUser.token,
+    signedInUser.isLoggedIn,
+  ]);
 
-  const toggleCatalog = () => setIsCatalogOpen(!isCatalogOpen);
+  const toggleCatalogMenu = () => setIsCatalogMenuOpen(!isCatalogMenuOpen);
+  const toggleAccountMenu = () => setIsAccountMenuOpen(!isAccountMenuOpen);
+
   const handleSignOut = () => {
     localStorage.removeItem("userData");
+    localStorage.removeItem("userAccountData");
     dispatch(clearUser());
     setUserName(null);
   };
@@ -122,8 +150,48 @@ export default function Header() {
         <div className="flex flex-col gap-1 sm:gap-0 sm:flex-row items-center font-medium order-1 md:order-2">
           {userName ? (
             <div className="flex items-center gap-3">
-              <span className="flex flex-wrap gap-1 items-center text-sm md:text-base truncate max-w-[300px]">
+              <span
+                onClick={toggleAccountMenu}
+                className="flex items-center gap-1 relative rounded px-3 py-2 transition duration-300 text-sm md:text-base hover:bg-gray-300 cursor-pointer"
+              >
                 <MdAccountCircle className="w-7 h-7 text-gray-700" /> {userName}
+                {isAccountMenuOpen && (
+                  <div
+                    ref={accountMenuRef}
+                    className="absolute top-full left-0 bg-white shadow-lg rounded p-2 z-50 w-48"
+                  >
+                    <Link
+                      href="/user/my-account"
+                      className="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded"
+                    >
+                      Моят акаунт
+                    </Link>
+                    <Link
+                      href="/user/favorite-products"
+                      className="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded"
+                    >
+                      Любими продукти
+                    </Link>
+                    <Link
+                      href="/user/order-history"
+                      className="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded"
+                    >
+                      Поръчки
+                    </Link>
+                    <Link
+                      href="/user/change-password"
+                      className="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded"
+                    >
+                      Смяна на парола
+                    </Link>
+                    <Link
+                      href="/user/delete-account"
+                      className="block px-4 py-2 text-red-600 hover:bg-red-100 rounded"
+                    >
+                      Изтрий акаунта
+                    </Link>
+                  </div>
+                )}
               </span>
               <button
                 onClick={handleSignOut}
@@ -188,7 +256,7 @@ export default function Header() {
             </Link>
             <div
               className="relative flex items-center rounded px-3 py-2 transition duration-300 text-sm md:text-base hover:bg-gray-300 cursor-pointer"
-              onClick={toggleCatalog}
+              onClick={toggleCatalogMenu}
               aria-label="Каталог"
             >
               <ViewListIcon
@@ -196,10 +264,10 @@ export default function Header() {
                 style={{ width: 28, height: 28 }}
               />
               КАТАЛОГ
-              {isCatalogOpen && (
+              {isCatalogMenuOpen && (
                 <div
-                  ref={menuRef}
-                  className="absolute top-full left-0 bg-white shadow-lg rounded mt-2 p-2 z-50 w-48"
+                  ref={catalogMenuRef}
+                  className="absolute top-full left-0 bg-white shadow-lg rounded p-2 z-50 w-48"
                 >
                   {isLoading ? (
                     <p>Зареждане...</p>

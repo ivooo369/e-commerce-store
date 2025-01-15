@@ -16,15 +16,15 @@ export default function ContactPage() {
   const [email, setEmail] = useState("");
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [alert, setAlert] = useState<{
     message: string;
     severity: "success" | "error";
   } | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSendMessage = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setLoading(true);
+    setIsLoading(true);
 
     const formData = {
       name: (e.currentTarget.elements.namedItem("name") as HTMLInputElement)
@@ -54,7 +54,7 @@ export default function ContactPage() {
           message: responseData.error,
           severity: "error",
         });
-        setLoading(false);
+        setIsLoading(false);
         setTimeout(() => setAlert(null), 5000);
         return;
       }
@@ -63,7 +63,7 @@ export default function ContactPage() {
         message: responseData.message,
         severity: "success",
       });
-      setLoading(false);
+      setIsLoading(false);
       setTimeout(() => setAlert(null), 5000);
 
       setName("");
@@ -72,7 +72,7 @@ export default function ContactPage() {
       setContent("");
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      setLoading(false);
+      setIsLoading(false);
       setAlert({
         message: "Възникна грешка при обработка на заявката!",
         severity: "error",
@@ -91,7 +91,7 @@ export default function ContactPage() {
         свържем с вас в най-кратък срок.
       </p>
       <form
-        onSubmit={handleSubmit}
+        onSubmit={handleSendMessage}
         className="bg-white shadow-lg rounded-lg p-4 sm:p-6 space-y-4"
       >
         <FormControl fullWidth variant="outlined" required>
@@ -149,9 +149,9 @@ export default function ContactPage() {
           color="primary"
           fullWidth
           sx={getCustomButtonStyles}
-          disabled={loading}
+          disabled={isLoading}
         >
-          {loading ? "Изпращане..." : "Изпрати съобщение"}
+          {isLoading ? "Изпращане..." : "Изпрати съобщение"}
         </Button>
         {alert && (
           <div>

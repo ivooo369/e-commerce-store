@@ -108,6 +108,7 @@ export async function POST(req: Request) {
           "Регистрацията Ви е почти готова! Моля, отворете имейла си и кликнете върху линка за верификация!",
         token,
         user: {
+          id: newUser.id,
           firstName: newUser.firstName,
           lastName: newUser.lastName,
         },

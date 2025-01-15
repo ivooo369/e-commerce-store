@@ -27,7 +27,7 @@ export default function DashboardEditProductPage() {
   const [productImageUrls, setProductImageUrls] = useState<string[]>([]);
   const [imagesToRemove, setImagesToRemove] = useState<string[]>([]);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [subcategories, setSubcategories] = useState<
@@ -66,7 +66,7 @@ export default function DashboardEditProductPage() {
       } catch (error) {
         console.error("Възникна грешка при извличане на данните:", error);
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
     };
 
@@ -173,14 +173,14 @@ export default function DashboardEditProductPage() {
         severity: "error",
       });
     } finally {
-      setLoading(false);
+      setIsLoading(false);
       setIsEditing(false);
 
       setTimeout(() => setAlert(null), 5000);
     }
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex justify-center items-center h-screen">
         <CircularProgress message="Зареждане на данните на продукта..." />

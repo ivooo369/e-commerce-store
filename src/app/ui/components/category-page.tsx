@@ -33,7 +33,7 @@ export default function CategoryPageServerComponent({
   );
   const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [sortOption, setSortOption] = useState<string>("newest");
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 500]);
 
@@ -92,7 +92,7 @@ export default function CategoryPageServerComponent({
         console.error("Възникна грешка при извличане на продуктите:", error);
         setProducts([]);
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
     };
 
@@ -188,7 +188,7 @@ export default function CategoryPageServerComponent({
         />
       )}
       <div>
-        {loading ? (
+        {isLoading ? (
           <Box className="flex justify-center items-center py-10 my-auto">
             <CircularProgress message="Зареждане на продуктите..." />
           </Box>

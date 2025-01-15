@@ -32,8 +32,8 @@ export default function DashboardAddCategoriesAndSubcategoriesPage() {
     message: string;
     severity: "success" | "error";
   } | null>(null);
-  const [loadingCategory, setLoadingCategory] = useState(false);
-  const [loadingSubcategory, setLoadingSubcategory] = useState(false);
+  const [isLoadingCategory, setIsLoadingCategory] = useState(false);
+  const [isLoadingSubcategory, setIsLoadingSubcategory] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
@@ -57,7 +57,7 @@ export default function DashboardAddCategoriesAndSubcategoriesPage() {
 
   const handleCategorySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoadingCategory(true);
+    setIsLoadingCategory(true);
 
     try {
       const response = await fetch("/api/dashboard/categories", {
@@ -106,14 +106,14 @@ export default function DashboardAddCategoriesAndSubcategoriesPage() {
       });
     } finally {
       setTimeout(() => setAlertCategory(null), 5000);
-      setLoadingCategory(false);
+      setIsLoadingCategory(false);
     }
     window.location.reload();
   };
 
   const handleSubcategorySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoadingSubcategory(true);
+    setIsLoadingSubcategory(true);
 
     try {
       const response = await fetch("/api/dashboard/subcategories", {
@@ -154,7 +154,7 @@ export default function DashboardAddCategoriesAndSubcategoriesPage() {
       });
     } finally {
       setTimeout(() => setAlertSubcategory(null), 5000);
-      setLoadingSubcategory(false);
+      setIsLoadingSubcategory(false);
     }
   };
 
@@ -243,9 +243,9 @@ export default function DashboardAddCategoriesAndSubcategoriesPage() {
                   variant="contained"
                   color="primary"
                   sx={getCustomButtonStyles}
-                  disabled={loadingCategory}
+                  disabled={isLoadingCategory}
                 >
-                  {loadingCategory ? "Добавяне..." : "Добави нова категория"}
+                  {isLoadingCategory ? "Добавяне..." : "Добави нова категория"}
                 </Button>
               </div>
               {alertCategory && (
@@ -308,9 +308,9 @@ export default function DashboardAddCategoriesAndSubcategoriesPage() {
                 variant="contained"
                 color="primary"
                 sx={getCustomButtonStyles}
-                disabled={loadingSubcategory}
+                disabled={isLoadingSubcategory}
               >
-                {loadingSubcategory
+                {isLoadingSubcategory
                   ? "Добавяне..."
                   : "Добави нова подкатегория"}
               </Button>

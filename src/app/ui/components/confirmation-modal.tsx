@@ -7,7 +7,7 @@ import { FaTrash } from "react-icons/fa";
 import CircularProgress from "@/app/ui/components/circular-progress";
 
 interface ConfirmationModalProps {
-  open: boolean;
+  isOpen: boolean;
   onClose: () => void;
   onConfirm: () => void;
   mainMessage: string;
@@ -16,7 +16,7 @@ interface ConfirmationModalProps {
 }
 
 export default function ConfirmationModal({
-  open,
+  isOpen,
   onClose,
   onConfirm,
   mainMessage,
@@ -24,7 +24,7 @@ export default function ConfirmationModal({
   isDeleting = false,
 }: ConfirmationModalProps) {
   return (
-    <Modal open={open} onClose={onClose}>
+    <Modal open={isOpen} onClose={onClose}>
       {isDeleting ? (
         <Box
           sx={{

@@ -121,6 +121,7 @@ export async function POST(req: Request) {
         message: "Успешен вход!",
         token,
         user: {
+          id: existingUser.id,
           firstName: existingUser.firstName,
           lastName: existingUser.lastName,
         },

@@ -23,28 +23,29 @@ export default function SignUpPage() {
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] =
+    useState(false);
   const [confirmPassword, setConfirmPassword] = useState("");
   const [city, setCity] = useState("");
   const [address, setAddress] = useState("");
   const [phone, setPhone] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [alert, setAlert] = useState<{
     message: string;
     severity: "success" | "error";
   } | null>(null);
-  const [termsAccepted, setTermsAccepted] = useState(false);
+  const [areTermsAccepted, setAreTermsAccepted] = useState(false);
 
-  const handleClickShowPassword = () => setShowPassword((show) => !show);
+  const handleClickShowPassword = () => setIsPasswordVisible((show) => !show);
   const handleClickShowConfirmPassword = () =>
-    setShowConfirmPassword((show) => !show);
+    setIsConfirmPasswordVisible((show) => !show);
 
   const handleMouseDownPassword = (event: { preventDefault: () => void }) => {
     event.preventDefault();
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (password.length < 8) {
@@ -65,7 +66,7 @@ export default function SignUpPage() {
       return;
     }
 
-    setLoading(true);
+    setIsLoading(true);
 
     const formData = {
       firstName,
@@ -93,7 +94,7 @@ export default function SignUpPage() {
           message: responseData.error,
           severity: "error",
         });
-        setLoading(false);
+        setIsLoading(false);
         setTimeout(() => setAlert(null), 5000);
         return;
       }
@@ -101,17 +102,20 @@ export default function SignUpPage() {
       localStorage.setItem(
         "userData",
         JSON.stringify({
-          token: responseData.token,
+          id: responseData.user.id,
           firstName: responseData.user.firstName,
           lastName: responseData.user.lastName,
+          token: responseData.token,
         })
       );
 
       dispatch(
         setUser({
+          id: responseData.user.id,
           firstName: responseData.user.firstName,
           lastName: responseData.user.lastName,
-          authToken: responseData.token,
+          token: responseData.token,
+          isLoggedIn: responseData.isLoggedIn,
         })
       );
 
@@ -120,7 +124,7 @@ export default function SignUpPage() {
         severity: "success",
       });
 
-      setLoading(false);
+      setIsLoading(false);
 
       setFirstName("");
       setLastName("");
@@ -132,7 +136,7 @@ export default function SignUpPage() {
       setPhone("");
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      setLoading(false);
+      setIsLoading(false);
       setAlert({
         message: "Възникна грешка при обработка на заявката!",
         severity: "error",
@@ -147,7 +151,7 @@ export default function SignUpPage() {
         Регистрация
       </h1>
       <form
-        onSubmit={handleSubmit}
+        onSubmit={handleSignUp}
         className="bg-white shadow-lg rounded-lg p-4 sm:p-6 space-y-4"
       >
         <AccountBenefits />
@@ -189,7 +193,7 @@ export default function SignUpPage() {
           <InputLabel htmlFor="password">Парола</InputLabel>
           <OutlinedInput
             id="password"
-            type={showPassword ? "text" : "password"}
+            type={isPasswordVisible ? "text" : "password"}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             label="Парола"
@@ -201,7 +205,7 @@ export default function SignUpPage() {
                   onMouseDown={handleMouseDownPassword}
                   edge="end"
                 >
-                  {showPassword ? <VisibilityOff /> : <Visibility />}
+                  {isPasswordVisible ? <VisibilityOff /> : <Visibility />}
                 </IconButton>
               </InputAdornment>
             }
@@ -211,7 +215,7 @@ export default function SignUpPage() {
           <InputLabel htmlFor="confirmPassword">Потвърдете паролата</InputLabel>
           <OutlinedInput
             id="confirmPassword"
-            type={showConfirmPassword ? "text" : "password"}
+            type={isConfirmPasswordVisible ? "text" : "password"}
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             label="Потвърдете паролата"
@@ -223,7 +227,11 @@ export default function SignUpPage() {
                   onMouseDown={handleMouseDownPassword}
                   edge="end"
                 >
-                  {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                  {isConfirmPasswordVisible ? (
+                    <VisibilityOff />
+                  ) : (
+                    <Visibility />
+                  )}
                 </IconButton>
               </InputAdornment>
             }
@@ -267,10 +275,10 @@ export default function SignUpPage() {
             style={{ margin: 0 }}
             control={
               <Checkbox
-                checked={termsAccepted}
+                checked={areTermsAccepted}
                 onChange={(event) => {
                   const checkbox = event.target as HTMLInputElement;
-                  setTermsAccepted(checkbox.checked);
+                  setAreTermsAccepted(checkbox.checked);
                   if (checkbox.checked) {
                     checkbox.setCustomValidity("");
                   }
@@ -286,7 +294,7 @@ export default function SignUpPage() {
               />
             }
             label={
-              <span className="text-sm sm:text-base text-gray-700">
+              <span className="text-base sm:text-lg text-gray-700">
                 Съгласявам се личните ми данни да бъдат обработвани
               </span>
             }
@@ -296,11 +304,11 @@ export default function SignUpPage() {
           variant="contained"
           color="primary"
           type="submit"
-          disabled={loading}
+          disabled={isLoading}
           fullWidth
           sx={getCustomButtonStyles()}
         >
-          {loading ? "Зареждане..." : "Регистрация"}
+          {isLoading ? "Зареждане..." : "Регистрация"}
         </Button>
         <p className="flex justify-center items-center gap-1.5 text-base sm:text-lg font-semibold">
           Имате акаунт?

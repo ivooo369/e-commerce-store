@@ -26,10 +26,10 @@ export default function DashboardSubcategoriesPage() {
   const [subcategoryToDelete, setSubcategoryToDelete] = useState<string | null>(
     null
   );
-  const [openSubcategoryModal, setOpenSubcategoryModal] = useState(false);
+  const [isSubcategoryModalOpen, setIsSubcategoryModalOpen] = useState(false);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [deleting, setDeleting] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isDeleting, setIsDeleting] = useState<boolean>(false);
 
   const sortedCategories = categories.sort((a, b) =>
     a.code.localeCompare(b.code)
@@ -76,7 +76,7 @@ export default function DashboardSubcategoriesPage() {
           error
         );
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
     };
 
@@ -85,17 +85,17 @@ export default function DashboardSubcategoriesPage() {
 
   const handleOpenSubcategoryModal = (id: string) => {
     setSubcategoryToDelete(id);
-    setOpenSubcategoryModal(true);
+    setIsSubcategoryModalOpen(true);
   };
 
   const handleCloseSubcategoryModal = () => {
-    setOpenSubcategoryModal(false);
+    setIsSubcategoryModalOpen(false);
     setSubcategoryToDelete(null);
   };
 
   const handleDeleteSubcategory = async () => {
     if (subcategoryToDelete) {
-      setDeleting(true);
+      setIsDeleting(true);
       try {
         const response = await fetch(
           `/api/dashboard/subcategories/${subcategoryToDelete}`,
@@ -118,7 +118,7 @@ export default function DashboardSubcategoriesPage() {
           error
         );
       } finally {
-        setDeleting(false);
+        setIsDeleting(false);
         handleCloseSubcategoryModal();
       }
     }
@@ -167,7 +167,7 @@ export default function DashboardSubcategoriesPage() {
           </div>
         )}
       </div>
-      {loading ? (
+      {isLoading ? (
         <Box className="flex justify-center items-center py-10 my-auto">
           <CircularProgress message="Зареждане на подкатегориите..." />
         </Box>
@@ -201,12 +201,12 @@ export default function DashboardSubcategoriesPage() {
         </>
       )}
       <ConfirmationModal
-        open={openSubcategoryModal}
+        isOpen={isSubcategoryModalOpen}
         onClose={handleCloseSubcategoryModal}
         onConfirm={handleDeleteSubcategory}
         mainMessage="Сигурни ли сте, че искате да изтриете тази подкатегория?"
         deletingMessage="Изтриване на подкатегорията..."
-        isDeleting={deleting}
+        isDeleting={isDeleting}
       />
     </>
   );

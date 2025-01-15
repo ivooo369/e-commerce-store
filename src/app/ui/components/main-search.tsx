@@ -9,8 +9,8 @@ export default function MainSearch() {
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearchTerm] = useDebounce(searchTerm, 500);
   const [recommendations, setRecommendations] = useState<Product[]>([]);
-  const [isDropdownVisible, setDropdownVisible] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [isDropdownVisible, setIsDropdownVisible] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const searchContainerRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
@@ -33,20 +33,20 @@ export default function MainSearch() {
 
   useEffect(() => {
     if (debouncedSearchTerm) {
-      setLoading(true);
+      setIsLoading(true);
       fetch(`/api/public/products/search?query=${debouncedSearchTerm}`)
         .then((response) => response.json())
         .then((data) => {
           setRecommendations(data);
-          setLoading(false);
+          setIsLoading(false);
         })
         .catch((error) => {
           console.error("Възникна грешка при извличане на продуктите:", error);
-          setLoading(false);
+          setIsLoading(false);
         });
     } else {
       setRecommendations([]);
-      setLoading(false);
+      setIsLoading(false);
     }
   }, [debouncedSearchTerm]);
 
@@ -56,7 +56,7 @@ export default function MainSearch() {
         searchContainerRef.current &&
         !searchContainerRef.current.contains(event.target as Node)
       ) {
-        setDropdownVisible(false);
+        setIsDropdownVisible(false);
       }
     };
 
@@ -69,9 +69,9 @@ export default function MainSearch() {
 
   useEffect(() => {
     if (debouncedSearchTerm) {
-      setDropdownVisible(true);
+      setIsDropdownVisible(true);
     } else {
-      setDropdownVisible(false);
+      setIsDropdownVisible(false);
     }
   }, [debouncedSearchTerm]);
 
@@ -100,7 +100,7 @@ export default function MainSearch() {
       </div>
       {isDropdownVisible && (
         <div className="absolute -m-2 top-full w-full max-h-96 overflow-y-auto bg-white shadow-lg rounded border border-gray-300 z-10">
-          {loading ? (
+          {isLoading ? (
             <div className="w-full p-4 text-center font-bold text-lg text-gray-600">
               Зареждане...
             </div>

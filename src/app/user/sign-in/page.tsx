@@ -22,8 +22,8 @@ import AccountBenefits from "@/app/ui/components/account-benefits";
 export default function SignInPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [alert, setAlert] = useState<{
     message: string;
     severity: "success" | "error";
@@ -31,15 +31,15 @@ export default function SignInPage() {
   const dispatch = useDispatch();
   const router = useRouter();
 
-  const handleClickShowPassword = () => setShowPassword((show) => !show);
+  const handleClickShowPassword = () => setIsPasswordVisible((show) => !show);
   const handleMouseDownPassword = (event: { preventDefault: () => void }) => {
     event.preventDefault();
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    setLoading(true);
+    setIsLoading(true);
 
     const formData = { email, password };
 
@@ -57,7 +57,7 @@ export default function SignInPage() {
           message: responseData.error,
           severity: "error",
         });
-        setLoading(false);
+        setIsLoading(false);
         setTimeout(() => setAlert(null), 5000);
         return;
       }
@@ -65,17 +65,20 @@ export default function SignInPage() {
       localStorage.setItem(
         "userData",
         JSON.stringify({
-          token: responseData.token,
+          id: responseData.user.id,
           firstName: responseData.user.firstName,
           lastName: responseData.user.lastName,
+          token: responseData.token,
         })
       );
 
       dispatch(
         setUser({
+          id: responseData.user.id,
           firstName: responseData.user.firstName,
           lastName: responseData.user.lastName,
-          authToken: responseData.token,
+          token: responseData.token,
+          isLoggedIn: responseData.isLoggedIn,
         })
       );
 
@@ -83,11 +86,11 @@ export default function SignInPage() {
         message: responseData.message,
         severity: "success",
       });
-      setLoading(false);
+      setIsLoading(false);
       router.push("/");
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      setLoading(false);
+      setIsLoading(false);
       setAlert({
         message: "Възникна грешка при обработка на заявката!",
         severity: "error",
@@ -101,7 +104,7 @@ export default function SignInPage() {
         Вход в потребителски акаунт
       </h1>
       <form
-        onSubmit={handleSubmit}
+        onSubmit={handleSignIn}
         className="bg-white shadow-lg rounded-lg p-4 sm:p-6 space-y-4"
       >
         <AccountBenefits />
@@ -121,7 +124,7 @@ export default function SignInPage() {
           <InputLabel htmlFor="password">Парола</InputLabel>
           <OutlinedInput
             id="password"
-            type={showPassword ? "text" : "password"}
+            type={isPasswordVisible ? "text" : "password"}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             label="Парола"
@@ -133,7 +136,7 @@ export default function SignInPage() {
                   onMouseDown={handleMouseDownPassword}
                   edge="end"
                 >
-                  {showPassword ? <VisibilityOff /> : <Visibility />}
+                  {isPasswordVisible ? <VisibilityOff /> : <Visibility />}
                 </IconButton>
               </InputAdornment>
             }
@@ -145,9 +148,9 @@ export default function SignInPage() {
           color="primary"
           fullWidth
           sx={getCustomButtonStyles}
-          disabled={loading}
+          disabled={isLoading}
         >
-          {loading ? "Влизане..." : "Влез в акаунта си"}
+          {isLoading ? "Влизане..." : "Влез в акаунта си"}
         </Button>
         <p className="flex justify-center items-center gap-1.5 text-base sm:text-lg font-semibold">
           Нямате акаунт?

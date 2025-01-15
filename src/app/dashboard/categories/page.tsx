@@ -17,9 +17,10 @@ export default function DashboardCategoriesPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [categoryToDelete, setCategoryToDelete] = useState<string | null>(null);
-  const [openCategoryModal, setOpenCategoryModal] = useState(false);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [deleting, setDeleting] = useState<boolean>(false);
+  const [isCategoryModalOpen, setIsCategoryModalOpen] =
+    useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isDeleting, setIsDeleting] = useState<boolean>(false);
 
   const filteredCategories = categories.filter(
     (category) =>
@@ -32,7 +33,7 @@ export default function DashboardCategoriesPage() {
 
   useEffect(() => {
     const fetchCategories = async () => {
-      setLoading(true);
+      setIsLoading(true);
       try {
         const response = await fetch("/api/dashboard/categories");
         if (!response.ok)
@@ -45,7 +46,7 @@ export default function DashboardCategoriesPage() {
       } catch (error) {
         console.error("Възникна грешка при извличане на категорията:", error);
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
     };
 
@@ -54,17 +55,17 @@ export default function DashboardCategoriesPage() {
 
   const handleOpenCategoryModal = (id: string) => {
     setCategoryToDelete(id);
-    setOpenCategoryModal(true);
+    setIsCategoryModalOpen(true);
   };
 
   const handleCloseCategoryModal = () => {
-    setOpenCategoryModal(false);
+    setIsCategoryModalOpen(false);
     setCategoryToDelete(null);
   };
 
   const handleDeleteCategory = async () => {
     if (categoryToDelete) {
-      setDeleting(true);
+      setIsDeleting(true);
       try {
         const response = await fetch(
           `/api/dashboard/categories/${categoryToDelete}`,
@@ -82,7 +83,7 @@ export default function DashboardCategoriesPage() {
       } catch (error) {
         console.error("Възникна грешка при изтриване на категорията:", error);
       } finally {
-        setDeleting(false);
+        setIsDeleting(false);
         handleCloseCategoryModal();
       }
     }
@@ -108,7 +109,7 @@ export default function DashboardCategoriesPage() {
           </div>
         )}
       </div>
-      {loading ? (
+      {isLoading ? (
         <Box className="flex justify-center items-center py-10 my-auto">
           <CircularProgress message="Зареждане на категориите..." />
         </Box>
@@ -140,12 +141,12 @@ export default function DashboardCategoriesPage() {
         </>
       )}
       <ConfirmationModal
-        open={openCategoryModal}
+        isOpen={isCategoryModalOpen}
         onClose={handleCloseCategoryModal}
         onConfirm={handleDeleteCategory}
         mainMessage="Сигурни ли сте, че искате да изтриете тази категория? Това действие ще премахне и свързаните подкатегории!"
         deletingMessage="Изтриване на категорията и свързаните с нея подкатегории..."
-        isDeleting={deleting}
+        isDeleting={isDeleting}
       />
     </>
   );

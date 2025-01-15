@@ -16,7 +16,7 @@ import AlertMessage from "@/app/ui/components/alert-message";
 export default function DashboardEditSubcategoryPage() {
   const router = useRouter();
   const { id } = useParams();
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | "">("");
   const [subcategoryName, setSubcategoryName] = useState("");
@@ -57,7 +57,7 @@ export default function DashboardEditSubcategoryPage() {
           error
         );
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
     };
 
@@ -120,7 +120,7 @@ export default function DashboardEditSubcategoryPage() {
     }
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex justify-center items-center h-screen">
         <CircularProgress message="Зареждане на данните на подкатегорията..." />

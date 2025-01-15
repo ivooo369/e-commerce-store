@@ -41,11 +41,11 @@ export default function DashboardProductsPage() {
   const [selectedSubcategories, setSelectedSubcategories] = useState<string[]>(
     []
   );
-  const [openModal, setOpenModal] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [productToDelete, setProductToDelete] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>("");
-  const [loading, setLoading] = useState<boolean>(true);
-  const [deleting, setDeleting] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isDeleting, setIsDeleting] = useState<boolean>(false);
 
   const filterProducts = (
     products: ProductWithSubcategories[],
@@ -75,7 +75,7 @@ export default function DashboardProductsPage() {
 
   useEffect(() => {
     const fetchData = async () => {
-      setLoading(true);
+      setIsLoading(true);
       try {
         const [productsResponse, categoriesResponse, subcategoriesResponse] =
           await Promise.all([
@@ -113,7 +113,7 @@ export default function DashboardProductsPage() {
       } catch (error) {
         console.error("Възникна грешка при извличане на данните:", error);
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
     };
 
@@ -128,17 +128,17 @@ export default function DashboardProductsPage() {
 
   const handleOpenModal = (id: string) => {
     setProductToDelete(id);
-    setOpenModal(true);
+    setIsModalOpen(true);
   };
 
   const handleCloseModal = () => {
-    setOpenModal(false);
+    setIsModalOpen(false);
     setProductToDelete(null);
   };
 
   const handleDeleteProduct = async () => {
     if (productToDelete) {
-      setDeleting(true);
+      setIsDeleting(true);
       try {
         const response = await fetch(
           `/api/dashboard/products/${productToDelete}`,
@@ -159,7 +159,7 @@ export default function DashboardProductsPage() {
       } catch (error) {
         console.error("Възникна грешка при изтриване на продукта:", error);
       } finally {
-        setDeleting(false);
+        setIsDeleting(false);
         handleCloseModal();
       }
     }
@@ -247,7 +247,7 @@ export default function DashboardProductsPage() {
           />
         )}
         <div>
-          {loading ? (
+          {isLoading ? (
             <Box className="flex justify-center items-center py-10 my-auto">
               <CircularProgress message="Зареждане на продуктите..." />
             </Box>
@@ -279,12 +279,12 @@ export default function DashboardProductsPage() {
         </div>
       </div>
       <ConfirmationModal
-        open={openModal}
+        isOpen={isModalOpen}
         onClose={handleCloseModal}
         onConfirm={handleDeleteProduct}
         mainMessage="Сигурни ли сте, че искате да изтриете този продукт?"
         deletingMessage="Изтриване на продукта..."
-        isDeleting={deleting}
+        isDeleting={isDeleting}
       />
     </>
   );

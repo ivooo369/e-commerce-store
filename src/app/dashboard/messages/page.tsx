@@ -10,14 +10,14 @@ import { Message } from "@prisma/client";
 
 export default function DashboardMessagesPage() {
   const [messages, setMessages] = useState<Message[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [openModal, setOpenModal] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [isDeleting, setIsDeleting] = useState<boolean>(false);
   const [messageToDelete, setMessageToDelete] = useState<string | null>(null);
-  const [deleting, setDeleting] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchMessages = async () => {
-      setLoading(true);
+      setIsLoading(true);
       try {
         const response = await fetch("/api/dashboard/messages");
         if (response.ok) {
@@ -29,7 +29,7 @@ export default function DashboardMessagesPage() {
       } catch (error) {
         console.error("Възникна грешка при извличане на съобщенията:", error);
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
     };
 
@@ -38,17 +38,17 @@ export default function DashboardMessagesPage() {
 
   const handleOpenModal = (id: string) => {
     setMessageToDelete(id);
-    setOpenModal(true);
+    setIsModalOpen(true);
   };
 
   const handleCloseModal = () => {
-    setOpenModal(false);
+    setIsModalOpen(false);
     setMessageToDelete(null);
   };
 
   const handleDeleteMessage = async () => {
     if (messageToDelete) {
-      setDeleting(true);
+      setIsDeleting(true);
       try {
         const response = await fetch(
           `/api/dashboard/messages/${messageToDelete}`,
@@ -66,7 +66,7 @@ export default function DashboardMessagesPage() {
       } catch (error) {
         console.error("Възникна грешка при изтриване на съобщението:", error);
       } finally {
-        setDeleting(false);
+        setIsDeleting(false);
         handleCloseModal();
       }
     }
@@ -90,7 +90,7 @@ export default function DashboardMessagesPage() {
         <h1 className="text-2xl sm:text-3xl font-bold text-center text-gray-800 mb-4 sm:mb-6 tracking-wide">
           Съобщения
         </h1>
-        {loading ? (
+        {isLoading ? (
           <Box className="flex justify-center items-center py-10">
             <CircularProgress message="Зареждане на съобщенията..." />
           </Box>
@@ -114,12 +114,12 @@ export default function DashboardMessagesPage() {
         )}
       </div>
       <ConfirmationModal
-        open={openModal}
+        isOpen={isModalOpen}
         onClose={handleCloseModal}
         onConfirm={handleDeleteMessage}
         mainMessage="Сигурни ли сте, че искате да изтриете това съобщение?"
         deletingMessage="Изтриване на съобщението..."
-        isDeleting={deleting}
+        isDeleting={isDeleting}
       />
     </>
   );

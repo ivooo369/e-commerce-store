@@ -15,7 +15,7 @@ export default function ProductDetailsPage({
   params,
 }: ProductDetailsPageProps) {
   const [product, setProduct] = useState<Product | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -32,7 +32,7 @@ export default function ProductDetailsPage({
     } catch (err) {
       setError("Възникна грешка при извличане на продукта!");
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
@@ -90,7 +90,7 @@ export default function ProductDetailsPage({
     }
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex justify-center items-center py-10 my-auto">
         <CircularProgress message="Зареждане на продукта..." />

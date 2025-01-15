@@ -20,10 +20,12 @@ export default function ChangePasswordPage() {
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
-  const [showNewPassword, setShowNewPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [isCurrentPasswordVisible, setIsCurrentPasswordVisible] =
+    useState(false);
+  const [isNewPasswordVisible, setIsNewPasswordVisible] = useState(false);
+  const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] =
+    useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [alert, setAlert] = useState<{
     message: string;
     severity: "success" | "error";
@@ -49,16 +51,16 @@ export default function ChangePasswordPage() {
   };
 
   const handleClickShowPassword = (field: string) => {
-    if (field === "current") setShowCurrentPassword((show) => !show);
-    if (field === "new") setShowNewPassword((show) => !show);
-    if (field === "confirm") setShowConfirmPassword((show) => !show);
+    if (field === "current") setIsCurrentPasswordVisible((show) => !show);
+    if (field === "new") setIsNewPasswordVisible((show) => !show);
+    if (field === "confirm") setIsConfirmPasswordVisible((show) => !show);
   };
 
   const handleMouseDownPassword = (event: { preventDefault: () => void }) => {
     event.preventDefault();
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleChangePassword = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (newPassword !== confirmPassword) {
@@ -70,7 +72,7 @@ export default function ChangePasswordPage() {
       return;
     }
 
-    setLoading(true);
+    setIsLoading(true);
 
     const formData = { currentPassword, newPassword };
 
@@ -95,7 +97,7 @@ export default function ChangePasswordPage() {
           message: responseData.error,
           severity: "error",
         });
-        setLoading(false);
+        setIsLoading(false);
         setTimeout(() => setAlert(null), 5000);
         return;
       }
@@ -104,12 +106,13 @@ export default function ChangePasswordPage() {
         message: responseData.message,
         severity: "success",
       });
-      setLoading(false);
-      setTimeout(() => setAlert(null), 3000);
-      router.push("/");
+      setIsLoading(false);
+      setTimeout(() => {
+        router.push("/");
+      }, 1500);
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      setLoading(false);
+      setIsLoading(false);
       setAlert({
         message: "Възникна грешка при обработка на заявката!",
         severity: "error",
@@ -124,7 +127,7 @@ export default function ChangePasswordPage() {
         Смяна на парола
       </h1>
       <form
-        onSubmit={handleSubmit}
+        onSubmit={handleChangePassword}
         className="bg-white shadow-lg rounded-lg p-4 sm:p-6 space-y-4"
       >
         <FormControl
@@ -137,7 +140,7 @@ export default function ChangePasswordPage() {
           <OutlinedInput
             id="current-password"
             name="currentPassword"
-            type={showCurrentPassword ? "text" : "password"}
+            type={isCurrentPasswordVisible ? "text" : "password"}
             value={currentPassword}
             onChange={(e) => setCurrentPassword(e.target.value)}
             label="Текуща парола"
@@ -149,7 +152,11 @@ export default function ChangePasswordPage() {
                   onMouseDown={handleMouseDownPassword}
                   edge="end"
                 >
-                  {showCurrentPassword ? <VisibilityOff /> : <Visibility />}
+                  {isCurrentPasswordVisible ? (
+                    <VisibilityOff />
+                  ) : (
+                    <Visibility />
+                  )}
                 </IconButton>
               </InputAdornment>
             }
@@ -164,7 +171,7 @@ export default function ChangePasswordPage() {
           <InputLabel htmlFor="new-password">Нова парола</InputLabel>
           <OutlinedInput
             id="new-password"
-            type={showNewPassword ? "text" : "password"}
+            type={isNewPasswordVisible ? "text" : "password"}
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
             label="Нова парола"
@@ -176,7 +183,7 @@ export default function ChangePasswordPage() {
                   onMouseDown={handleMouseDownPassword}
                   edge="end"
                 >
-                  {showNewPassword ? <VisibilityOff /> : <Visibility />}
+                  {isNewPasswordVisible ? <VisibilityOff /> : <Visibility />}
                 </IconButton>
               </InputAdornment>
             }
@@ -193,7 +200,7 @@ export default function ChangePasswordPage() {
           </InputLabel>
           <OutlinedInput
             id="confirm-new-password"
-            type={showConfirmPassword ? "text" : "password"}
+            type={isConfirmPasswordVisible ? "text" : "password"}
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             label="Потвърдете новата парола"
@@ -205,7 +212,11 @@ export default function ChangePasswordPage() {
                   onMouseDown={handleMouseDownPassword}
                   edge="end"
                 >
-                  {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                  {isConfirmPasswordVisible ? (
+                    <VisibilityOff />
+                  ) : (
+                    <Visibility />
+                  )}
                 </IconButton>
               </InputAdornment>
             }
@@ -217,9 +228,9 @@ export default function ChangePasswordPage() {
           color="primary"
           fullWidth
           sx={getCustomButtonStyles}
-          disabled={loading}
+          disabled={isLoading}
         >
-          {loading ? "Обработване..." : "Смени паролата"}
+          {isLoading ? "Обработване..." : "Смени паролата"}
         </Button>
         {alert && (
           <div>
