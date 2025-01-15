@@ -5,7 +5,7 @@ import AlertMessage from "@/app/ui/components/alert-message";
 import { Button } from "@mui/material";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FiX } from "react-icons/fi";
 import { useDispatch } from "react-redux";
 
@@ -15,16 +15,21 @@ export default function DeleteAccountPage() {
     message: string;
     severity: "success" | "error";
   } | null>(null);
+  const [userData, setUserData] = useState<string | null>(null);
   const router = useRouter();
   const dispatch = useDispatch();
 
-  const userData = localStorage.getItem("userData");
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const storedUserData = localStorage.getItem("userData");
+      setUserData(storedUserData);
+    }
+  }, []);
 
   let userId: string | undefined;
 
   if (userData) {
     const parsedUserData = JSON.parse(userData);
-
     userId = parsedUserData.id;
     console.log(userId);
   } else {
