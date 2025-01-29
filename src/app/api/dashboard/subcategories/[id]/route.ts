@@ -16,7 +16,7 @@ export async function GET(
 
     if (!subcategory) {
       return NextResponse.json(
-        { error: "Подкатегорията не е намерена!" },
+        { message: "Подкатегорията не е намерена!" },
         { status: 404 }
       );
     }
@@ -25,7 +25,7 @@ export async function GET(
   } catch (error) {
     console.error("Възникна грешка при извличане на подкатегорията:", error);
     return NextResponse.json(
-      { error: "Възникна грешка при извличане на подкатегорията!" },
+      { message: "Възникна грешка при извличане на подкатегорията!" },
       { status: 500 }
     );
   }
@@ -43,7 +43,7 @@ export async function PUT(
 
     if (!name || !code || !categoryId) {
       return NextResponse.json(
-        { error: "Всички полета са задължителни!" },
+        { message: "Всички полета са задължителни!" },
         { status: 400 }
       );
     }
@@ -54,7 +54,7 @@ export async function PUT(
 
     if (!existingSubcategory) {
       return NextResponse.json(
-        { error: "Подкатегорията не е намерена!" },
+        { message: "Подкатегорията не е намерена!" },
         { status: 404 }
       );
     }
@@ -68,7 +68,7 @@ export async function PUT(
 
     if (existingSubcategoryName) {
       return NextResponse.json(
-        { error: "Подкатегория с това име вече съществува!" },
+        { message: "Подкатегория с това име вече съществува!" },
         { status: 400 }
       );
     }
@@ -82,7 +82,7 @@ export async function PUT(
 
     if (existingSubcategoryCode) {
       return NextResponse.json(
-        { error: "Подкатегория с този код вече съществува!" },
+        { message: "Подкатегория с този код вече съществува!" },
         { status: 400 }
       );
     }
@@ -106,7 +106,7 @@ export async function PUT(
   } catch (error) {
     console.error("Грешка при редактиране на подкатегория:", error);
     return NextResponse.json(
-      { error: "Възникна грешка! Моля, опитайте отново!" },
+      { message: "Възникна грешка! Моля, опитайте отново!" },
       { status: 500 }
     );
   }
@@ -128,7 +128,7 @@ export async function DELETE(
 
     if (!subcategory) {
       return NextResponse.json(
-        { error: "Подкатегорията не е намерена!" },
+        { message: "Подкатегорията не е намерена!" },
         { status: 404 }
       );
     }
@@ -139,7 +139,7 @@ export async function DELETE(
 
     if (!otherSubcategory) {
       return NextResponse.json(
-        { error: "Подкатегорията 'Други' не е намерена!" },
+        { message: "Подкатегорията 'Други' не е намерена!" },
         { status: 404 }
       );
     }
@@ -178,7 +178,7 @@ export async function DELETE(
   } catch (error) {
     console.error("Възникна грешка при изтриване на подкатегорията:", error);
     return NextResponse.json(
-      { error: "Възникна грешка при изтриване на подкатегорията!" },
+      { message: "Възникна грешка при изтриване на подкатегорията!" },
       { status: 500 }
     );
   }

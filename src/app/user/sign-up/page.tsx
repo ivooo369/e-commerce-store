@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useMutation } from "@tanstack/react-query";
 import { getCustomButtonStyles } from "@/app/ui/mui-custom-styles/custom-button";
 import IconButton from "@mui/material/IconButton";
 import OutlinedInput from "@mui/material/OutlinedInput";
@@ -17,6 +18,36 @@ import Link from "next/link";
 import AccountBenefits from "@/app/ui/components/account-benefits";
 import { Checkbox, FormControlLabel } from "@mui/material";
 
+interface Customer {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+  city: string;
+  address: string;
+  phone: string;
+}
+
+const signUp = async (formData: Customer) => {
+  const response = await fetch("/api/users/sign-up", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(formData),
+  });
+
+  const responseData = await response.json();
+
+  if (!response.ok) {
+    throw new Error(
+      responseData.message || "Възникна грешка при обработка на заявката!"
+    );
+  }
+
+  return responseData;
+};
+
 export default function SignUpPage() {
   const dispatch = useDispatch();
   const [firstName, setFirstName] = useState("");
@@ -30,7 +61,7 @@ export default function SignUpPage() {
   const [city, setCity] = useState("");
   const [address, setAddress] = useState("");
   const [phone, setPhone] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const [signingUp, setIsSigningUp] = useState(false);
   const [alert, setAlert] = useState<{
     message: string;
     severity: "success" | "error";
@@ -45,60 +76,12 @@ export default function SignUpPage() {
     event.preventDefault();
   };
 
-  const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    if (password.length < 8) {
-      setAlert({
-        message: "Паролата трябва да е поне 8 символа!",
-        severity: "error",
-      });
-      setTimeout(() => setAlert(null), 5000);
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      setAlert({
-        message: "Паролите не съвпадат!",
-        severity: "error",
-      });
-      setTimeout(() => setAlert(null), 5000);
-      return;
-    }
-
-    setIsLoading(true);
-
-    const formData = {
-      firstName,
-      lastName,
-      email,
-      password,
-      city,
-      address,
-      phone,
-    };
-
-    try {
-      const response = await fetch("/api/users/sign-up", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
-
-      const responseData = await response.json();
-
-      if (!response.ok) {
-        setAlert({
-          message: responseData.error,
-          severity: "error",
-        });
-        setIsLoading(false);
-        setTimeout(() => setAlert(null), 5000);
-        return;
-      }
-
+  const mutation = useMutation({
+    mutationFn: signUp,
+    onMutate: () => {
+      setIsSigningUp(true);
+    },
+    onSuccess: (responseData) => {
       localStorage.setItem(
         "userData",
         JSON.stringify({
@@ -124,8 +107,6 @@ export default function SignUpPage() {
         severity: "success",
       });
 
-      setIsLoading(false);
-
       setFirstName("");
       setLastName("");
       setEmail("");
@@ -134,15 +115,50 @@ export default function SignUpPage() {
       setCity("");
       setAddress("");
       setPhone("");
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (error) {
-      setIsLoading(false);
+      setIsSigningUp(false);
+    },
+    onError: (error: { message: string }) => {
       setAlert({
-        message: "Възникна грешка при обработка на заявката!",
+        message: error.message,
         severity: "error",
       });
       setTimeout(() => setAlert(null), 5000);
+      setIsSigningUp(false);
+    },
+  });
+
+  const handleSignUp = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    if (password.length < 8) {
+      setAlert({
+        message: "Паролата трябва да е поне 8 символа!",
+        severity: "error",
+      });
+      setTimeout(() => setAlert(null), 5000);
+      return;
     }
+
+    if (password !== confirmPassword) {
+      setAlert({
+        message: "Новата парола и паролата за потвърждение не съвпадат!",
+        severity: "error",
+      });
+      setTimeout(() => setAlert(null), 5000);
+      return;
+    }
+
+    const formData = {
+      firstName,
+      lastName,
+      email,
+      password,
+      city,
+      address,
+      phone,
+    };
+
+    mutation.mutate(formData);
   };
 
   return (
@@ -304,11 +320,11 @@ export default function SignUpPage() {
           variant="contained"
           color="primary"
           type="submit"
-          disabled={isLoading}
+          disabled={signingUp}
           fullWidth
           sx={getCustomButtonStyles()}
         >
-          {isLoading ? "Зареждане..." : "Регистрация"}
+          {signingUp ? "Регистриране..." : "Регистрация"}
         </Button>
         <p className="flex justify-center items-center gap-1.5 text-base sm:text-lg font-semibold">
           Имате акаунт?

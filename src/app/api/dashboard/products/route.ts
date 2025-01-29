@@ -51,7 +51,7 @@ export async function POST(request: Request) {
 
     if (!Array.isArray(images) || images.length === 0) {
       return NextResponse.json(
-        { error: "Трябва да качите поне едно изображение на продукта!" },
+        { message: "Трябва да качите поне едно изображение на продукта!" },
         { status: 400 }
       );
     }
@@ -64,9 +64,7 @@ export async function POST(request: Request) {
 
     if (existingProduct) {
       return NextResponse.json(
-        {
-          error: "Продукт с този код вече съществува!",
-        },
+        { message: "Продукт с този код вече съществува!" },
         { status: 400 }
       );
     }

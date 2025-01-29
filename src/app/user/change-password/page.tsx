@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useMutation } from "@tanstack/react-query";
 import AlertMessage from "@/app/ui/components/alert-message";
 import { getCustomButtonStyles } from "@/app/ui/mui-custom-styles/custom-button";
 import Visibility from "@mui/icons-material/Visibility";
@@ -15,6 +16,32 @@ import {
   Button,
 } from "@mui/material";
 
+const changePassword = async (formData: {
+  currentPassword: string;
+  newPassword: string;
+}) => {
+  const userData = localStorage.getItem("userData");
+  const parsedUserData = userData ? JSON.parse(userData) : null;
+  const token = parsedUserData?.token || "";
+
+  const response = await fetch("/api/users/change-password", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(formData),
+  });
+
+  const responseData = await response.json();
+
+  if (!response.ok) {
+    throw new Error(responseData.message);
+  }
+
+  return responseData;
+};
+
 export default function ChangePasswordPage() {
   const router = useRouter();
   const [currentPassword, setCurrentPassword] = useState("");
@@ -25,7 +52,7 @@ export default function ChangePasswordPage() {
   const [isNewPasswordVisible, setIsNewPasswordVisible] = useState(false);
   const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] =
     useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isChanging, setIsChanging] = useState(false);
   const [alert, setAlert] = useState<{
     message: string;
     severity: "success" | "error";
@@ -44,8 +71,7 @@ export default function ChangePasswordPage() {
       const payload = JSON.parse(atob(token.split(".")[1]));
       const currentTime = Math.floor(Date.now() / 1000);
       return payload.exp < currentTime;
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (error) {
+    } catch {
       return true;
     }
   };
@@ -60,65 +86,46 @@ export default function ChangePasswordPage() {
     event.preventDefault();
   };
 
-  const handleChangePassword = async (e: React.FormEvent<HTMLFormElement>) => {
+  const mutation = useMutation({
+    mutationFn: changePassword,
+    onMutate: () => {
+      setIsChanging(true);
+    },
+    onSuccess: (responseData) => {
+      setAlert({
+        message: responseData.message,
+        severity: "success",
+      });
+      setTimeout(() => {
+        setAlert(null);
+        router.push("/");
+      }, 1500);
+      setIsChanging(false);
+    },
+    onError: (error: { message: string }) => {
+      setAlert({
+        message: error.message,
+        severity: "error",
+      });
+      setTimeout(() => setAlert(null), 5000);
+      setIsChanging(false);
+    },
+  });
+
+  const handleChangePassword = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (newPassword !== confirmPassword) {
       setAlert({
-        message: "Паролите не съвпадат!",
+        message: "Новата парола и паролата за потвърждение не съвпадат!",
         severity: "error",
       });
       setTimeout(() => setAlert(null), 5000);
       return;
     }
 
-    setIsLoading(true);
-
     const formData = { currentPassword, newPassword };
-
-    try {
-      const userData = localStorage.getItem("userData");
-      const parsedUserData = userData ? JSON.parse(userData) : null;
-      const token = parsedUserData?.token || "";
-
-      const response = await fetch("/api/users/change-password", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(formData),
-      });
-
-      const responseData = await response.json();
-
-      if (!response.ok) {
-        setAlert({
-          message: responseData.error,
-          severity: "error",
-        });
-        setIsLoading(false);
-        setTimeout(() => setAlert(null), 5000);
-        return;
-      }
-
-      setAlert({
-        message: responseData.message,
-        severity: "success",
-      });
-      setIsLoading(false);
-      setTimeout(() => {
-        router.push("/");
-      }, 1500);
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (error) {
-      setIsLoading(false);
-      setAlert({
-        message: "Възникна грешка при обработка на заявката!",
-        severity: "error",
-      });
-      setTimeout(() => setAlert(null), 5000);
-    }
+    mutation.mutate(formData);
   };
 
   return (
@@ -228,9 +235,9 @@ export default function ChangePasswordPage() {
           color="primary"
           fullWidth
           sx={getCustomButtonStyles}
-          disabled={isLoading}
+          disabled={isChanging}
         >
-          {isLoading ? "Обработване..." : "Смени паролата"}
+          {isChanging ? "Обработване..." : "Смени паролата"}
         </Button>
         {alert && (
           <div>

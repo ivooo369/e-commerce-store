@@ -10,7 +10,7 @@ export async function GET(req: Request) {
 
     if (!token) {
       return NextResponse.json(
-        { error: "Липсва токен за потвърждение!" },
+        { message: "Липсва токен за потвърждение!" },
         { status: 400 }
       );
     }
@@ -21,7 +21,7 @@ export async function GET(req: Request) {
 
     if (!user || !user.tokenExpiration || user.tokenExpiration < new Date()) {
       return NextResponse.json(
-        { error: "Токенът е невалиден или изтекъл!" },
+        { message: "Токенът е невалиден или изтекъл!" },
         { status: 400 }
       );
     }
@@ -29,7 +29,9 @@ export async function GET(req: Request) {
     const currentTime = new Date();
     if (user.tokenExpiration < currentTime) {
       return NextResponse.json(
-        { error: "Токенът е изтекъл! Моля, подновете заявката за нов токен!" },
+        {
+          message: "Токенът е изтекъл! Моля, подновете заявката за нов токен!",
+        },
         { status: 400 }
       );
     }
@@ -53,7 +55,7 @@ export async function GET(req: Request) {
   } catch (error) {
     console.error("Възникна грешка при потвърждаване на имейл:", error);
     return NextResponse.json(
-      { error: "Възникна грешка при потвърждаване на имейл!" },
+      { message: "Възникна грешка при потвърждаване на имейл!" },
       { status: 500 }
     );
   }

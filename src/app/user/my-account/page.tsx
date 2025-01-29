@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getCustomButtonStyles } from "@/app/ui/mui-custom-styles/custom-button";
 import OutlinedInput from "@mui/material/OutlinedInput";
 import InputLabel from "@mui/material/InputLabel";
@@ -12,9 +13,58 @@ import { setUser } from "@/app/lib/userSlice";
 import { RootState } from "@/app/lib/store";
 import CircularProgress from "@/app/ui/components/circular-progress";
 
+interface UserData {
+  firstName: string;
+  lastName: string;
+  email: string;
+  city?: string;
+  address?: string;
+  phone?: string;
+}
+
+const fetchUserData = async (token: string) => {
+  const response = await fetch("/api/users/update-account", {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error("Възникна грешка при извличане на потребителските данни!");
+  }
+
+  return response.json();
+};
+
+const updateUserData = async ({
+  token,
+  userData,
+}: {
+  token: string;
+  userData: UserData;
+}) => {
+  const response = await fetch("/api/users/update-account", {
+    method: "PUT",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(userData),
+  });
+
+  if (!response.ok) {
+    const responseData = await response.json();
+    throw new Error(responseData.message);
+  }
+
+  return response.json();
+};
+
 export default function MyAccountPage() {
   const dispatch = useDispatch();
   const signedInUser = useSelector((state: RootState) => state.user);
+  const queryClient = useQueryClient();
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -23,137 +73,51 @@ export default function MyAccountPage() {
   const [phone, setPhone] = useState("");
   const [isVerified, setIsVerified] = useState("");
   const [isUpdating, setIsUpdating] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
   const [alert, setAlert] = useState<{
     message: string;
     severity: "success" | "error";
   } | null>(null);
 
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ["userAccountData", signedInUser.token],
+    queryFn: () => fetchUserData(signedInUser.token!),
+    enabled: !!signedInUser.token,
+  });
+
   useEffect(() => {
     const savedUserData = localStorage.getItem("userData");
-
     if (savedUserData) {
       const userData = JSON.parse(savedUserData);
+      dispatch(setUser(userData));
+    }
 
-      dispatch(
-        setUser({
-          id: userData.id || null,
-          firstName: userData.firstName || null,
-          lastName: userData.lastName || null,
-          token: userData.token || null,
-          isLoggedIn: userData.isLoggedIn || null,
+    if (data) {
+      setFirstName(data.firstName || "");
+      setLastName(data.lastName || "");
+      setEmail(data.email || "");
+      setCity(data.city || "");
+      setAddress(data.address || "");
+      setPhone(data.phone || "");
+      setIsVerified(data.isVerified);
+
+      localStorage.setItem(
+        "userAccountData",
+        JSON.stringify({
+          firstName: data.firstName,
+          lastName: data.lastName,
+          email: data.email,
+          city: data.city,
+          address: data.address,
+          phone: data.phone,
+          isVerified: data.isVerified,
         })
       );
     }
+  }, [data, dispatch]);
 
-    const savedUserAccountData = localStorage.getItem("userAccountData");
-
-    if (savedUserAccountData) {
-      const userAccountData = JSON.parse(savedUserAccountData);
-      setFirstName(userAccountData.firstName || "");
-      setLastName(userAccountData.lastName || "");
-      setEmail(userAccountData.email || "");
-      setCity(userAccountData.city || "");
-      setAddress(userAccountData.address || "");
-      setPhone(userAccountData.phone || "");
-      setIsVerified(userAccountData.isVerified);
-      setIsLoading(false);
-    } else {
-      const fetchUserData = async () => {
-        try {
-          if (!savedUserData) {
-            setIsLoading(false);
-            return;
-          }
-
-          const userData = JSON.parse(savedUserData);
-          if (!userData.token) {
-            setIsLoading(false);
-            return;
-          }
-
-          setIsLoading(true);
-          const response = await fetch("/api/users/update-account", {
-            method: "GET",
-            headers: {
-              Authorization: `Bearer ${userData.token}`,
-            },
-          });
-
-          if (!response.ok) {
-            throw new Error(
-              "Възникна грешка при извличане на потребителските данни!"
-            );
-          }
-
-          const userDataFromServer = await response.json();
-          localStorage.setItem(
-            "userAccountData",
-            JSON.stringify({
-              firstName: userDataFromServer.firstName,
-              lastName: userDataFromServer.lastName,
-              email: userDataFromServer.email,
-              city: userDataFromServer.city,
-              address: userDataFromServer.address,
-              phone: userDataFromServer.phone,
-              isVerified: userDataFromServer.isVerified,
-            })
-          );
-
-          setFirstName(userDataFromServer.firstName);
-          setLastName(userDataFromServer.lastName);
-          setEmail(userDataFromServer.email);
-          setCity(userDataFromServer.city);
-          setAddress(userDataFromServer.address);
-          setPhone(userDataFromServer.phone);
-          setIsVerified(userDataFromServer.isVerified);
-        } catch (error) {
-          console.error(
-            "Възникна грешка при извличане на потребителските данни:",
-            error
-          );
-        } finally {
-          setIsLoading(false);
-        }
-      };
-
-      fetchUserData();
-    }
-  }, [dispatch]);
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    setIsUpdating(true);
-
-    try {
-      const response = await fetch("/api/users/update-account", {
-        method: "PUT",
-        headers: {
-          Authorization: `Bearer ${signedInUser.token}`,
-        },
-        body: JSON.stringify({
-          firstName,
-          lastName,
-          email,
-          city,
-          address,
-          phone,
-        }),
-      });
-
-      const responseData = await response.json();
-
-      if (!response.ok) {
-        setAlert({
-          message: responseData.error,
-          severity: "error",
-        });
-        setIsUpdating(false);
-        setTimeout(() => setAlert(null), 5000);
-        return;
-      }
-
+  const mutation = useMutation({
+    mutationFn: updateUserData,
+    onSuccess: () => {
       setAlert({
         message: "Информацията беше успешно обновена!",
         severity: "success",
@@ -189,22 +153,51 @@ export default function MyAccountPage() {
         })
       );
 
-      setIsUpdating(false);
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (error) {
-      setIsUpdating(false);
+      queryClient.invalidateQueries({
+        queryKey: ["userAccountData", signedInUser.token!],
+      });
+    },
+    onError: (error: { message: string }) => {
       setAlert({
-        message: "Възникна грешка при обработка на заявката!",
+        message: error.message,
         severity: "error",
       });
+    },
+    onSettled: () => {
+      setIsUpdating(false);
       setTimeout(() => setAlert(null), 5000);
-    }
+    },
+  });
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsUpdating(true);
+
+    mutation.mutate({
+      token: signedInUser.token!,
+      userData: {
+        firstName,
+        lastName,
+        email,
+        city,
+        address,
+        phone,
+      },
+    });
   };
 
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-96">
         <CircularProgress message="Зареждане на потребителските данни..." />
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="flex justify-center items-center h-96">
+        <p>Възникна грешка при зареждане на потребителските данни!</p>
       </div>
     );
   }

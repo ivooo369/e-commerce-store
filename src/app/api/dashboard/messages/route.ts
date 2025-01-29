@@ -22,7 +22,7 @@ export async function GET() {
   } catch (error) {
     console.error("Възникна грешка при извличане на съобщенията:", error);
     return NextResponse.json(
-      { error: "Възникна грешка при извличане на съобщенията!" },
+      { message: "Възникна грешка при извличане на съобщенията!" },
       { status: 500 }
     );
   }
@@ -35,10 +35,16 @@ export async function POST(request: Request) {
 
     if (!name || !email || !title || !content) {
       return NextResponse.json(
-        { error: "Всички полета са задължителни!" },
+        { message: "Всички полета са задължителни!" },
         { status: 400 }
       );
     }
+
+    const existingCustomer = await prisma.customer.findUnique({
+      where: {
+        email,
+      },
+    });
 
     const newMessage = await prisma.message.create({
       data: {
@@ -46,6 +52,7 @@ export async function POST(request: Request) {
         email,
         title,
         content,
+        customerId: existingCustomer ? existingCustomer.id : null,
       },
     });
 
@@ -96,7 +103,7 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error("Възникна грешка при обработка на съобщението:", error);
     return NextResponse.json(
-      { error: "Възникна грешка при обработка на съобщението!" },
+      { message: "Възникна грешка при обработка на съобщението!" },
       { status: 500 }
     );
   }

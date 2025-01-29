@@ -1,13 +1,24 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
+import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { Product } from "@prisma/client";
 import ProductCard from "@/app/ui/components/product-card";
 import PaginationButtons from "@/app/ui/components/pagination";
 import CircularProgress from "@/app/ui/components/circular-progress";
 import { Box } from "@mui/material";
+import { useQuery } from "@tanstack/react-query";
 import usePagination, { ITEMS_PER_PAGE } from "@/app/lib/usePagination";
+
+const fetchProducts = async (query: string): Promise<Product[]> => {
+  const response = await fetch(`/api/public/products/search?query=${query}`);
+  const data = await response.json();
+  if (Array.isArray(data)) {
+    return data;
+  } else {
+    return [];
+  }
+};
 
 export default function ResultsPage() {
   return (
@@ -20,39 +31,27 @@ export default function ResultsPage() {
 function Results() {
   const searchParams = useSearchParams();
   const query = searchParams.get("query") || "";
-  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  const { data: filteredProducts = [], isLoading } = useQuery({
+    queryKey: ["products", query],
+    queryFn: () => fetchProducts(query),
+    enabled: query.trim() !== "",
+  });
 
   const { currentPage, currentItems, paginate } =
     usePagination(filteredProducts);
 
-  useEffect(() => {
-    if (query.trim() !== "") {
-      setIsLoading(true);
-      fetch(`/api/public/products/search?query=${query}`)
-        .then((response) => response.json())
-        .then((data) => {
-          if (Array.isArray(data)) {
-            setFilteredProducts(data);
-          } else {
-            setFilteredProducts([]);
-          }
-          setIsLoading(false);
-        })
-        .catch((error) => {
-          console.error("Error fetching products:", error);
-          setFilteredProducts([]);
-          setIsLoading(false);
-        });
-    } else {
-      setFilteredProducts([]);
-      setIsLoading(false);
-    }
-  }, [query]);
-
   const handleAddToCart = (id: string) => {
     console.log(`Продукт с id ${id} е добавен в кошницата.`);
   };
+
+  if (isLoading) {
+    return (
+      <Box className="flex justify-center items-center py-10 my-auto">
+        <CircularProgress message="Зареждане на продуктите..." />
+      </Box>
+    );
+  }
 
   return (
     <div className="container mx-auto py-4 sm:py-6">
@@ -81,7 +80,7 @@ function Results() {
         </div>
       ) : (
         <>
-          <div className="grid gap-4 sm:gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 py-4 sm:py-6 md:py-8 px-4">
+          <div className="grid gap-5 sm:gap-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 py-4 sm:py-6 md:py-8 px-4">
             {currentItems.map((product) => (
               <ProductCard
                 key={product.id}

@@ -11,7 +11,7 @@ export async function GET() {
   } catch (error) {
     console.error("Възникна грешка при извличане на категориите:", error);
     return NextResponse.json(
-      { error: "Възникна грешка при извличане на категориите!" },
+      { message: "Възникна грешка при извличане на категориите!" },
       { status: 500 }
     );
   }
@@ -24,14 +24,14 @@ export async function POST(request: Request) {
 
     if (!name || !code) {
       return NextResponse.json(
-        { error: "Всички полета са задължителни!" },
+        { message: "Всички полета са задължителни!" },
         { status: 400 }
       );
     }
 
     if (!imageUrl) {
       return NextResponse.json(
-        { error: "Трябва да качите изображение на категорията!" },
+        { message: "Трябва да качите изображение на категорията!" },
         { status: 400 }
       );
     }
@@ -42,9 +42,7 @@ export async function POST(request: Request) {
 
     if (existingCategoryName) {
       return NextResponse.json(
-        {
-          error: "Категория с това име вече съществува!",
-        },
+        { message: "Категория с това име вече съществува!" },
         { status: 400 }
       );
     }
@@ -55,9 +53,7 @@ export async function POST(request: Request) {
 
     if (existingCategoryCode) {
       return NextResponse.json(
-        {
-          error: "Категория с този код вече съществува!",
-        },
+        { message: "Категория с този код вече съществува!" },
         { status: 400 }
       );
     }
@@ -81,7 +77,7 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error("Възникна грешка при добавяне на категорията:", error);
     return NextResponse.json(
-      { error: "Възникна грешка при добавяне на категорията!" },
+      { message: "Възникна грешка при добавяне на категорията!" },
       { status: 500 }
     );
   }

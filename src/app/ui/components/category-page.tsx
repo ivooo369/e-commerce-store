@@ -15,6 +15,7 @@ import ProductCard from "./product-card";
 import CircularProgress from "./circular-progress";
 import usePagination, { ITEMS_PER_PAGE } from "@/app/lib/usePagination";
 import PaginationButtons from "@/app/ui/components/pagination";
+import { useQuery } from "@tanstack/react-query";
 
 interface CategoryPageProps {
   category: {
@@ -24,6 +25,37 @@ interface CategoryPageProps {
   subcategories: Subcategory[];
 }
 
+async function fetchProducts(
+  categoryId: string,
+  selectedSubcategories: string[],
+  subcategories: Subcategory[]
+) {
+  const subcategoryIds = selectedSubcategories
+    .map((subcategoryCode) => {
+      const subcategory = subcategories.find(
+        (subcategory) =>
+          `${subcategory.code} - ${subcategory.name}` === subcategoryCode
+      );
+      return subcategory?.id;
+    })
+    .filter(Boolean);
+
+  const url = subcategoryIds.length
+    ? `/api/public/products?subcategories=${subcategoryIds.join(
+        ","
+      )}&categoryId=${categoryId}`
+    : `/api/public/products?categoryId=${categoryId}`;
+
+  const response = await fetch(url);
+  const fetchedProducts = await response.json();
+
+  if (Array.isArray(fetchedProducts)) {
+    return fetchedProducts;
+  } else {
+    throw new Error("Възникна грешка! Не е получен масив от продукти!");
+  }
+}
+
 export default function CategoryPageServerComponent({
   category,
   subcategories,
@@ -31,18 +63,24 @@ export default function CategoryPageServerComponent({
   const [selectedSubcategories, setSelectedSubcategories] = useState<string[]>(
     []
   );
-  const [products, setProducts] = useState<Product[]>([]);
-  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [sortOption, setSortOption] = useState<string>("newest");
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 500]);
 
-  const { currentPage, currentItems, paginate } =
-    usePagination(filteredProducts);
+  const [isQueryEnabled, setIsQueryEnabled] = useState(false);
+
+  const { data: products = [], isLoading } = useQuery<Product[]>({
+    queryKey: ["products", category.id, selectedSubcategories],
+    queryFn: () =>
+      fetchProducts(category.id, selectedSubcategories, subcategories),
+    enabled: isQueryEnabled,
+  });
+
+  useEffect(() => {
+    setIsQueryEnabled(true);
+  }, [category.id, selectedSubcategories]);
 
   const handleSubcategoryChange = (event: SelectChangeEvent<string[]>) => {
-    const subcategoryIds = event.target.value as string[];
-    setSelectedSubcategories(subcategoryIds);
+    setSelectedSubcategories(event.target.value as string[]);
   };
 
   const handleSortChange = (event: SelectChangeEvent<string>) => {
@@ -57,71 +95,28 @@ export default function CategoryPageServerComponent({
     console.log(`Added product ${productId} to cart`);
   };
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-      const subcategoryIds = selectedSubcategories
-        .map((subcategoryCode) => {
-          const subcategory = subcategories.find(
-            (subcategory) =>
-              `${subcategory.code} - ${subcategory.name}` === subcategoryCode
-          );
-          return subcategory?.id;
-        })
-        .filter(Boolean);
+  const sortedProducts = [...products];
 
-      const url = subcategoryIds.length
-        ? `/api/public/products?subcategories=${subcategoryIds.join(
-            ","
-          )}&categoryId=${category.id}`
-        : `/api/public/products?categoryId=${category.id}`;
-
-      try {
-        const response = await fetch(url);
-        const fetchedProducts = await response.json();
-
-        if (Array.isArray(fetchedProducts)) {
-          setProducts(fetchedProducts);
-        } else {
-          console.error(
-            "Очакван е масив от продукти, а е получено:",
-            fetchedProducts
-          );
-          setProducts([]);
-        }
-      } catch (error) {
-        console.error("Възникна грешка при извличане на продуктите:", error);
-        setProducts([]);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchProducts();
-  }, [selectedSubcategories, subcategories, category.id]);
-
-  useEffect(() => {
-    const sorted = [...products];
-
-    if (sortOption === "alphabetical") {
-      sorted.sort((a, b) => a.name.localeCompare(b.name));
-    } else if (sortOption === "price-asc") {
-      sorted.sort((a, b) => a.price - b.price);
-    } else if (sortOption === "price-desc") {
-      sorted.sort((a, b) => b.price - a.price);
-    } else if (sortOption === "newest") {
-      sorted.sort(
-        (a, b) =>
-          new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
-      );
-    }
-
-    const filtered = sorted.filter(
-      (product) =>
-        product.price >= priceRange[0] && product.price <= priceRange[1]
+  if (sortOption === "alphabetical") {
+    sortedProducts.sort((a, b) => a.name.localeCompare(b.name));
+  } else if (sortOption === "price-asc") {
+    sortedProducts.sort((a, b) => a.price - b.price);
+  } else if (sortOption === "price-desc") {
+    sortedProducts.sort((a, b) => b.price - a.price);
+  } else if (sortOption === "newest") {
+    sortedProducts.sort(
+      (a, b) =>
+        new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
     );
+  }
 
-    setFilteredProducts(filtered);
-  }, [products, sortOption, priceRange]);
+  const filteredProducts = sortedProducts.filter(
+    (product) =>
+      product.price >= priceRange[0] && product.price <= priceRange[1]
+  );
+
+  const { currentPage, currentItems, paginate } =
+    usePagination<Product>(filteredProducts);
 
   return (
     <div className="container mx-auto py-4 sm:py-6">
@@ -200,7 +195,7 @@ export default function CategoryPageServerComponent({
           </div>
         ) : (
           <>
-            <div className="grid gap-4 sm:gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 py-4 sm:py-6 md:py-8 px-4">
+            <div className="grid gap-5 sm:gap-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 py-4 sm:py-6 md:py-8 px-4">
               {currentItems.map((product) => (
                 <ProductCard
                   key={product.id}

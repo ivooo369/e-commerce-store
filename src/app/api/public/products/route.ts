@@ -10,7 +10,7 @@ export async function GET(request: Request) {
 
   if (!categoryId) {
     return NextResponse.json(
-      { error: "Не е избрана категория." },
+      { message: "Не е избрана категория." },
       { status: 400 }
     );
   }
@@ -56,7 +56,7 @@ export async function GET(request: Request) {
   } catch (error) {
     console.error("Възникна грешка при извличане на продуктите:", error);
     return NextResponse.json(
-      { error: "Възникна грешка при извличане на продуктите!" },
+      { message: "Възникна грешка при извличане на продуктите!" },
       { status: 500 }
     );
   }

@@ -1,19 +1,34 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import SearchIcon from "@mui/icons-material/Search";
 import { useDebounce } from "use-debounce";
 import Image from "next/image";
-import { Product } from "@prisma/client";
 import { useRouter } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
+
+const fetchRecommendations = async (searchTerm: string) => {
+  const response = await fetch(
+    `/api/public/products/search?query=${searchTerm}`
+  );
+  const data = await response.json();
+  if (Array.isArray(data)) {
+    return data;
+  } else {
+    throw new Error("Възникна грешка при извличане на продуктите!");
+  }
+};
 
 export default function MainSearch() {
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearchTerm] = useDebounce(searchTerm, 500);
-  const [recommendations, setRecommendations] = useState<Product[]>([]);
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-
   const searchContainerRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
+
+  const { data: recommendations = [], isLoading } = useQuery({
+    queryKey: ["recommendations", debouncedSearchTerm],
+    queryFn: () => fetchRecommendations(debouncedSearchTerm),
+    enabled: debouncedSearchTerm.length > 0,
+  });
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
@@ -33,24 +48,11 @@ export default function MainSearch() {
 
   useEffect(() => {
     if (debouncedSearchTerm) {
-      setIsLoading(true);
-      fetch(`/api/public/products/search?query=${debouncedSearchTerm}`)
-        .then((response) => response.json())
-        .then((data) => {
-          setRecommendations(data);
-          setIsLoading(false);
-        })
-        .catch((error) => {
-          console.error("Възникна грешка при извличане на продуктите:", error);
-          setIsLoading(false);
-        });
+      setIsDropdownVisible(true);
     } else {
-      setRecommendations([]);
-      setIsLoading(false);
+      setIsDropdownVisible(false);
     }
-  }, [debouncedSearchTerm]);
 
-  useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
         searchContainerRef.current &&
@@ -65,14 +67,6 @@ export default function MainSearch() {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, []);
-
-  useEffect(() => {
-    if (debouncedSearchTerm) {
-      setIsDropdownVisible(true);
-    } else {
-      setIsDropdownVisible(false);
-    }
   }, [debouncedSearchTerm]);
 
   return (

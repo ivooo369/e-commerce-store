@@ -23,7 +23,7 @@ export async function GET(
 
     if (!product) {
       return NextResponse.json(
-        { error: "Продуктът не е намерен!" },
+        { message: "Продуктът не е намерен!" },
         { status: 404 }
       );
     }
@@ -46,7 +46,7 @@ export async function GET(
   } catch (error) {
     console.error("Възникна грешка при извличане на продукта:", error);
     return NextResponse.json(
-      { error: "Възникна грешка при извличане на продукта!" },
+      { message: "Възникна грешка при извличане на продукта!" },
       { status: 500 }
     );
   }

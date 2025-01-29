@@ -24,7 +24,7 @@ export async function GET(
 
     if (!product) {
       return NextResponse.json(
-        { error: "Продуктът не е намерен!" },
+        { message: "Продуктът не е намерен!" },
         { status: 404 }
       );
     }
@@ -47,7 +47,7 @@ export async function GET(
   } catch (error) {
     console.error("Възникна грешка при извличане на продукта:", error);
     return NextResponse.json(
-      { error: "Възникна грешка при извличане на продукта!" },
+      { message: "Възникна грешка при извличане на продукта!" },
       { status: 500 }
     );
   }
@@ -73,21 +73,21 @@ export async function PUT(
 
     if (!name || !code || !price || !subcategoryIds) {
       return NextResponse.json(
-        { error: "Всички полета са задължителни!" },
+        { message: "Всички полета са задължителни!" },
         { status: 400 }
       );
     }
 
     if (isNaN(price) || price <= 0) {
       return NextResponse.json(
-        { error: "Цената трябва да бъде валидно число и по-голямо от 0!" },
+        { message: "Цената трябва да бъде валидно число и по-голямо от 0!" },
         { status: 400 }
       );
     }
 
     if (images && (!Array.isArray(images) || images.length === 0)) {
       return NextResponse.json(
-        { error: "Трябва да качите поне едно изображение на продукта!" },
+        { message: "Трябва да качите поне едно изображение на продукта!" },
         { status: 400 }
       );
     }
@@ -98,9 +98,7 @@ export async function PUT(
 
     if (existingProductWithCode && existingProductWithCode.id !== id) {
       return NextResponse.json(
-        {
-          error: "Продукт с този код вече съществува!",
-        },
+        { message: "Продукт с този код вече съществува!" },
         { status: 400 }
       );
     }
@@ -111,7 +109,7 @@ export async function PUT(
 
     if (!existingProduct) {
       return NextResponse.json(
-        { error: "Продуктът не е намерен!" },
+        { message: "Продуктът не е намерен!" },
         { status: 404 }
       );
     }
@@ -179,16 +177,13 @@ export async function PUT(
     }
 
     return NextResponse.json(
-      {
-        message: "Продуктът е обновен успешно!",
-        category: updatedProduct,
-      },
+      { message: "Продуктът е обновен успешно!", category: updatedProduct },
       { status: 200 }
     );
   } catch (error) {
     console.error("Грешка при обновяване на продукта:", error);
     return NextResponse.json(
-      { error: "Възникна грешка! Моля, опитайте отново!" },
+      { message: "Възникна грешка! Моля, опитайте отново!" },
       { status: 500 }
     );
   }
@@ -223,10 +218,8 @@ export async function DELETE(
   } catch (error) {
     console.error("Възникна грешка при изтриване на продукта:", error);
     return NextResponse.json(
-      { error: "Възникна грешка при изтриване на продукта!" },
+      { message: "Възникна грешка при изтриване на продукта!" },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }

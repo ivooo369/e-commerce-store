@@ -14,11 +14,9 @@ export async function GET() {
     console.error("Възникна грешка при извличане на подкатегорията:", error);
 
     return NextResponse.json(
-      { error: "Възникна грешка при извличане на подкатегорията!" },
+      { message: "Възникна грешка при извличане на подкатегорията!" },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }
 
@@ -29,7 +27,7 @@ export async function POST(request: Request) {
 
     if (!name || !code || !categoryId) {
       return NextResponse.json(
-        { error: "Всички полета са задължителни!" },
+        { message: "Всички полета са задължителни!" },
         { status: 400 }
       );
     }
@@ -40,9 +38,7 @@ export async function POST(request: Request) {
 
     if (existingSubcategoryName) {
       return NextResponse.json(
-        {
-          error: "Подкатегория с това име вече съществува!",
-        },
+        { message: "Подкатегория с това име вече съществува!" },
         { status: 400 }
       );
     }
@@ -53,9 +49,7 @@ export async function POST(request: Request) {
 
     if (existingSubcategory) {
       return NextResponse.json(
-        {
-          error: "Подкатегория с този код вече съществува!",
-        },
+        { message: "Подкатегория с този код вече съществува!" },
         { status: 400 }
       );
     }
@@ -78,9 +72,9 @@ export async function POST(request: Request) {
       { status: 201 }
     );
   } catch (error) {
-    console.error("Грешка при добавяне на подкатегория:", error);
+    console.error("Възникна грешка при добавяне на подкатегорията:", error);
     return NextResponse.json(
-      { error: "Възникна грешка! Моля, опитайте отново!" },
+      { message: "Възникна грешка при добавяне на подкатегорията!" },
       { status: 500 }
     );
   }

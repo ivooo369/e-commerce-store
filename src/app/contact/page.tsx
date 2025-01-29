@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useMutation } from "@tanstack/react-query";
 import {
   Button,
   FormControl,
@@ -11,20 +12,70 @@ import {
 import { getCustomButtonStyles } from "../ui/mui-custom-styles/custom-button";
 import AlertMessage from "../ui/components/alert-message";
 
+const sendMessage = async (formData: {
+  name: string;
+  email: string;
+  title: string;
+  content: string;
+}) => {
+  const response = await fetch("/api/dashboard/messages", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(formData),
+  });
+
+  const responseData = await response.json();
+
+  if (!response.ok) {
+    throw new Error(responseData.message);
+  }
+
+  return responseData;
+};
+
 export default function ContactPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const [isSending, setIsSending] = useState(false);
   const [alert, setAlert] = useState<{
     message: string;
     severity: "success" | "error";
   } | null>(null);
 
-  const handleSendMessage = async (e: React.FormEvent<HTMLFormElement>) => {
+  const mutation = useMutation({
+    mutationFn: sendMessage,
+    onMutate: () => {
+      setIsSending(true);
+    },
+    onSuccess: (responseData) => {
+      setAlert({
+        message: responseData.message,
+        severity: "success",
+      });
+      setTimeout(() => setAlert(null), 5000);
+
+      setName("");
+      setEmail("");
+      setTitle("");
+      setContent("");
+      setIsSending(false);
+    },
+    onError: (error: { message: string }) => {
+      setAlert({
+        message: error.message,
+        severity: "error",
+      });
+      setTimeout(() => setAlert(null), 5000);
+      setIsSending(false);
+    },
+  });
+
+  const handleSendMessage = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setIsLoading(true);
 
     const formData = {
       name: (e.currentTarget.elements.namedItem("name") as HTMLInputElement)
@@ -38,47 +89,7 @@ export default function ContactPage() {
       ).value,
     };
 
-    try {
-      const response = await fetch("/api/dashboard/messages", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
-
-      const responseData = await response.json();
-
-      if (!response.ok) {
-        setAlert({
-          message: responseData.error,
-          severity: "error",
-        });
-        setIsLoading(false);
-        setTimeout(() => setAlert(null), 5000);
-        return;
-      }
-
-      setAlert({
-        message: responseData.message,
-        severity: "success",
-      });
-      setIsLoading(false);
-      setTimeout(() => setAlert(null), 5000);
-
-      setName("");
-      setEmail("");
-      setTitle("");
-      setContent("");
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (error) {
-      setIsLoading(false);
-      setAlert({
-        message: "Възникна грешка при обработка на заявката!",
-        severity: "error",
-      });
-      setTimeout(() => setAlert(null), 5000);
-    }
+    mutation.mutate(formData);
   };
 
   return (
@@ -149,9 +160,9 @@ export default function ContactPage() {
           color="primary"
           fullWidth
           sx={getCustomButtonStyles}
-          disabled={isLoading}
+          disabled={isSending}
         >
-          {isLoading ? "Изпращане..." : "Изпрати съобщение"}
+          {isSending ? "Изпращане..." : "Изпрати съобщение"}
         </Button>
         {alert && (
           <div>

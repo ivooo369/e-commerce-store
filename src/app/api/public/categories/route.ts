@@ -10,7 +10,7 @@ export async function GET() {
   } catch (error) {
     console.error("Възникна грешка при извличане на категориите:", error);
     return NextResponse.json(
-      { error: "Възникна грешка при извличане на категориите!" },
+      { message: "Възникна грешка при извличане на категориите!" },
       { status: 500 }
     );
   }

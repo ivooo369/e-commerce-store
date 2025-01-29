@@ -19,7 +19,7 @@ export async function POST(req: Request) {
 
     if (existingUser) {
       return NextResponse.json(
-        { error: "Потребител с този имейл вече съществува!" },
+        { message: "Потребител с този имейл вече съществува!" },
         { status: 400 }
       );
     }
@@ -48,7 +48,7 @@ export async function POST(req: Request) {
 
     if (!JWT_SECRET) {
       return NextResponse.json(
-        { error: "JWT_SECRET не е дефиниран!" },
+        { message: "JWT_SECRET не е дефиниран!" },
         { status: 500 }
       );
     }
@@ -118,7 +118,7 @@ export async function POST(req: Request) {
   } catch (error) {
     console.error("Възникна грешка при регистрацията:", error);
     return NextResponse.json(
-      { error: "Възникна грешка при регистрацията!" },
+      { message: "Възникна грешка при регистрацията!" },
       { status: 500 }
     );
   }

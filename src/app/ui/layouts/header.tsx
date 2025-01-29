@@ -2,7 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { MdAccountCircle } from "react-icons/md";
 import { usePathname } from "next/navigation";
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import HomeIcon from "@mui/icons-material/Home";
 import ViewListIcon from "@mui/icons-material/ViewList";
 import InfoIcon from "@mui/icons-material/Info";
@@ -10,22 +10,24 @@ import ContactMailIcon from "@mui/icons-material/ContactMail";
 import PhoneIcon from "@mui/icons-material/Phone";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import MainSearch from "../components/main-search";
-import { jwtDecode } from "jwt-decode";
-import { RootState } from "@/app/lib/store";
 import { useDispatch, useSelector } from "react-redux";
 import { clearUser } from "@/app/lib/userSlice";
+import { RootState } from "@/app/lib/store";
+import { useQuery } from "@tanstack/react-query";
 
-interface DecodedToken {
-  exp: number;
+async function fetchCategories() {
+  const response = await fetch("/api/public/categories");
+  if (!response.ok) {
+    throw new Error("Възникна грешка при извличане на категориите!");
+  }
+  const data = await response.json();
+  return data.map((category: { name: string }) => category.name);
 }
 
 export default function Header() {
   const pathname = usePathname();
   const [isCatalogMenuOpen, setIsCatalogMenuOpen] = useState(false);
   const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
-  const [categories, setCategories] = useState<string[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [userName, setUserName] = useState<string | null>(null);
   const dispatch = useDispatch();
   const signedInUser = useSelector((state: RootState) => state.user);
   const catalogMenuRef = useRef<HTMLDivElement>(null);
@@ -59,59 +61,10 @@ export default function Header() {
     };
   }, []);
 
-  useEffect(() => {
-    if (signedInUser.isLoggedIn) {
-      setUserName(signedInUser.firstName + " " + signedInUser.lastName);
-    } else {
-      setUserName(null);
-    }
-
-    if (typeof window !== "undefined") {
-      const token = localStorage.getItem("userData");
-      if (token) {
-        try {
-          const decoded: DecodedToken = jwtDecode(token);
-          const currentTime = Math.floor(Date.now() / 1000);
-
-          if (decoded.exp < currentTime) {
-            localStorage.removeItem("userData");
-            dispatch(clearUser());
-          } else {
-            const userData = JSON.parse(token);
-            setUserName(userData.firstName + " " + userData.lastName);
-          }
-        } catch (error) {
-          console.error("Error decoding token:", error);
-          localStorage.removeItem("userData");
-          dispatch(clearUser());
-        }
-      }
-    }
-
-    const fetchCategories = async () => {
-      try {
-        const response = await fetch("/api/public/categories");
-        if (!response.ok) {
-          throw new Error("Възникна грешка при извличане на категориите!");
-        }
-        const data = await response.json();
-        setCategories(data.map((category: { name: string }) => category.name));
-        setIsLoading(false);
-      } catch (error) {
-        console.error("Възникна грешка при извличане на категориите:", error);
-        setIsLoading(false);
-      }
-    };
-
-    fetchCategories();
-  }, [
-    dispatch,
-    signedInUser.id,
-    signedInUser.firstName,
-    signedInUser.lastName,
-    signedInUser.token,
-    signedInUser.isLoggedIn,
-  ]);
+  const { data: categories, isLoading } = useQuery({
+    queryKey: ["categories"],
+    queryFn: fetchCategories,
+  });
 
   const toggleCatalogMenu = () => setIsCatalogMenuOpen(!isCatalogMenuOpen);
   const toggleAccountMenu = () => setIsAccountMenuOpen(!isAccountMenuOpen);
@@ -120,7 +73,6 @@ export default function Header() {
     localStorage.removeItem("userData");
     localStorage.removeItem("userAccountData");
     dispatch(clearUser());
-    setUserName(null);
   };
 
   return (
@@ -148,13 +100,14 @@ export default function Header() {
         </div>
         <MainSearch />
         <div className="flex flex-col gap-1 sm:gap-0 sm:flex-row items-center font-medium order-1 md:order-2">
-          {userName ? (
+          {signedInUser.isLoggedIn ? (
             <div className="flex items-center gap-3">
               <span
                 onClick={toggleAccountMenu}
                 className="flex items-center gap-1 relative rounded px-3 py-2 transition duration-300 text-sm md:text-base hover:bg-gray-300 cursor-pointer"
               >
-                <MdAccountCircle className="w-7 h-7 text-gray-700" /> {userName}
+                <MdAccountCircle className="w-7 h-7 text-gray-700" />{" "}
+                {signedInUser.firstName} {signedInUser.lastName}
                 {isAccountMenuOpen && (
                   <div
                     ref={accountMenuRef}
@@ -272,7 +225,7 @@ export default function Header() {
                   {isLoading ? (
                     <p>Зареждане...</p>
                   ) : categories.length > 0 ? (
-                    categories.map((category, index) => (
+                    categories.map((category: string, index: number) => (
                       <Link
                         key={index}
                         href={`/product-catalog/categories/${encodeURIComponent(

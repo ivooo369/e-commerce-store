@@ -16,14 +16,14 @@ export async function GET(req: Request) {
 
     if (!token) {
       return NextResponse.json(
-        { error: "Токенът за оторизация липсва!" },
+        { message: "Токенът за оторизация липсва!" },
         { status: 401 }
       );
     }
 
     if (!JWT_SECRET) {
       return NextResponse.json(
-        { error: "JWT_SECRET не е дефиниран!" },
+        { message: "JWT_SECRET не е дефиниран!" },
         { status: 500 }
       );
     }
@@ -35,7 +35,7 @@ export async function GET(req: Request) {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       return NextResponse.json(
-        { error: "Невалиден или изтекъл токен!" },
+        { message: "Невалиден или изтекъл токен!" },
         { status: 401 }
       );
     }
@@ -46,7 +46,7 @@ export async function GET(req: Request) {
 
     if (!user) {
       return NextResponse.json(
-        { error: "Потребителят не е намерен!" },
+        { message: "Потребителят не е намерен!" },
         { status: 404 }
       );
     }
@@ -69,7 +69,7 @@ export async function GET(req: Request) {
       error
     );
     return NextResponse.json(
-      { error: "Възникна грешка при обработката на заявката!" },
+      { message: "Възникна грешка при обработката на заявката!" },
       { status: 500 }
     );
   }
@@ -81,14 +81,14 @@ export async function PUT(req: Request) {
 
     if (!token) {
       return NextResponse.json(
-        { error: "Токенът за оторизация липсва!" },
+        { message: "Токенът за оторизация липсва!" },
         { status: 401 }
       );
     }
 
     if (!JWT_SECRET) {
       return NextResponse.json(
-        { error: "JWT_SECRET не е дефиниран!" },
+        { message: "JWT_SECRET не е дефиниран!" },
         { status: 500 }
       );
     }
@@ -100,7 +100,7 @@ export async function PUT(req: Request) {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       return NextResponse.json(
-        { error: "Невалиден или изтекъл токен!" },
+        { message: "Невалиден или изтекъл токен!" },
         { status: 401 }
       );
     }
@@ -114,7 +114,7 @@ export async function PUT(req: Request) {
 
     if (!user) {
       return NextResponse.json(
-        { error: "Потребителят не е намерен!" },
+        { message: "Потребителят не е намерен!" },
         { status: 404 }
       );
     }
@@ -160,7 +160,7 @@ export async function PUT(req: Request) {
       error
     );
     return NextResponse.json(
-      { error: "Възникна грешка при обновяване на информацията!" },
+      { message: "Възникна грешка при обновяване на информацията!" },
       { status: 500 }
     );
   }

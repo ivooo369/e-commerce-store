@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useParams, useRouter } from "next/navigation";
 import DashboardNav from "@/app/ui/dashboard/dashboard-primary-nav";
 import FormControl from "@mui/material/FormControl";
@@ -12,118 +13,155 @@ import MenuItem from "@mui/material/MenuItem";
 import CircularProgress from "@/app/ui/components/circular-progress";
 import { getCustomButtonStyles } from "@/app/ui/mui-custom-styles/custom-button";
 import AlertMessage from "@/app/ui/components/alert-message";
+import { Category } from "@prisma/client";
+
+const fetchCategories = async () => {
+  const response = await fetch("/api/dashboard/categories");
+  if (!response.ok) {
+    throw new Error("Възникна грешка при извличане на категориите!");
+  }
+  const data = await response.json();
+  return data.sort((a: Category, b: Category) => a.code.localeCompare(b.code));
+};
+
+const fetchSubcategory = async (id: string) => {
+  const response = await fetch(`/api/dashboard/subcategories/${id}`);
+  if (!response.ok) {
+    throw new Error("Възникна грешка при извличане на подкатегорията!");
+  }
+  return response.json();
+};
+
+const editSubcategory = async ({
+  id,
+  updatedSubcategory,
+}: {
+  id: string;
+  updatedSubcategory: { name: string; code: string; categoryId: string };
+}) => {
+  const response = await fetch(`/api/dashboard/subcategories/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(updatedSubcategory),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.message || "Възникна грешка при запазването!");
+  }
+
+  return data;
+};
 
 export default function DashboardEditSubcategoryPage() {
   const router = useRouter();
   const { id } = useParams();
-  const [isLoading, setIsLoading] = useState(true);
-  const [isEditing, setIsEditing] = useState(false);
-  const [selectedCategoryId, setSelectedCategoryId] = useState<string | "">("");
-  const [subcategoryName, setSubcategoryName] = useState("");
-  const [subcategoryCode, setSubcategoryCode] = useState("");
-  const [categories, setCategories] = useState<
-    { id: string; name: string; code: string }[]
-  >([]);
+  const subcategoryId = Array.isArray(id) ? id[0] : id || "";
+  const [subcategoryData, setSubcategoryData] = useState({
+    name: "",
+    code: "",
+    categoryId: "",
+  });
   const [alert, setAlert] = useState<{
     message: string;
     severity: "success" | "error";
   } | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const queryClient = useQueryClient();
+
+  const {
+    data: categories,
+    isLoading: isCategoriesLoading,
+    isError: isCategoriesError,
+  } = useQuery({
+    queryKey: ["categories"],
+    queryFn: fetchCategories,
+  });
+
+  const {
+    data,
+    isLoading: isSubcategoryLoading,
+    isError: isSubcategoryError,
+  } = useQuery({
+    queryKey: ["subcategory", subcategoryId],
+    queryFn: () => fetchSubcategory(subcategoryId),
+    enabled: !!subcategoryId,
+  });
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const categoriesResponse = await fetch("/api/dashboard/categories");
-        const categoriesData = await categoriesResponse.json();
-        const sortedCategories = categoriesData.sort(
-          (a: { code: string }, b: { code: string }) =>
-            a.code.localeCompare(b.code)
-        );
-        setCategories(sortedCategories);
-
-        if (id) {
-          const subcategoryResponse = await fetch(
-            `/api/dashboard/subcategories/${id}`
-          );
-          if (!subcategoryResponse.ok)
-            throw new Error("Възникна грешка при извличане на подкатегорията!");
-          const subcategoryData = await subcategoryResponse.json();
-          setSubcategoryName(subcategoryData.name);
-          setSubcategoryCode(subcategoryData.code);
-          setSelectedCategoryId(subcategoryData.categoryId);
-        }
-      } catch (error) {
-        console.error(
-          "Възникна грешка при извличане на подкатегорията:",
-          error
-        );
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [id]);
+    if (data) {
+      setSubcategoryData({
+        name: data.name,
+        code: data.code,
+        categoryId: data.categoryId,
+      });
+    }
+  }, [data]);
 
   const handleCategorySelectChange = (event: SelectChangeEvent<string>) => {
-    const selectedId = event.target.value as string;
-    setSelectedCategoryId(selectedId);
+    setSubcategoryData((prev) => ({
+      ...prev,
+      categoryId: event.target.value,
+    }));
   };
 
   const handleSubcategorySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsEditing(true);
 
-    try {
-      const response = await fetch(`/api/dashboard/subcategories/${id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name: subcategoryName,
-          code: subcategoryCode,
-          categoryId: selectedCategoryId,
-        }),
-      });
+    if (subcategoryId) {
+      try {
+        const updatedSubcategory = {
+          name: subcategoryData.name,
+          code: subcategoryData.code,
+          categoryId: subcategoryData.categoryId,
+        };
 
-      const responseData = await response.json();
+        queryClient.setQueryData(
+          ["subcategory", subcategoryId],
+          updatedSubcategory
+        );
 
-      if (!response.ok) {
-        setAlert({
-          message: responseData.error,
-          severity: "error",
+        const response = await editSubcategory({
+          id: subcategoryId,
+          updatedSubcategory,
         });
-        return;
+
+        setAlert({ message: response.message, severity: "success" });
+
+        queryClient.invalidateQueries({
+          queryKey: ["subcategory", subcategoryId],
+        });
+
+        setTimeout(() => {
+          router.push("/dashboard/subcategories");
+        }, 1000);
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          setAlert({ message: error.message, severity: "error" });
+        }
+      } finally {
+        setIsEditing(false);
+        setTimeout(() => setAlert(null), 5000);
       }
-
-      setAlert({
-        message: responseData.message,
-        severity: "success",
-      });
-
-      setSubcategoryName("");
-      setSubcategoryCode("");
-      setSelectedCategoryId("");
-
-      setTimeout(() => {
-        router.push("/dashboard/subcategories");
-      }, 1000);
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (error) {
-      setAlert({
-        message: "Възникна грешка! Моля, опитайте отново!",
-        severity: "error",
-      });
-    } finally {
-      setIsEditing(false);
-      setTimeout(() => setAlert(null), 5000);
     }
   };
 
-  if (isLoading) {
+  if (isCategoriesLoading || isSubcategoryLoading) {
     return (
       <div className="flex justify-center items-center h-screen">
         <CircularProgress message="Зареждане на данните на подкатегорията..." />
+      </div>
+    );
+  }
+
+  if (isCategoriesError || isSubcategoryError) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <p>Възникна грешка при зареждане на данните!</p>
       </div>
     );
   }
@@ -145,8 +183,10 @@ export default function DashboardEditSubcategoryPage() {
             </InputLabel>
             <OutlinedInput
               id="subcategory-name"
-              value={subcategoryName}
-              onChange={(e) => setSubcategoryName(e.target.value)}
+              value={subcategoryData.name}
+              onChange={(e) =>
+                setSubcategoryData({ ...subcategoryData, name: e.target.value })
+              }
               label="Име на подкатегория"
             />
           </FormControl>
@@ -156,22 +196,22 @@ export default function DashboardEditSubcategoryPage() {
             </InputLabel>
             <OutlinedInput
               id="subcategory-code"
-              value={subcategoryCode}
-              onChange={(e) => setSubcategoryCode(e.target.value)}
+              value={subcategoryData.code}
+              onChange={(e) =>
+                setSubcategoryData({ ...subcategoryData, code: e.target.value })
+              }
               label="Код на подкатегория"
             />
           </FormControl>
           <FormControl fullWidth variant="outlined" required>
-            <InputLabel htmlFor="category-select">
-              Изберете категория
-            </InputLabel>
+            <InputLabel htmlFor="category-select">Категория</InputLabel>
             <Select
               id="category-select"
-              value={selectedCategoryId}
+              value={subcategoryData.categoryId}
               onChange={handleCategorySelectChange}
-              label="Изберете категория"
+              label="Категория"
             >
-              {categories.map((category) => (
+              {categories?.map((category: Category) => (
                 <MenuItem key={category.id} value={category.id}>
                   {category.code} - {category.name}
                 </MenuItem>
@@ -185,12 +225,10 @@ export default function DashboardEditSubcategoryPage() {
             sx={getCustomButtonStyles}
             disabled={isEditing}
           >
-            {isEditing ? "Запазване..." : "Запази промените"}
+            {isEditing ? "Редактиране..." : "Редактирай подкатегорията"}
           </Button>
           {alert && (
-            <div>
-              <AlertMessage severity={alert.severity} message={alert.message} />
-            </div>
+            <AlertMessage severity={alert.severity} message={alert.message} />
           )}
         </form>
       </div>

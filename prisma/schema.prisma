@@ -26,11 +26,11 @@ model Customer {
   city              String?   @db.VarChar(100)
   address           String?   @db.VarChar(255)
   phone             String?   @db.VarChar(20)
-  createdAt         DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt         DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
   isVerified        Boolean?  @default(false) @map("is_verified")
   verificationToken String?   @unique @map("verification_token") @db.VarChar(255)
   tokenExpiration   DateTime? @map("token_expiration") @db.Timestamptz(6)
+  createdAt         DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt         DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
   messages          Message[]
   orders            Order[]
 

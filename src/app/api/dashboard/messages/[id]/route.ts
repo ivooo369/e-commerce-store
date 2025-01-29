@@ -21,10 +21,8 @@ export async function DELETE(
   } catch (error) {
     console.error("Възникна грешка при изтриване на съобщението:", error);
     return NextResponse.json(
-      { error: "Възникна грешка при изтриване на съобщението!" },
+      { message: "Възникна грешка при изтриване на съобщението!" },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }

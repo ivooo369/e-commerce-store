@@ -15,7 +15,7 @@ export default function ProductCard({ product, onDelete }: ProductCardProps) {
   return (
     <Card className="max-w-xs mx-auto text-center min-w-full flex flex-col justify-between shadow-lg">
       <CardMedia
-        className="h-52 w-full object-cover"
+        className="min-w-80 h-52 object-cover"
         component="img"
         image={product.images[0]}
         alt={product.name}

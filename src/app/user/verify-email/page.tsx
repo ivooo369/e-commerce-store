@@ -1,43 +1,53 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
+
+const verifyEmail = async (token: string) => {
+  const response = await fetch(`/api/users/verify-email?token=${token}`);
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.message);
+  }
+
+  return data;
+};
 
 export default function VerifyEmail() {
   const [message, setMessage] = useState("");
-  const [isLoading, setIsLoading] = useState(true);
   const [successMessage, setSuccessMessage] = useState("");
   const [customerName, setCustomerName] = useState("");
 
+  const params = new URLSearchParams(window.location.search);
+  const token = params.get("token");
+
+  const { isLoading, data, error } = useQuery({
+    queryKey: ["verifyEmail", token],
+    queryFn: () => verifyEmail(token!),
+    enabled: !!token,
+  });
+
   useEffect(() => {
-    if (successMessage) return;
-
-    const params = new URLSearchParams(window.location.search);
-    const token = params.get("token");
-
-    if (token) {
-      fetch(`/api/users/verify-email?token=${token}`)
-        .then((response) => response.json())
-        .then((data) => {
-          if (data.message) {
-            setSuccessMessage(data.message);
-            if (data.user && data.user.firstName) {
-              setCustomerName(data.user.firstName);
-            }
-          } else if (data.error) {
-            setMessage(data.error);
-          }
-        })
-        .catch((error) => {
-          setMessage("Възникна грешка при потвърждаване на имейла!");
-          console.error("Възникна грешка при потвърждаване на имейла:", error);
-        })
-        .finally(() => setIsLoading(false));
-    } else {
+    if (!token) {
       setMessage("Токенът е невалиден!");
-      setIsLoading(false);
+      return;
     }
-  }, [successMessage]);
+
+    if (data) {
+      if (data.message) {
+        setSuccessMessage(data.message);
+        if (data.user && data.user.firstName) {
+          setCustomerName(data.user.firstName);
+        }
+      }
+    }
+
+    if (error) {
+      setMessage((error as { message: string }).message);
+    }
+  }, [token, data, error]);
 
   if (isLoading) {
     return (

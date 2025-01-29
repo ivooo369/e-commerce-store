@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Image from "next/image";
 import { FaTrash } from "react-icons/fa";
 import DashboardNav from "@/app/ui/dashboard/dashboard-primary-nav";
@@ -15,10 +16,49 @@ import Box from "@mui/material/Box";
 import CircularProgress from "@/app/ui/components/circular-progress";
 import { getCustomButtonStyles } from "@/app/ui/mui-custom-styles/custom-button";
 import AlertMessage from "@/app/ui/components/alert-message";
+import { Product, Subcategory } from "@prisma/client";
+
+const fetchProduct = async (id: string) => {
+  const response = await fetch(`/api/dashboard/products/${id}`);
+  if (!response.ok) {
+    throw new Error("Възникна грешка при извличане на продукта!");
+  }
+  return response.json();
+};
+
+const fetchSubcategories = async (): Promise<Subcategory[]> => {
+  const response = await fetch("/api/dashboard/subcategories");
+  if (!response.ok) {
+    throw new Error("Възникна грешка при извличане на подкатегориите!");
+  }
+  const data = await response.json();
+  return data.sort((a: Subcategory, b: Subcategory) =>
+    a.code.localeCompare(b.code)
+  );
+};
+
+const editProduct = async (id: string, updatedProduct: Product) => {
+  const response = await fetch(`/api/dashboard/products/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(updatedProduct),
+  });
+
+  const responseData = await response.json();
+
+  if (!response.ok) {
+    throw new Error(responseData.message);
+  }
+
+  return responseData;
+};
 
 export default function DashboardEditProductPage() {
   const router = useRouter();
   const { id } = useParams();
+  const productId = Array.isArray(id) ? id[0] : id;
   const [productName, setProductName] = useState("");
   const [productCode, setProductCode] = useState("");
   const [subcategoryIds, setSubcategoryIds] = useState<string[]>([]);
@@ -27,51 +67,35 @@ export default function DashboardEditProductPage() {
   const [productImageUrls, setProductImageUrls] = useState<string[]>([]);
   const [imagesToRemove, setImagesToRemove] = useState<string[]>([]);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const [subcategories, setSubcategories] = useState<
-    { id: string; name: string; code: string }[]
-  >([]);
   const [alert, setAlert] = useState<{
     message: string;
     severity: "success" | "error";
   } | null>(null);
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        if (id) {
-          const productResponse = await fetch(`/api/dashboard/products/${id}`);
-          if (!productResponse.ok)
-            throw new Error("Възникна грешка при извличане на продукта!");
-          const productData = await productResponse.json();
-          setProductName(productData.name);
-          setProductCode(productData.code);
-          setSubcategoryIds(productData.subcategoryIds || []);
-          setPrice(productData.price);
-          setDescription(productData.description);
-          setProductImageUrls(productData.images);
-        }
+  const { data: updatedProduct, isLoading: isProductLoading } = useQuery({
+    queryKey: ["product", productId],
+    queryFn: () => fetchProduct(productId),
+    enabled: !!productId,
+  });
 
-        const subcategoryResponse = await fetch("/api/dashboard/subcategories");
-        if (!subcategoryResponse.ok)
-          throw new Error("Възникна грешка при извличане на подкатегориите!");
-        const subcategoryData = await subcategoryResponse.json();
-        const sortedData = subcategoryData.sort(
-          (a: { code: string }, b: { code: string }) =>
-            a.code.localeCompare(b.code)
-        );
-        setSubcategories(sortedData);
-      } catch (error) {
-        console.error("Възникна грешка при извличане на данните:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  const { data: subcategories, isLoading: isSubcategoriesLoading } = useQuery({
+    queryKey: ["subcategories"],
+    queryFn: fetchSubcategories,
+  });
 
-    fetchData();
-  }, [id]);
+  const resetForm = () => {
+    setProductName("");
+    setProductCode("");
+    setSubcategoryIds([]);
+    setPrice(undefined);
+    setDescription("");
+    setProductImageUrls([]);
+    setSelectedFiles([]);
+    setImagesToRemove([]);
+  };
 
   const handleImageRemove = (index: number) => {
     const imageUrlToRemove = productImageUrls[index];
@@ -108,79 +132,72 @@ export default function DashboardEditProductPage() {
     e.preventDefault();
     setIsEditing(true);
 
-    try {
-      const imageUrls =
-        selectedFiles.length > 0
-          ? await Promise.all(
-              selectedFiles.map(
-                (file) =>
-                  new Promise<string>((resolve) => {
-                    const reader = new FileReader();
-                    reader.onloadend = () => resolve(reader.result as string);
-                    reader.readAsDataURL(file);
-                  })
-              )
+    const imageUrls =
+      selectedFiles.length > 0
+        ? await Promise.all(
+            selectedFiles.map(
+              (file) =>
+                new Promise<string>((resolve) => {
+                  const reader = new FileReader();
+                  reader.onloadend = () => resolve(reader.result as string);
+                  reader.readAsDataURL(file);
+                })
             )
-          : productImageUrls.filter((url) => !imagesToRemove.includes(url));
+          )
+        : productImageUrls.filter((url) => !imagesToRemove.includes(url));
 
-      const response = await fetch(`/api/dashboard/products/${id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name: productName,
-          code: productCode,
-          subcategoryIds,
-          price,
-          description,
-          images: imageUrls,
-          imagesToRemove,
-        }),
-      });
+    const finalPrice = price !== undefined && price > 0 ? price : 0;
 
-      const responseData = await response.json();
+    const updatedProductData = {
+      id: updatedProduct.id,
+      name: productName,
+      code: productCode,
+      subcategoryIds,
+      price: finalPrice,
+      description,
+      images: imageUrls,
+      imagesToRemove,
+      createdAt: updatedProduct.createdAt,
+      updatedAt: new Date(),
+    };
 
-      if (!response.ok) {
-        setAlert({
-          message: responseData.error,
-          severity: "error",
-        });
-        return;
-      }
+    queryClient.setQueryData(["product", productId], updatedProductData);
 
+    try {
+      const responseData = await editProduct(productId, updatedProductData);
       setAlert({
         message: responseData.message,
         severity: "success",
       });
 
-      setProductName("");
-      setProductCode("");
-      setSubcategoryIds([]);
-      setPrice(undefined);
-      setDescription("");
-      setProductImageUrls([]);
-      setSelectedFiles([]);
-      setImagesToRemove([]);
-
-      setTimeout(() => {
-        router.push("/dashboard/products");
-      }, 1000);
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (error) {
+      resetForm();
+      setTimeout(() => router.push("/dashboard/products"), 1000);
+    } catch (error: unknown) {
       setAlert({
-        message: "Възникна грешка! Моля, опитайте отново!",
+        message:
+          (error instanceof Error
+            ? error.message
+            : "Възникна грешка! Моля, опитайте отново!") || "",
         severity: "error",
       });
-    } finally {
-      setIsLoading(false);
-      setIsEditing(false);
 
+      setIsEditing(false);
       setTimeout(() => setAlert(null), 5000);
     }
   };
 
-  if (isLoading) {
+  useEffect(() => {
+    if (updatedProduct) {
+      setProductName(updatedProduct.name);
+      setProductCode(updatedProduct.code);
+      setSubcategoryIds(updatedProduct.subcategoryIds || []);
+      setPrice(updatedProduct.price);
+      setDescription(updatedProduct.description);
+      setProductImageUrls(updatedProduct.images);
+    }
+  }, [updatedProduct]);
+
+  if (isProductLoading || isSubcategoriesLoading) {
     return (
       <div className="flex justify-center items-center h-screen">
         <CircularProgress message="Зареждане на данните на продукта..." />
@@ -230,7 +247,7 @@ export default function DashboardEditProductPage() {
               }
               label="Изберете подкатегории"
             >
-              {subcategories.map((subcategory) => (
+              {subcategories?.map((subcategory) => (
                 <MenuItem key={subcategory.id} value={subcategory.id}>
                   {subcategory.code} - {subcategory.name}
                 </MenuItem>
@@ -318,7 +335,7 @@ export default function DashboardEditProductPage() {
               sx={getCustomButtonStyles}
               disabled={isEditing}
             >
-              {isEditing ? "Запазване..." : "Запази промените"}
+              {isEditing ? "Редактиране..." : "Редактирай продукта"}
             </Button>
           </div>
           {alert && (

@@ -1,56 +1,40 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Product } from "@prisma/client";
 import Button from "@mui/material/Button";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import CircularProgress from "@/app/ui/components/circular-progress";
 import Image from "next/image";
+import { useQuery } from "@tanstack/react-query";
 
 interface ProductDetailsPageProps {
   params: { code: string };
 }
 
+const fetchProductByCode = async (code: string): Promise<Product> => {
+  const response = await fetch(`/api/public/products/${code}`);
+  if (!response.ok) {
+    throw new Error("Възникна грешка при извличане на продукта!");
+  }
+  return response.json();
+};
+
 export default function ProductDetailsPage({
   params,
 }: ProductDetailsPageProps) {
-  const [product, setProduct] = useState<Product | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const fetchProductByCode = async (code: string) => {
-    try {
-      const response = await fetch(`/api/public/products/${code}`);
-      if (!response.ok) {
-        throw new Error("Възникна грешка при извличане на продукта!");
-      }
-      const data: Product = await response.json();
-      setProduct(data);
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (err) {
-      setError("Възникна грешка при извличане на продукта!");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchProductByCode(params.code);
-  }, [params.code]);
-
-  useEffect(() => {
-    if (isModalOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "auto";
-    }
-
-    return () => {
-      document.body.style.overflow = "auto";
-    };
-  }, [isModalOpen]);
+  const {
+    data: product,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["product", params.code],
+    queryFn: () => fetchProductByCode(params.code),
+    retry: 1,
+  });
 
   const handleBackClick = () => {
     window.history.back();
@@ -93,15 +77,15 @@ export default function ProductDetailsPage({
   if (isLoading) {
     return (
       <div className="flex justify-center items-center py-10 my-auto">
-        <CircularProgress message="Зареждане на продукта..." />
+        <CircularProgress message="Зареждане на данните на продукта..." />
       </div>
     );
   }
 
-  if (error) {
+  if (error instanceof Error) {
     return (
       <div className="container mx-auto mt-4 font-bold text-center text-2xl p-16 bg-white rounded-md text-gray-600 flex flex-col items-center">
-        <p>Продуктът не е намерен!</p>
+        <p>{error.message}</p>
         <Button
           variant="contained"
           onClick={handleBackClick}

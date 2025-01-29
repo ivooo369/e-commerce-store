@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useMutation } from "@tanstack/react-query";
 import { signIn } from "next-auth/react";
 import TextField from "@mui/material/TextField";
 import IconButton from "@mui/material/IconButton";
@@ -19,7 +20,7 @@ export default function DashboardLoginPage() {
   const [customerUsername, setCustomerUsername] = useState("");
   const [customerPassword, setCustomerPassword] = useState("");
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isEntering, setIsEntering] = useState(false);
   const [alert, setAlert] = useState<{
     message: string;
     severity: "success" | "error";
@@ -32,32 +33,49 @@ export default function DashboardLoginPage() {
     event.preventDefault();
   };
 
-  const handleSignIn = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setIsLoading(true);
-
-    const result = await signIn("credentials", {
-      redirect: false,
-      username: customerUsername,
-      password: customerPassword,
-    });
-
-    setIsLoading(false);
-
-    if (result?.error) {
+  const mutation = useMutation({
+    mutationFn: async () => {
+      return await signIn("credentials", {
+        redirect: false,
+        username: customerUsername,
+        password: customerPassword,
+      });
+    },
+    onMutate: () => {
+      setIsEntering(true);
+    },
+    onSuccess: (result) => {
+      setIsEntering(false);
+      if (result?.error) {
+        setAlert({
+          message: result.error,
+          severity: "error",
+        });
+        setTimeout(() => {
+          setAlert(null);
+        }, 5000);
+      } else {
+        const redirectUrl = new URLSearchParams(window.location.search).get(
+          "redirect"
+        );
+        router.push(redirectUrl || "/dashboard/products");
+      }
+    },
+    onError: (error) => {
+      setIsEntering(false);
       setAlert({
-        message: result.error,
+        message: error.message,
         severity: "error",
       });
       setTimeout(() => {
         setAlert(null);
       }, 5000);
-    } else {
-      const redirectUrl = new URLSearchParams(window.location.search).get(
-        "redirect"
-      );
-      router.push(redirectUrl || "/dashboard/products");
-    }
+    },
+  });
+
+  const handleSignIn = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    mutation.mutate();
   };
 
   return (
@@ -105,9 +123,9 @@ export default function DashboardLoginPage() {
             color="primary"
             fullWidth
             sx={getCustomButtonStyles}
-            disabled={isLoading}
+            disabled={isEntering}
           >
-            {isLoading ? "Влизане..." : "Вход"}
+            {isEntering ? "Влизане..." : "Вход"}
           </Button>
           {alert && (
             <div>

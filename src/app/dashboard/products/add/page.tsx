@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import DashboardNav from "@/app/ui/dashboard/dashboard-primary-nav";
 import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
@@ -13,6 +13,48 @@ import Image from "next/image";
 import AlertMessage from "@/app/ui/components/alert-message";
 import { FaTrash } from "react-icons/fa";
 import { getCustomButtonStyles } from "@/app/ui/mui-custom-styles/custom-button";
+import { useMutation, useQuery } from "@tanstack/react-query";
+
+interface Subcategory {
+  id: string;
+  name: string;
+  code: string;
+}
+
+const fetchSubcategories = async (): Promise<Subcategory[]> => {
+  const response = await fetch("/api/dashboard/subcategories");
+  if (!response.ok) {
+    throw new Error("Възникна грешка при извличане на подкатегориите!");
+  }
+  const data = await response.json();
+  return data.sort((a: Subcategory, b: Subcategory) =>
+    a.code.localeCompare(b.code)
+  );
+};
+
+const createProduct = async (productData: {
+  name: string;
+  code: string;
+  subcategoryIds: string[];
+  price: number | undefined;
+  description: string;
+  images: string[];
+}) => {
+  const response = await fetch("/api/dashboard/products", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(productData),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message);
+  }
+
+  return response.json();
+};
 
 export default function DashboardAddNewProductPage() {
   const [productName, setProductName] = useState("");
@@ -22,39 +64,49 @@ export default function DashboardAddNewProductPage() {
   const [description, setDescription] = useState("");
   const [productImageUrls, setProductImageUrls] = useState<string[]>([]);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [subcategories, setSubcategories] = useState<
-    { id: string; name: string; code: string }[]
-  >([]);
+  const [isAdding, setIsAdding] = useState(false);
   const [alert, setAlert] = useState<{
     message: string;
     severity: "success" | "error";
   } | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  useEffect(() => {
-    const fetchSubcategories = async () => {
-      try {
-        const response = await fetch("/api/dashboard/subcategories");
-        if (!response.ok)
-          throw new Error("Възникна грешка при извличане на подкатегориите!");
+  const { data: subcategories = [] } = useQuery<Subcategory[]>({
+    queryKey: ["subcategories"],
+    queryFn: fetchSubcategories,
+  });
 
-        const data = await response.json();
-        const sortedData = data.sort(
-          (a: { code: string }, b: { code: string }) =>
-            a.code.localeCompare(b.code)
-        );
-        setSubcategories(sortedData);
-      } catch (error) {
-        console.error(
-          "Възникна грешка при извличане на подкатегориите:",
-          error
-        );
-      }
-    };
+  const createProductMutation = useMutation({
+    mutationFn: createProduct,
+    onMutate: async () => {
+      setIsAdding(true);
+      setAlert(null);
+    },
+    onSuccess: (data) => {
+      setAlert({
+        message: data.message,
+        severity: "success",
+      });
+      setProductName("");
+      setProductCode("");
+      setSubcategoryIds([]);
+      setPrice(undefined);
+      setDescription("");
+      setProductImageUrls([]);
+      setSelectedFiles([]);
+    },
 
-    fetchSubcategories();
-  }, []);
+    onError: (error: Error) => {
+      setAlert({
+        message: error.message,
+        severity: "error",
+      });
+    },
+    onSettled: () => {
+      setIsAdding(false);
+      setTimeout(() => setAlert(null), 5000);
+    },
+  });
 
   const handleImageRemove = (index: number) => {
     setProductImageUrls((prevUrls) => {
@@ -80,7 +132,7 @@ export default function DashboardAddNewProductPage() {
 
   const handleProductSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
+    setIsAdding(true);
 
     try {
       const imageUrls = selectedFiles.length
@@ -96,53 +148,21 @@ export default function DashboardAddNewProductPage() {
           )
         : [];
 
-      const response = await fetch("/api/dashboard/products", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name: productName,
-          code: productCode,
-          subcategoryIds,
-          price,
-          description,
-          images: imageUrls,
-        }),
+      createProductMutation.mutate({
+        name: productName,
+        code: productCode,
+        subcategoryIds,
+        price,
+        description,
+        images: imageUrls,
       });
-
-      const responseData = await response.json();
-
-      if (!response.ok) {
+    } catch (error) {
+      if (error instanceof Error) {
         setAlert({
-          message: responseData.error,
+          message: error.message,
           severity: "error",
         });
-        return;
       }
-
-      setAlert({
-        message: responseData.message,
-        severity: "success",
-      });
-
-      setProductName("");
-      setProductCode("");
-      setSubcategoryIds([]);
-      setPrice(undefined);
-      setDescription("");
-      setProductImageUrls([]);
-      setSelectedFiles([]);
-      if (fileInputRef.current) fileInputRef.current.value = "";
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (error) {
-      setAlert({
-        message: "Възникна грешка при свързването с API.",
-        severity: "error",
-      });
-    } finally {
-      setIsLoading(false);
-      setTimeout(() => setAlert(null), 5000);
     }
   };
 
@@ -188,7 +208,7 @@ export default function DashboardAddNewProductPage() {
               }
               label="Изберете подкатегории"
             >
-              {subcategories.map((subcategory) => (
+              {subcategories.map((subcategory: Subcategory) => (
                 <MenuItem key={subcategory.id} value={subcategory.id}>
                   {subcategory.code} - {subcategory.name}
                 </MenuItem>
@@ -274,9 +294,9 @@ export default function DashboardAddNewProductPage() {
             color="primary"
             fullWidth
             sx={getCustomButtonStyles}
-            disabled={isLoading}
+            disabled={isAdding}
           >
-            {isLoading ? "Добавяне..." : "Добави нов продукт"}
+            {isAdding ? "Добавяне..." : "Добави нов продукт"}
           </Button>
           {alert && (
             <AlertMessage message={alert.message} severity={alert.severity} />

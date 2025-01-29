@@ -2,7 +2,6 @@
 
 import DashboardNav from "@/app/ui/dashboard/dashboard-primary-nav";
 import DashboardSecondaryNav from "@/app/ui/dashboard/dashboard-secondary-nav";
-import { useState, useEffect } from "react";
 import ConfirmationModal from "@/app/ui/components/confirmation-modal";
 import DashboardSearch from "@/app/ui/dashboard/dashboard-search";
 import SubcategoryCard from "@/app/ui/components/subcategory-card";
@@ -12,28 +11,76 @@ import Select, { SelectChangeEvent } from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import CircularProgress from "@/app/ui/components/circular-progress";
 import PaginationButtons from "@/app/ui/components/pagination";
-import usePagination from "@/app/lib/usePagination";
-import { ITEMS_PER_PAGE } from "@/app/lib/usePagination";
+import usePagination, { ITEMS_PER_PAGE } from "@/app/lib/usePagination";
 import Box from "@mui/material/Box";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
+import { Category } from "@prisma/client";
+
+interface Subcategory {
+  id: string;
+  name: string;
+  code: string;
+  categoryId: string;
+  category: {
+    name: string;
+  };
+}
+
+const fetchCategories = async (): Promise<Category[]> => {
+  const response = await fetch("/api/dashboard/categories");
+  if (!response.ok) {
+    throw new Error("Възникна грешка при извличане на подкатегориите!");
+  }
+  return response.json();
+};
+
+const fetchSubcategories = async (): Promise<Subcategory[]> => {
+  const response = await fetch("/api/dashboard/subcategories");
+  if (!response.ok) {
+    throw new Error("Възникна грешка при извличане на подкатегориите!");
+  }
+  const data = await response.json();
+  return data.sort((a: Subcategory, b: Subcategory) =>
+    a.code.localeCompare(b.code)
+  );
+};
+
+const deleteSubcategory = async (id: string): Promise<string> => {
+  const response = await fetch(`/api/dashboard/subcategories/${id}`, {
+    method: "DELETE",
+  });
+  if (!response.ok) {
+    throw new Error("Възникна грешка при изтриване на подкатегорията!");
+  }
+  return id;
+};
 
 export default function DashboardSubcategoriesPage() {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [subcategories, setSubcategories] = useState<any[]>([]);
-  const [categories, setCategories] = useState<
-    { id: string; name: string; code: string }[]
-  >([]);
+  const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState<string>("");
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [subcategoryToDelete, setSubcategoryToDelete] = useState<string | null>(
     null
   );
   const [isSubcategoryModalOpen, setIsSubcategoryModalOpen] = useState(false);
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [isDeleting, setIsDeleting] = useState<boolean>(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
-  const sortedCategories = categories.sort((a, b) =>
-    a.code.localeCompare(b.code)
-  );
+  const { data: categories = [], isLoading: isCategoriesLoading } = useQuery<
+    Category[]
+  >({
+    queryKey: ["categories"],
+    queryFn: fetchCategories,
+  });
+
+  const {
+    data: subcategories = [],
+    isLoading: isSubcategoriesLoading,
+    isError,
+  } = useQuery<Subcategory[]>({
+    queryKey: ["subcategories"],
+    queryFn: fetchSubcategories,
+  });
 
   const filteredSubcategories = subcategories.filter(
     (subcategory) =>
@@ -47,71 +94,18 @@ export default function DashboardSubcategoriesPage() {
     filteredSubcategories
   );
 
-  useEffect(() => {
-    const fetchCategoriesAndSubcategories = async () => {
-      try {
-        const [categoriesResponse, subcategoriesResponse] = await Promise.all([
-          fetch("/api/dashboard/categories"),
-          fetch("/api/dashboard/subcategories"),
-        ]);
-
-        if (!categoriesResponse.ok || !subcategoriesResponse.ok) {
-          throw new Error(
-            "Възникна грешка при извличане на категориите или подкатегориите!"
-          );
-        }
-
-        const categoriesData = await categoriesResponse.json();
-        const subcategoriesData = await subcategoriesResponse.json();
-
-        subcategoriesData.sort((a: { code: string }, b: { code: string }) =>
-          a.code.localeCompare(b.code)
-        );
-
-        setCategories(categoriesData);
-        setSubcategories(subcategoriesData);
-      } catch (error) {
-        console.error(
-          "Възникна грешка при извличане на категориите или подкатегориите:",
-          error
-        );
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchCategoriesAndSubcategories();
-  }, []);
-
-  const handleOpenSubcategoryModal = (id: string) => {
-    setSubcategoryToDelete(id);
-    setIsSubcategoryModalOpen(true);
-  };
-
-  const handleCloseSubcategoryModal = () => {
-    setIsSubcategoryModalOpen(false);
-    setSubcategoryToDelete(null);
-  };
-
   const handleDeleteSubcategory = async () => {
     if (subcategoryToDelete) {
       setIsDeleting(true);
+
+      queryClient.setQueryData<Subcategory[]>(
+        ["subcategories"],
+        (old) => old?.filter((sub) => sub.id !== subcategoryToDelete) || []
+      );
+
       try {
-        const response = await fetch(
-          `/api/dashboard/subcategories/${subcategoryToDelete}`,
-          {
-            method: "DELETE",
-          }
-        );
-
-        if (!response.ok)
-          throw new Error("Възникна грешка при изтриване на подкатегорията!");
-
-        setSubcategories((prevSubcategories) =>
-          prevSubcategories.filter(
-            (subcategory) => subcategory.id !== subcategoryToDelete
-          )
-        );
+        await deleteSubcategory(subcategoryToDelete);
+        queryClient.invalidateQueries({ queryKey: ["subcategories"] });
       } catch (error) {
         console.error(
           "Възникна грешка при изтриване на подкатегорията:",
@@ -122,6 +116,16 @@ export default function DashboardSubcategoriesPage() {
         handleCloseSubcategoryModal();
       }
     }
+  };
+
+  const handleOpenSubcategoryModal = (id: string) => {
+    setSubcategoryToDelete(id);
+    setIsSubcategoryModalOpen(true);
+  };
+
+  const handleCloseSubcategoryModal = () => {
+    setIsSubcategoryModalOpen(false);
+    setSubcategoryToDelete(null);
   };
 
   const handleCategoryChange = (event: SelectChangeEvent<string[]>) => {
@@ -149,14 +153,14 @@ export default function DashboardSubcategoriesPage() {
             label="Филтриране на подкатегориите според категориите"
             id="category-select"
           >
-            {sortedCategories.map((category) => (
+            {categories.map((category) => (
               <MenuItem key={category.id} value={category.id}>
                 {category.code} - {category.name}
               </MenuItem>
             ))}
           </Select>
         </FormControl>
-        {currentItems.length > 0 && (
+        {filteredSubcategories.length > 0 && (
           <div className="pb-2">
             <PaginationButtons
               itemsPerPage={ITEMS_PER_PAGE}
@@ -166,19 +170,25 @@ export default function DashboardSubcategoriesPage() {
             />
           </div>
         )}
-      </div>
-      {isLoading ? (
-        <Box className="flex justify-center items-center py-10 my-auto">
-          <CircularProgress message="Зареждане на подкатегориите..." />
-        </Box>
-      ) : currentItems.length === 0 ? (
-        <div className="text-center py-10">
-          <h2 className="text-2xl font-bold">Няма намерени подкатегории</h2>
-        </div>
-      ) : (
-        <>
-          <div className="container mx-auto py-4 lg:px-4">
-            <div className="grid gap-10 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+        {isCategoriesLoading || isSubcategoriesLoading ? (
+          <Box className="flex justify-center items-center py-10 my-auto">
+            <CircularProgress message="Зареждане на подкатегориите..." />
+          </Box>
+        ) : isError ? (
+          <div className="text-center py-10">
+            <h2 className="text-2xl font-bold">
+              Възникна грешка при извличане на подкатегориите{" "}
+            </h2>
+          </div>
+        ) : currentItems.length === 0 ? (
+          <div className="container mx-auto font-bold min-w-full">
+            <p className="text-center text-2xl p-16 bg-white rounded-md text-gray-600">
+              Няма намерени подкатегории
+            </p>
+          </div>
+        ) : (
+          <div className="container mx-auto">
+            <div className="grid gap-5 sm:gap-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {currentItems.map((subcategory) => (
                 <SubcategoryCard
                   key={subcategory.id}
@@ -187,27 +197,25 @@ export default function DashboardSubcategoriesPage() {
                 />
               ))}
             </div>
-            <div className="pt-10">
-              {currentItems.length > 0 && (
-                <PaginationButtons
-                  itemsPerPage={ITEMS_PER_PAGE}
-                  totalItems={filteredSubcategories.length}
-                  paginate={paginate}
-                  currentPage={currentPage}
-                />
-              )}
+            <div className="pt-6">
+              <PaginationButtons
+                itemsPerPage={ITEMS_PER_PAGE}
+                totalItems={filteredSubcategories.length}
+                paginate={paginate}
+                currentPage={currentPage}
+              />
             </div>
           </div>
-        </>
-      )}
-      <ConfirmationModal
-        isOpen={isSubcategoryModalOpen}
-        onClose={handleCloseSubcategoryModal}
-        onConfirm={handleDeleteSubcategory}
-        mainMessage="Сигурни ли сте, че искате да изтриете тази подкатегория?"
-        deletingMessage="Изтриване на подкатегорията..."
-        isDeleting={isDeleting}
-      />
+        )}
+        <ConfirmationModal
+          isOpen={isSubcategoryModalOpen}
+          onClose={handleCloseSubcategoryModal}
+          onConfirm={handleDeleteSubcategory}
+          mainMessage="Сигурни ли сте, че искате да изтриете тази подкатегория?"
+          deletingMessage="Изтриване на подкатегорията..."
+          isDeleting={isDeleting}
+        />
+      </div>
     </>
   );
 }

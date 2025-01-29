@@ -12,7 +12,7 @@ export async function DELETE(
 
     if (!id) {
       return NextResponse.json(
-        { error: "Липсва ID на потребителя!" },
+        { message: "Липсва ID на потребителя!" },
         { status: 400 }
       );
     }
@@ -23,7 +23,7 @@ export async function DELETE(
     console.log(user);
     if (!user) {
       return NextResponse.json(
-        { error: "Потребителят не е намерен!" },
+        { message: "Потребителят не е намерен!" },
         { status: 404 }
       );
     }
@@ -35,9 +35,9 @@ export async function DELETE(
       { status: 200 }
     );
   } catch (error) {
-    console.error("Грешка при изтриването на акаунта:", error);
+    console.error("Възникна грешка при изтриването на акаунта:", error);
     return NextResponse.json(
-      { error: "Възникна грешка при изтриването на акаунта!" },
+      { message: "Възникна грешка при изтриването на акаунта!" },
       { status: 500 }
     );
   }

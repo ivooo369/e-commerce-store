@@ -20,7 +20,7 @@ export async function GET(
 
     if (!category) {
       return NextResponse.json(
-        { error: "Категорията не е намерена!" },
+        { message: "Категорията не е намерена!" },
         { status: 404 }
       );
     }
@@ -39,7 +39,7 @@ export async function GET(
   } catch (error) {
     console.error("Възникна грешка при извличане на категорията:", error);
     return NextResponse.json(
-      { error: "Възникна грешка при извличане на категорията!" },
+      { message: "Възникна грешка при извличане на категорията!" },
       { status: 500 }
     );
   }
@@ -57,7 +57,7 @@ export async function PUT(
 
     if (!name || !code) {
       return NextResponse.json(
-        { error: "Всички полета са задължителни!" },
+        { message: "Всички полета са задължителни!" },
         { status: 400 }
       );
     }
@@ -68,7 +68,7 @@ export async function PUT(
 
     if (!existingCategory) {
       return NextResponse.json(
-        { error: "Категорията не е намерена!" },
+        { message: "Категорията не е намерена!" },
         { status: 404 }
       );
     }
@@ -79,7 +79,7 @@ export async function PUT(
 
     if (existingCategoryName && existingCategoryName.id !== id) {
       return NextResponse.json(
-        { error: "Категория с това име вече съществува!" },
+        { message: "Категория с това име вече съществува!" },
         { status: 400 }
       );
     }
@@ -90,14 +90,14 @@ export async function PUT(
 
     if (existingCategoryCode && existingCategoryCode.id !== id) {
       return NextResponse.json(
-        { error: "Категория с този код вече съществува!" },
+        { message: "Категория с този код вече съществува!" },
         { status: 400 }
       );
     }
 
     if (imageUrl && !imageUrl.trim()) {
       return NextResponse.json(
-        { error: "Трябва да качите изображение на категорията!" },
+        { message: "Трябва да качите изображение на категорията!" },
         { status: 400 }
       );
     }
@@ -141,7 +141,7 @@ export async function PUT(
   } catch (error) {
     console.error("Възникна грешка при редактиране на категорията:", error);
     return NextResponse.json(
-      { error: "Възникна грешка при редактиране на категорията!" },
+      { message: "Възникна грешка при редактиране на категорията!" },
       { status: 500 }
     );
   }
@@ -161,7 +161,7 @@ export async function DELETE(
 
     if (!category) {
       return NextResponse.json(
-        { error: "Категорията не е намерена!" },
+        { message: "Категорията не е намерена!" },
         { status: 404 }
       );
     }
@@ -172,7 +172,7 @@ export async function DELETE(
 
     if (!otherCategory) {
       return NextResponse.json(
-        { error: "Категорията 'Други' не е намерена!" },
+        { message: "Категорията 'Други' не е намерена!" },
         { status: 404 }
       );
     }
@@ -229,7 +229,7 @@ export async function DELETE(
   } catch (error) {
     console.error("Възникна грешка при изтриването на категорията:", error);
     return NextResponse.json(
-      { error: "Възникна грешка при изтриването на категорията!" },
+      { message: "Възникна грешка при изтриването на категорията!" },
       { status: 500 }
     );
   }

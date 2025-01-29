@@ -12,14 +12,14 @@ export async function POST(req: Request) {
 
     if (!token) {
       return NextResponse.json(
-        { error: "Токенът за оторизация липсва!" },
+        { message: "Токенът за оторизация липсва!" },
         { status: 401 }
       );
     }
 
     if (!JWT_SECRET) {
       return NextResponse.json(
-        { error: "JWT_SECRET не е дефиниран!" },
+        { message: "JWT_SECRET не е дефиниран!" },
         { status: 500 }
       );
     }
@@ -30,7 +30,7 @@ export async function POST(req: Request) {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       return NextResponse.json(
-        { error: "Невалиден или изтекъл токен!" },
+        { message: "Невалиден или изтекъл токен!" },
         { status: 401 }
       );
     }
@@ -39,14 +39,14 @@ export async function POST(req: Request) {
 
     if (!currentPassword || !newPassword) {
       return NextResponse.json(
-        { error: "Моля, попълнете всички полета!" },
+        { message: "Моля, попълнете всички полета!" },
         { status: 400 }
       );
     }
 
     if (newPassword.trim().length < 8) {
       return NextResponse.json(
-        { error: "Новата парола трябва да бъде поне 8 знака!" },
+        { message: "Новата парола трябва да бъде поне 8 знака!" },
         { status: 400 }
       );
     }
@@ -58,7 +58,7 @@ export async function POST(req: Request) {
 
     if (!user) {
       return NextResponse.json(
-        { error: "Потребителят не е намерен!" },
+        { message: "Потребителят не е намерен!" },
         { status: 404 }
       );
     }
@@ -70,14 +70,14 @@ export async function POST(req: Request) {
 
     if (!isCurrentPasswordValid) {
       return NextResponse.json(
-        { error: "Текущата парола е грешна!" },
+        { message: "Текущата парола е грешна!" },
         { status: 400 }
       );
     }
 
     if (currentPassword.trim() === newPassword.trim()) {
       return NextResponse.json(
-        { error: "Новата парола не може да бъде същата като текущата!" },
+        { message: "Новата парола не може да бъде същата като текущата!" },
         { status: 400 }
       );
     }
@@ -94,9 +94,9 @@ export async function POST(req: Request) {
       { status: 200 }
     );
   } catch (error) {
-    console.error("Грешка при смяна на парола:", error);
+    console.error("Възникна грешка при смяна на паролата:", error);
     return NextResponse.json(
-      { error: "Възникна грешка при смяна на паролата!" },
+      { message: "Възникна грешка при смяна на паролата!" },
       { status: 500 }
     );
   }

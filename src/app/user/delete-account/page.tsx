@@ -8,14 +8,32 @@ import { useRouter } from "next/navigation";
 import React, { useState, useEffect } from "react";
 import { FiX } from "react-icons/fi";
 import { useDispatch } from "react-redux";
+import { useMutation } from "@tanstack/react-query";
+
+const deleteAccount = async (userId: string) => {
+  const response = await fetch(`/api/users/delete-account/${userId}`, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  const responseData = await response.json();
+
+  if (!response.ok) {
+    throw new Error(responseData.message);
+  }
+
+  return responseData;
+};
 
 export default function DeleteAccountPage() {
-  const [isLoading, setIsLoading] = useState(false);
   const [alert, setAlert] = useState<{
     message: string;
     severity: "success" | "error";
   } | null>(null);
   const [userData, setUserData] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const router = useRouter();
   const dispatch = useDispatch();
 
@@ -36,53 +54,40 @@ export default function DeleteAccountPage() {
     console.log("Няма записани потребителски данни в localStorage!");
   }
 
-  const handleDeleteAccount = async () => {
-    if (!userId) {
-      console.error("Потребителят не е намерен!");
-      return;
-    }
-
-    setIsLoading(true);
-
-    try {
-      const response = await fetch(`/api/users/delete-account/${userId}`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      const responseData = await response.json();
-
-      if (!response.ok) {
-        setAlert({
-          message: responseData.error,
-          severity: "error",
-        });
-        setIsLoading(false);
-        setTimeout(() => setAlert(null), 5000);
-        return;
-      }
-
+  const mutation = useMutation({
+    mutationFn: deleteAccount,
+    onMutate: () => {
+      setIsDeleting(true);
+    },
+    onSuccess: (responseData) => {
       setAlert({
         message: responseData.message || "Акаунтът беше успешно изтрит!",
         severity: "success",
       });
-      setIsLoading(false);
       setTimeout(() => {
         localStorage.removeItem("userData");
         dispatch(clearUser());
         router.push("/");
       }, 2000);
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (error) {
-      setIsLoading(false);
+      setIsDeleting(false);
+    },
+    onError: (error: { message: string }) => {
       setAlert({
-        message: "Възникна грешка при изтриването на акаунта!",
+        message: error.message,
         severity: "error",
       });
       setTimeout(() => setAlert(null), 5000);
+      setIsDeleting(false);
+    },
+  });
+
+  const handleDeleteAccount = () => {
+    if (!userId) {
+      console.error("Потребителят не е намерен!");
+      return;
     }
+
+    mutation.mutate(userId);
   };
 
   return (
@@ -123,9 +128,9 @@ export default function DeleteAccountPage() {
               margin: "auto",
             }}
             onClick={handleDeleteAccount}
-            disabled={isLoading}
+            disabled={isDeleting}
           >
-            {isLoading ? "Изтриване..." : "Изтрий акаунта"}
+            {isDeleting ? "Изтриване..." : "Изтрий акаунта"}
           </Button>
           <Link
             href="/"
