@@ -19,9 +19,13 @@ export default function VerifyEmail() {
   const [message, setMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [customerName, setCustomerName] = useState("");
+  const [token, setToken] = useState<string | null>(null);
 
-  const params = new URLSearchParams(window.location.search);
-  const token = params.get("token");
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get("token");
+    setToken(token);
+  }, []);
 
   const { isLoading, data, error } = useQuery({
     queryKey: ["verifyEmail", token],
