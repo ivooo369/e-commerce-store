@@ -27,6 +27,7 @@
     "jwt-decode": "^4.0.0",
     "next": "14.2.16",
     "next-auth": "4.24.10",
+    "next-sitemap": "^4.2.3",
     "nodemailer": "^6.9.16",
     "pg": "^8.13.0",
     "react": "^18.3.1",

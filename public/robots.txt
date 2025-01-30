@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://lipci-design-studio.vercel.app/sitemap.xml
