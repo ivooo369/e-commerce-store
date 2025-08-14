@@ -9,31 +9,8 @@ import {
   OutlinedInput,
   TextField,
 } from "@mui/material";
-import { getCustomButtonStyles } from "../ui/mui-custom-styles/custom-button";
-import AlertMessage from "../ui/components/alert-message";
-
-const sendMessage = async (formData: {
-  name: string;
-  email: string;
-  title: string;
-  content: string;
-}) => {
-  const response = await fetch("/api/dashboard/messages", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(formData),
-  });
-
-  const responseData = await response.json();
-
-  if (!response.ok) {
-    throw new Error(responseData.message);
-  }
-
-  return responseData;
-};
+import AlertMessage from "@/ui/components/alert-message";
+import { sendMessage } from "@/services/messageService";
 
 export default function ContactPage() {
   const [name, setName] = useState("");
@@ -93,17 +70,17 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-4 sm:py-6 max-w-5xl">
-      <h1 className="text-2xl sm:text-3xl font-bold text-center text-gray-800 mb-2 tracking-wide">
+    <div className="container mx-auto px-4 py-4 sm:py-6 max-w-5xl bg-bg-primary min-h-screen">
+      <h1 className="text-2xl sm:text-3xl font-bold text-center text-text-primary mb-2 tracking-wide">
         Контактна форма
       </h1>
-      <p className="text-base sm:text-lg text-center text-gray-500 mb-4 sm:mb-6">
+      <p className="text-base sm:text-lg text-center text-text-secondary mb-4 sm:mb-6">
         Имате въпрос или предложение? Попълнете формата по-долу и ние ще се
         свържем с вас в най-кратък срок.
       </p>
       <form
         onSubmit={handleSendMessage}
-        className="bg-white shadow-lg rounded-lg p-4 sm:p-6 space-y-4"
+        className="bg-card-bg shadow-lg rounded-lg p-4 sm:p-6 space-y-4 border border-card-border transition-colors duration-300"
       >
         <FormControl fullWidth variant="outlined" required>
           <InputLabel htmlFor="name">Име</InputLabel>
@@ -125,7 +102,7 @@ export default function ContactPage() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             label="E-mail"
-            inputProps={{ maxLength: 255 }}
+            inputProps={{ maxLength: 100 }}
           />
         </FormControl>
         <FormControl fullWidth variant="outlined" required>
@@ -157,9 +134,9 @@ export default function ContactPage() {
         <Button
           type="submit"
           variant="contained"
+          className="font-bold"
           color="primary"
           fullWidth
-          sx={getCustomButtonStyles}
           disabled={isSending}
         >
           {isSending ? "Изпращане..." : "Изпрати съобщение"}

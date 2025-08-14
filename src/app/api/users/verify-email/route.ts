@@ -54,9 +54,9 @@ export async function GET(req: Request) {
       { status: 200 }
     );
   } catch (error) {
-    console.error("Възникна грешка при потвърждаване на имейл:", error);
+    console.error("Възникна грешка при потвърждаване на имейла:", error);
     return NextResponse.json(
-      { message: "Възникна грешка при потвърждаване на имейл!" },
+      { message: "Възникна грешка при потвърждаване на имейла!" },
       { status: 500 }
     );
   }

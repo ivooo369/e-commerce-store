@@ -3,8 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
-import AlertMessage from "@/app/ui/components/alert-message";
-import { getCustomButtonStyles } from "@/app/ui/mui-custom-styles/custom-button";
+import AlertMessage from "@/ui/components/alert-message";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import {
@@ -15,32 +14,7 @@ import {
   IconButton,
   Button,
 } from "@mui/material";
-
-const changePassword = async (formData: {
-  currentPassword: string;
-  newPassword: string;
-}) => {
-  const userData = localStorage.getItem("userData");
-  const parsedUserData = userData ? JSON.parse(userData) : null;
-  const token = parsedUserData?.token || "";
-
-  const response = await fetch("/api/users/change-password", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify(formData),
-  });
-
-  const responseData = await response.json();
-
-  if (!response.ok) {
-    throw new Error(responseData.message);
-  }
-
-  return responseData;
-};
+import { changePassword } from "@/services/userService";
 
 export default function ChangePasswordPage() {
   const router = useRouter();
@@ -129,13 +103,13 @@ export default function ChangePasswordPage() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-4 sm:py-6 max-w-5xl">
-      <h1 className="text-2xl sm:text-3xl font-bold text-center mb-4 sm:mb-6 tracking-wide">
+    <div className="container mx-auto px-4 py-4 sm:py-6 max-w-5xl bg-bg-primary min-h-screen">
+      <h1 className="text-2xl sm:text-3xl font-bold text-center mb-4 sm:mb-6 tracking-wide text-text-primary">
         Смяна на парола
       </h1>
       <form
         onSubmit={handleChangePassword}
-        className="bg-white shadow-lg rounded-lg p-4 sm:p-6 space-y-4"
+        className="bg-card-bg shadow-lg rounded-lg p-4 sm:p-6 space-y-4 border border-card-border transition-colors duration-300"
       >
         <FormControl
           fullWidth
@@ -234,7 +208,6 @@ export default function ChangePasswordPage() {
           variant="contained"
           color="primary"
           fullWidth
-          sx={getCustomButtonStyles}
           disabled={isChanging}
         >
           {isChanging ? "Обработване..." : "Смени паролата"}

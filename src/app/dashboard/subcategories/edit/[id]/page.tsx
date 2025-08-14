@@ -3,58 +3,21 @@
 import { useState, useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useParams, useRouter } from "next/navigation";
-import DashboardNav from "@/app/ui/dashboard/dashboard-primary-nav";
+import DashboardNav from "@/ui/dashboard/dashboard-primary-nav";
 import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
 import OutlinedInput from "@mui/material/OutlinedInput";
 import Button from "@mui/material/Button";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
-import CircularProgress from "@/app/ui/components/circular-progress";
-import { getCustomButtonStyles } from "@/app/ui/mui-custom-styles/custom-button";
-import AlertMessage from "@/app/ui/components/alert-message";
+import CircularProgress from "@/ui/components/circular-progress";
+import AlertMessage from "@/ui/components/alert-message";
 import { Category } from "@prisma/client";
-
-const fetchCategories = async () => {
-  const response = await fetch("/api/dashboard/categories");
-  if (!response.ok) {
-    throw new Error("Възникна грешка при извличане на категориите!");
-  }
-  const data = await response.json();
-  return data.sort((a: Category, b: Category) => a.code.localeCompare(b.code));
-};
-
-const fetchSubcategory = async (id: string) => {
-  const response = await fetch(`/api/dashboard/subcategories/${id}`);
-  if (!response.ok) {
-    throw new Error("Възникна грешка при извличане на подкатегорията!");
-  }
-  return response.json();
-};
-
-const editSubcategory = async ({
-  id,
-  updatedSubcategory,
-}: {
-  id: string;
-  updatedSubcategory: { name: string; code: string; categoryId: string };
-}) => {
-  const response = await fetch(`/api/dashboard/subcategories/${id}`, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(updatedSubcategory),
-  });
-
-  const data = await response.json();
-
-  if (!response.ok) {
-    throw new Error(data.message || "Възникна грешка при запазването!");
-  }
-
-  return data;
-};
+import { fetchCategories } from "@/services/categoryService";
+import {
+  editSubcategory,
+  fetchSubcategory,
+} from "@/services/subcategoryService";
 
 export default function DashboardEditSubcategoryPage() {
   const router = useRouter();
@@ -169,13 +132,13 @@ export default function DashboardEditSubcategoryPage() {
   return (
     <>
       <DashboardNav />
-      <div className="container mx-auto p-8 max-w-5xl">
-        <h1 className="text-3xl font-bold text-center text-gray-800 mb-8 tracking-wide">
+      <div className="container mx-auto p-8 max-w-5xl min-h-screen">
+        <h1 className="text-3xl font-bold text-center text-text-primary mb-8 tracking-wide">
           Редактиране на подкатегория
         </h1>
         <form
           onSubmit={handleSubcategorySubmit}
-          className="bg-white shadow-lg rounded-lg p-4 sm:p-6 space-y-4"
+          className="bg-card-bg shadow-lg rounded-lg p-4 sm:p-6 space-y-4 border border-card-border transition-colors duration-300"
         >
           <FormControl fullWidth variant="outlined" required>
             <InputLabel htmlFor="subcategory-name">
@@ -221,8 +184,9 @@ export default function DashboardEditSubcategoryPage() {
           <Button
             type="submit"
             variant="contained"
+            className="font-bold"
             color="primary"
-            sx={getCustomButtonStyles}
+            fullWidth
             disabled={isEditing}
           >
             {isEditing ? "Редактиране..." : "Редактирай подкатегорията"}

@@ -2,23 +2,13 @@
 
 import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import { Product } from "@prisma/client";
-import ProductCard from "@/app/ui/components/product-card";
-import PaginationButtons from "@/app/ui/components/pagination";
-import CircularProgress from "@/app/ui/components/circular-progress";
+import ProductCard from "@/ui/components/product-card";
+import PaginationButtons from "@/ui/components/pagination";
+import CircularProgress from "@/ui/components/circular-progress";
 import { Box } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
-import usePagination, { ITEMS_PER_PAGE } from "@/app/lib/usePagination";
-
-const fetchProducts = async (query: string): Promise<Product[]> => {
-  const response = await fetch(`/api/public/products/search?query=${query}`);
-  const data = await response.json();
-  if (Array.isArray(data)) {
-    return data;
-  } else {
-    return [];
-  }
-};
+import usePagination, { ITEMS_PER_PAGE } from "@/lib/usePagination";
+import { fetchProductsByQuery } from "@/services/productService";
 
 export default function ResultsPage() {
   return (
@@ -34,7 +24,7 @@ function Results() {
 
   const { data: filteredProducts = [], isLoading } = useQuery({
     queryKey: ["products", query],
-    queryFn: () => fetchProducts(query),
+    queryFn: () => fetchProductsByQuery(query),
     enabled: query.trim() !== "",
   });
 
@@ -54,8 +44,8 @@ function Results() {
   }
 
   return (
-    <div className="container mx-auto py-4 sm:py-6">
-      <h1 className="text-3xl text-center font-bold mb-4 sm:mb-6 tracking-wide">
+    <div className="container mx-auto py-4 sm:py-6 bg-bg-primary min-h-screen">
+      <h1 className="text-3xl text-center font-bold mb-4 sm:mb-6 tracking-wide text-text-primary">
         Резултати за &quot;{query}&quot;
       </h1>
       {filteredProducts.length > 0 && (
@@ -74,7 +64,7 @@ function Results() {
         </Box>
       ) : currentItems.length === 0 ? (
         <div className="container mx-auto px-4 font-bold">
-          <p className="text-center text-2xl p-16 bg-white rounded-md text-gray-600">
+          <p className="text-center text-2xl p-16 bg-card-bg rounded-md text-text-secondary border border-card-border transition-colors duration-300">
             Няма намерени продукти
           </p>
         </div>

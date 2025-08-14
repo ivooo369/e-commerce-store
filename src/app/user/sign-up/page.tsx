@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { getCustomButtonStyles } from "@/app/ui/mui-custom-styles/custom-button";
 import IconButton from "@mui/material/IconButton";
 import OutlinedInput from "@mui/material/OutlinedInput";
 import InputLabel from "@mui/material/InputLabel";
@@ -11,42 +10,13 @@ import FormControl from "@mui/material/FormControl";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import Button from "@mui/material/Button";
-import AlertMessage from "@/app/ui/components/alert-message";
+import AlertMessage from "@/ui/components/alert-message";
 import { useDispatch } from "react-redux";
-import { setUser } from "@/app/lib/userSlice";
+import { setUser } from "@/lib/userSlice";
 import Link from "next/link";
-import AccountBenefits from "@/app/ui/components/account-benefits";
+import AccountBenefits from "@/ui/components/account-benefits";
 import { Checkbox, FormControlLabel } from "@mui/material";
-
-interface Customer {
-  firstName: string;
-  lastName: string;
-  email: string;
-  password: string;
-  city: string;
-  address: string;
-  phone: string;
-}
-
-const signUp = async (formData: Customer) => {
-  const response = await fetch("/api/users/sign-up", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(formData),
-  });
-
-  const responseData = await response.json();
-
-  if (!response.ok) {
-    throw new Error(
-      responseData.message || "Възникна грешка при обработка на заявката!"
-    );
-  }
-
-  return responseData;
-};
+import { signUp } from "@/services/userService";
 
 export default function SignUpPage() {
   const dispatch = useDispatch();
@@ -162,13 +132,13 @@ export default function SignUpPage() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-4 sm:py-6 max-w-5xl">
-      <h1 className="text-2xl sm:text-3xl font-bold text-center mb-4 sm:mb-6 tracking-wide">
-        Регистрация
+    <div className="container mx-auto px-4 py-4 sm:py-6 max-w-5xl bg-bg-primary min-h-screen">
+      <h1 className="text-2xl sm:text-3xl font-bold text-center mb-4 sm:mb-6 tracking-wide text-text-primary">
+        Регистрация на нов потребителски акаунт
       </h1>
       <form
         onSubmit={handleSignUp}
-        className="bg-white shadow-lg rounded-lg p-4 sm:p-6 space-y-4"
+        className="bg-card-bg shadow-lg rounded-lg p-4 sm:p-6 space-y-4 border border-card-border transition-colors duration-300"
       >
         <AccountBenefits />
         <FormControl fullWidth variant="outlined" required>
@@ -319,10 +289,10 @@ export default function SignUpPage() {
         <Button
           variant="contained"
           color="primary"
+          className="font-bold"
           type="submit"
           disabled={signingUp}
           fullWidth
-          sx={getCustomButtonStyles()}
         >
           {signingUp ? "Регистриране..." : "Регистрация"}
         </Button>

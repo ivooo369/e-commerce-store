@@ -2,8 +2,7 @@
 
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
-import AlertMessage from "@/app/ui/components/alert-message";
-import { getCustomButtonStyles } from "@/app/ui/mui-custom-styles/custom-button";
+import AlertMessage from "@/ui/components/alert-message";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import {
@@ -14,29 +13,12 @@ import {
   IconButton,
   Button,
 } from "@mui/material";
-import { setUser } from "@/app/lib/userSlice";
+import { setUser } from "@/lib/userSlice";
 import { useDispatch } from "react-redux";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import AccountBenefits from "@/app/ui/components/account-benefits";
-
-const signIn = async (formData: { email: string; password: string }) => {
-  const response = await fetch("/api/users/sign-in", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(formData),
-  });
-
-  const responseData = await response.json();
-
-  if (!response.ok) {
-    throw new Error(
-      responseData.message || "Възникна грешка при обработка на заявката!"
-    );
-  }
-
-  return responseData;
-};
+import AccountBenefits from "@/ui/components/account-benefits";
+import { signIn } from "@/services/userService";
 
 export default function SignInPage() {
   const [email, setEmail] = useState("");
@@ -105,13 +87,13 @@ export default function SignInPage() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-4 sm:py-6 max-w-5xl">
-      <h1 className="text-2xl sm:text-3xl font-bold text-center mb-4 sm:mb-6 tracking-wide">
+    <div className="container mx-auto px-4 py-4 sm:py-6 max-w-5xl bg-bg-primary min-h-screen">
+      <h1 className="text-2xl sm:text-3xl font-bold text-center mb-4 sm:mb-6 tracking-wide text-text-primary">
         Вход в потребителски акаунт
       </h1>
       <form
         onSubmit={handleSignIn}
-        className="bg-white shadow-lg rounded-lg p-4 sm:p-6 space-y-4"
+        className="bg-card-bg shadow-lg rounded-lg p-4 sm:p-6 space-y-4 border border-card-border transition-colors duration-300"
       >
         <AccountBenefits />
         <FormControl fullWidth variant="outlined" required>
@@ -151,9 +133,9 @@ export default function SignInPage() {
         <Button
           type="submit"
           variant="contained"
+          className="font-bold"
           color="primary"
           fullWidth
-          sx={getCustomButtonStyles}
           disabled={signingIn}
         >
           {signingIn ? "Влизане..." : "Влез в акаунта си"}

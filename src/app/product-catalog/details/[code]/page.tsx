@@ -1,28 +1,18 @@
 "use client";
 
 import { useState } from "react";
-import { Product } from "@prisma/client";
 import Button from "@mui/material/Button";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
-import CircularProgress from "@/app/ui/components/circular-progress";
+import CircularProgress from "@/ui/components/circular-progress";
 import Image from "next/image";
 import { useQuery } from "@tanstack/react-query";
-
-interface ProductDetailsPageProps {
-  params: { code: string };
-}
-
-const fetchProductByCode = async (code: string): Promise<Product> => {
-  const response = await fetch(`/api/public/products/${code}`);
-  if (!response.ok) {
-    throw new Error("Възникна грешка при извличане на продукта!");
-  }
-  return response.json();
-};
+import { fetchProductByCode } from "@/services/productService";
 
 export default function ProductDetailsPage({
   params,
-}: ProductDetailsPageProps) {
+}: {
+  params: { code: string };
+}) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -84,7 +74,7 @@ export default function ProductDetailsPage({
 
   if (error instanceof Error) {
     return (
-      <div className="container mx-auto mt-4 font-bold text-center text-2xl p-16 bg-white rounded-md text-gray-600 flex flex-col items-center">
+      <div className="container mx-auto mt-4 font-bold text-center text-2xl p-16 bg-card-bg rounded-md text-text-secondary flex flex-col items-center border border-card-border transition-colors duration-300">
         <p>{error.message}</p>
         <Button
           variant="contained"
@@ -100,7 +90,7 @@ export default function ProductDetailsPage({
   if (!product) {
     return (
       <div className="text-center">
-        <p className="text-center text-2xl p-16 bg-white rounded-md text-gray-600">
+        <p className="text-center text-2xl p-16 bg-card-bg rounded-md text-text-secondary border border-card-border transition-colors duration-300">
           Продуктът не е намерен
         </p>
         <Button
@@ -108,7 +98,7 @@ export default function ProductDetailsPage({
           sx={{ marginTop: 2, fontWeight: "bold" }}
           onClick={handleBackClick}
         >
-          Обратно към каталога
+          Назад
         </Button>
       </div>
     );
@@ -188,16 +178,16 @@ export default function ProductDetailsPage({
           <div className="flex flex-col sm:flex-row justify-center gap-4 mt-2 sm:mt-4">
             <Button
               variant="contained"
+              className="font-bold"
               color="primary"
-              sx={{ fontWeight: "bold" }}
               startIcon={<ShoppingCartIcon />}
             >
               Добави в количката
             </Button>
             <Button
               variant="contained"
+              className="font-bold"
               color="error"
-              sx={{ fontWeight: "bold" }}
               onClick={handleBackClick}
             >
               Назад

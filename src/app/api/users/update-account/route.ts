@@ -1,15 +1,11 @@
 import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 import jwt from "jsonwebtoken";
+import { DecodedToken } from "@/lib/interfaces";
 
 export const dynamic = "force-dynamic";
 const prisma = new PrismaClient();
 const JWT_SECRET = process.env.JWT_SECRET;
-
-interface DecodedToken {
-  userId: string;
-  email: string;
-}
 
 export async function GET(req: Request) {
   try {
@@ -70,7 +66,7 @@ export async function GET(req: Request) {
       error
     );
     return NextResponse.json(
-      { message: "Възникна грешка при обработката на заявката!" },
+      { message: "Възникна грешка при обработка на заявката!" },
       { status: 500 }
     );
   }

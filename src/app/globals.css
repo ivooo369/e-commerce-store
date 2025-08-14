@@ -2,8 +2,52 @@
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
 
+:root {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f5f5f5;
+  --bg-tertiary: #e5e7eb;
+  --text-primary: #1a1a1a;
+  --text-secondary: #4a5568;
+  --text-muted: #718096;
+  --border-color: #e2e8f0;
+  --accent-color: #3b82f6;
+  --accent-hover: #2563eb;
+  --success-color: #10b981;
+  --error-color: #ef4444;
+  --warning-color: #f59e0b;
+  --card-bg: #ffffff;
+  --card-border: #e2e8f0;
+  --card-hover: #f8f9fa;
+  --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.dark {
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e293b;
+  --bg-tertiary: #334155;
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
+  --border-color: #475569;
+  --accent-color: #3b82f6;
+  --accent-hover: #2563eb;
+  --success-color: #10b981;
+  --error-color: #ef4444;
+  --warning-color: #f59e0b;
+  --card-bg: #1e293b;
+  --card-border: #475569;
+  --card-hover: #334155;
+  --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3), 0 1px 2px 0 rgba(0, 0, 0, 0.2);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3),
+    0 4px 6px -2px rgba(0, 0, 0, 0.2);
+}
+
 body {
-  background-color: #f5f5f5;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .products-filter-container .search {
@@ -13,4 +57,534 @@ body {
 body .MuiAlert-icon {
   margin: 0;
   align-self: center;
+}
+
+.product-card,
+.category-card,
+.subcategory-card {
+  background-color: var(--card-bg) !important;
+  border: 1px solid var(--card-border) !important;
+  color: var(--text-primary) !important;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.product-card:hover,
+.category-card:hover,
+.subcategory-card:hover {
+  background-color: var(--card-hover) !important;
+}
+
+.MuiAlert-root.MuiAlert-filled.MuiAlert-filledSuccess,
+.MuiAlert-root.MuiAlert-filled.MuiAlert-filledError {
+  background-color: var(--bg-primary) !important;
+}
+
+.MuiAlert-filledSuccess {
+  background-color: #2e7d32 !important;
+  color: white !important;
+}
+
+.MuiAlert-filledError {
+  background-color: #d32f2f !important;
+  color: white !important;
+}
+
+.dark .MuiAlert-root.MuiAlert-filled.MuiAlert-filledSuccess {
+  background-color: #1b5e20 !important;
+  color: #a5d6a7 !important;
+}
+
+.dark .MuiAlert-root.MuiAlert-filled.MuiAlert-filledError {
+  background-color: #7f1d1d !important;
+  color: #fca5a5 !important;
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill,
+select:-webkit-autofill:hover,
+select:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--text-primary) !important;
+  -webkit-box-shadow: 0 0 0px 1000px var(--bg-secondary) inset !important;
+  transition: background-color 5000s ease-in-out 0s;
+  color: var(--text-primary) !important;
+}
+
+.dark .MuiInputBase-input:-webkit-autofill,
+.dark .MuiInputBase-input:-webkit-autofill:hover,
+.dark .MuiInputBase-input:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--text-primary) !important;
+  -webkit-box-shadow: 0 0 0px 1000px var(--bg-secondary) inset !important;
+  border-radius: 4px;
+  color: var(--text-primary) !important;
+}
+
+.dark .MuiPaper-root {
+  background-color: var(--card-bg) !important;
+  color: var(--text-primary) !important;
+}
+
+.dark .MuiTextField-root .MuiOutlinedInput-root {
+  background-color: var(--bg-secondary) !important;
+  color: var(--text-primary) !important;
+}
+
+.dark
+  .MuiTextField-root
+  .MuiOutlinedInput-root
+  .MuiOutlinedInput-notchedOutline {
+  border-color: var(--border-color) !important;
+}
+
+.dark .MuiTextField-root .MuiInputLabel-root {
+  color: var(--text-secondary) !important;
+}
+
+.dark .MuiButton-root {
+  background-color: var(--accent-color) !important;
+  color: var(--bg-primary) !important;
+}
+
+.dark .MuiButton-root:hover {
+  background-color: var(--accent-hover) !important;
+}
+
+.dark .product-card,
+.dark .category-card,
+.dark .subcategory-card {
+  background-color: var(--card-bg) !important;
+  border-color: var(--card-border) !important;
+  color: var(--text-primary) !important;
+}
+
+.dark .product-card:hover,
+.dark .category-card:hover,
+.dark .subcategory-card:hover {
+  background-color: var(--card-hover) !important;
+}
+
+.dark .text-gray-500 {
+  color: var(--text-muted) !important;
+}
+
+.dark .text-black {
+  color: var(--text-primary) !important;
+}
+
+.dark .text-gray-700,
+.dark .text-gray-600 {
+  color: var(--text-secondary) !important;
+}
+
+.dark .MuiFormControl-root .MuiOutlinedInput-root {
+  background-color: var(--bg-secondary) !important;
+}
+
+.dark .MuiFormControl-root .MuiInputLabel-root {
+  color: var(--text-secondary) !important;
+}
+
+.dark
+  .MuiFormControl-root
+  .MuiOutlinedInput-root
+  .MuiOutlinedInput-notchedOutline {
+  border-color: var(--border-color) !important;
+}
+
+.dark
+  .MuiFormControl-root
+  .MuiOutlinedInput-root:hover
+  .MuiOutlinedInput-notchedOutline,
+.dark
+  .MuiFormControl-root
+  .MuiOutlinedInput-root.Mui-focused
+  .MuiOutlinedInput-notchedOutline {
+  border-color: var(--accent-color) !important;
+}
+
+.dark .MuiButton-contained {
+  background-color: var(--accent-color) !important;
+  color: var(--bg-primary) !important;
+}
+
+.dark .MuiButton-contained:hover {
+  background-color: var(--accent-hover) !important;
+}
+
+.dark .MuiButton-outlined {
+  border-color: var(--border-color) !important;
+  color: var(--text-primary) !important;
+}
+
+.dark .MuiButton-outlined:hover {
+  background-color: var(--bg-secondary) !important;
+  border-color: var(--accent-color) !important;
+}
+
+.dark .MuiIconButton-root {
+  color: var(--text-primary) !important;
+}
+
+.dark .MuiIconButton-root:hover {
+  background-color: var(--bg-secondary) !important;
+}
+
+.dark a {
+  color: var(--accent-color) !important;
+}
+
+.dark a:hover {
+  color: var(--accent-hover) !important;
+}
+
+.dark .MuiTable-root {
+  background-color: var(--card-bg) !important;
+}
+
+.dark .MuiTableHead-root .MuiTableCell-root {
+  background-color: var(--bg-secondary) !important;
+  color: var(--text-primary) !important;
+}
+
+.dark .MuiTableBody-root .MuiTableCell-root {
+  color: var(--text-primary) !important;
+  border-bottom-color: var(--border-color) !important;
+}
+
+.dark .MuiDialog-paper,
+.dark .MuiMenu-paper,
+.dark .MuiPopover-root .MuiPaper-root {
+  background-color: var(--card-bg) !important;
+  color: var(--text-primary) !important;
+}
+
+.dark .MuiDialogTitle-root,
+.dark .MuiDialogContent-root,
+.dark .MuiMenuItem-root,
+.dark .MuiSelect-root,
+.dark .MuiSelect-select,
+.dark .MuiSelect-select:focus,
+.dark .MuiSelect-select:hover,
+.dark .MuiOutlinedInput-root .MuiSelect-select,
+.dark .MuiOutlinedInput-root .MuiSelect-select:focus,
+.dark .MuiOutlinedInput-root .MuiSelect-select:hover {
+  color: var(--text-primary) !important;
+}
+
+.dark .MuiMenuItem-root:hover,
+.dark .MuiSelect-select:hover,
+.dark .MuiOutlinedInput-root .MuiSelect-select:hover {
+  background-color: var(--bg-secondary) !important;
+}
+
+.dark .MuiSelect-icon {
+  color: var(--text-secondary) !important;
+}
+
+.dark .MuiSelect-select:focus,
+.dark .MuiSelect-select.MuiSelect-select:focus,
+.dark .MuiOutlinedInput-root .MuiSelect-select:focus {
+  background-color: transparent !important;
+}
+
+.dark .MuiSelect-select.MuiSelect-select,
+.dark .MuiSelect-select.MuiSelect-select.MuiInputBase-input {
+  color: var(--text-primary) !important;
+}
+
+.dark .MuiSelect-select.MuiSelect-select:hover,
+.dark .MuiSelect-select.MuiSelect-select.MuiInputBase-input:hover {
+  background-color: var(--bg-secondary) !important;
+}
+
+.dark .MuiSelect-select.MuiSelect-select.Mui-disabled,
+.dark .MuiSelect-select.MuiSelect-select.MuiInputBase-input.Mui-disabled,
+.dark .MuiOutlinedInput-root .MuiSelect-select.Mui-disabled {
+  color: var(--text-muted) !important;
+}
+
+.dark .MuiPopover-root .MuiList-root {
+  background-color: var(--card-bg) !important;
+  color: var(--text-primary) !important;
+}
+
+.dark .MuiPopover-root .MuiMenuItem-root.Mui-selected {
+  background-color: var(--accent-color) !important;
+  color: var(--bg-primary) !important;
+}
+
+.dark .MuiPopover-root .MuiMenuItem-root.Mui-selected:hover {
+  background-color: var(--accent-hover) !important;
+}
+
+.dark .MuiSlider-root .MuiSlider-track,
+.dark .MuiSlider-root .MuiSlider-thumb,
+.dark .MuiSlider-root .MuiSlider-valueLabel {
+  background-color: var(--accent-color) !important;
+}
+
+.dark .MuiSlider-root .MuiSlider-rail {
+  background-color: var(--border-color) !important;
+}
+
+.dark .MuiSlider-root .MuiSlider-thumb {
+  border: 2px solid var(--bg-primary) !important;
+}
+
+.dark .MuiSlider-root .MuiSlider-thumb:hover {
+  background-color: var(--accent-hover) !important;
+}
+
+.dark .MuiSlider-root .MuiSlider-valueLabel {
+  color: var(--bg-primary) !important;
+}
+
+.dark .MuiSlider-root .MuiSlider-markLabel {
+  color: var(--text-secondary) !important;
+}
+
+.dark .MuiSlider-root .MuiSlider-markLabel.MuiSlider-markLabelActive {
+  color: var(--text-primary) !important;
+}
+
+.dark .MuiSlider-root .MuiSlider-mark {
+  background-color: var(--border-color) !important;
+}
+
+.dark .MuiSlider-root .MuiSlider-mark.MuiSlider-markActive {
+  background-color: var(--accent-color) !important;
+}
+
+.dark .MuiFormControl-root .MuiInputLabel-root.Mui-focused {
+  color: var(--accent-color) !important;
+}
+
+.dark .MuiFormControl-root .MuiInputLabel-root.MuiInputLabel-shrink {
+  color: var(--text-secondary) !important;
+}
+
+.dark .MuiBox-root,
+.dark .MuiBox-root p,
+.dark .MuiBox-root span,
+.dark .MuiBox-root div,
+.dark .MuiBox-root .MuiTypography-root,
+.dark .MuiBox-root .MuiFormControl-root,
+.dark .MuiBox-root .MuiFormControl-root *,
+.dark .MuiTypography-root,
+.dark .MuiTypography-root.MuiTypography-h1,
+.dark .MuiTypography-root.MuiTypography-h2,
+.dark .MuiTypography-root.MuiTypography-h3,
+.dark .MuiTypography-root.MuiTypography-h4,
+.dark .MuiTypography-root.MuiTypography-h5,
+.dark .MuiTypography-root.MuiTypography-h6,
+.dark .MuiTypography-root.MuiTypography-body1,
+.dark .MuiTypography-root.MuiTypography-body2,
+.dark .MuiTypography-root.MuiTypography-button {
+  color: var(--text-primary) !important;
+}
+
+.dark .MuiTypography-root.MuiTypography-caption {
+  color: var(--text-secondary) !important;
+}
+
+.dark .MuiFormLabel-root {
+  color: var(--text-secondary) !important;
+}
+
+.dark .MuiFormLabel-root.Mui-focused {
+  color: var(--accent-color) !important;
+}
+
+.dark .MuiFormLabel-root.Mui-error {
+  color: var(--error-color) !important;
+}
+
+.dark .MuiInputBase-root,
+.dark .MuiInputBase-root.Mui-focused,
+.dark .MuiInputBase-input,
+.dark .MuiInputBase-input:focus {
+  color: var(--text-primary) !important;
+}
+
+.dark .MuiInputBase-root.Mui-disabled {
+  color: var(--text-muted) !important;
+}
+
+.dark .MuiInputBase-input::placeholder,
+.dark .MuiInputBase-input:-webkit-input-placeholder,
+.dark .MuiInputBase-input:-moz-placeholder,
+.dark .MuiInputBase-input::-moz-placeholder,
+.dark .MuiInputBase-input:-ms-input-placeholder {
+  color: var(--text-muted) !important;
+  opacity: 1;
+}
+
+.dark .MuiPaper-root {
+  background-color: var(--card-bg) !important;
+  color: var(--text-primary) !important;
+}
+
+.dark .MuiPaper-elevation1 {
+  box-shadow: var(--shadow) !important;
+}
+
+.dark .MuiPaper-elevation2 {
+  box-shadow: var(--shadow-lg) !important;
+}
+
+.dark .MuiFormControl-root,
+.dark .MuiFormControl-root *,
+.dark .MuiInputBase-root,
+.dark .MuiInputBase-root *,
+.dark .MuiSelect-root,
+.dark .MuiSelect-root *,
+.dark .MuiMenuItem-root,
+.dark .MuiMenuItem-root *,
+.dark .MuiBox-root,
+.dark .MuiBox-root *,
+.dark .MuiTypography-root,
+.dark .MuiTypography-root *,
+.dark .MuiPaper-root,
+.dark .MuiPaper-root *,
+.dark .MuiSlider-root,
+.dark .MuiSlider-root *,
+.dark .MuiPopover-root,
+.dark .MuiPopover-root *,
+.dark .MuiList-root,
+.dark .MuiList-root *,
+.dark .MuiOutlinedInput-root,
+.dark .MuiOutlinedInput-root * {
+  color: var(--text-primary) !important;
+}
+
+.dark .MuiFormControl-root .MuiInputLabel-root,
+.dark .MuiFormControl-root .MuiInputLabel-root.Mui-focused,
+.dark .MuiFormControl-root .MuiInputLabel-root.MuiInputLabel-shrink,
+.dark .MuiFormControl-root .MuiInputLabel-root.Mui-error,
+.dark .MuiFormControl-root .MuiInputLabel-root.Mui-disabled {
+  color: var(--text-secondary) !important;
+}
+
+.dark .MuiFormControl-root .MuiInputLabel-root.Mui-focused {
+  color: var(--accent-color) !important;
+}
+
+.dark .MuiFormControl-root .MuiInputLabel-root.Mui-error {
+  color: var(--error-color) !important;
+}
+
+.dark .MuiFormControl-root .MuiInputLabel-root.Mui-disabled {
+  color: var(--text-muted) !important;
+}
+
+.dark .MuiPagination-root .MuiPaginationItem-root {
+  color: var(--text-primary) !important;
+}
+
+.dark .MuiPagination-root .MuiPaginationItem-root.Mui-selected {
+  background-color: var(--accent-color) !important;
+  color: var(--bg-primary) !important;
+}
+
+.dark .MuiTooltip-tooltip {
+  background-color: var(--bg-tertiary) !important;
+  color: var(--text-primary) !important;
+}
+
+.dark .bg-accent-color,
+.dark .bg-accent-color *,
+.dark .bg-accent-color:hover,
+.dark .bg-accent-color:hover *,
+.dark nav .bg-accent-color,
+.dark nav .bg-accent-color *,
+.dark nav .bg-accent-color:hover,
+.dark nav .bg-accent-color:hover *,
+.dark [class*="bg-accent-color"],
+.dark [class*="bg-accent-color"] *,
+.dark .search-container .bg-accent-color,
+.dark .search-container .bg-accent-color *,
+.dark .search-container .bg-accent-color:hover,
+.dark .search-container .bg-accent-color:hover *,
+.dark .search-container button[class*="bg-accent-color"],
+.dark .search-container button[class*="bg-accent-color"] *,
+.dark nav [class*="bg-accent-color"],
+.dark nav [class*="bg-accent-color"] *,
+.dark nav [class*="bg-accent-color"]:hover,
+.dark nav [class*="bg-accent-color"]:hover *,
+.dark nav div[class*="bg-accent-color"],
+.dark nav div[class*="bg-accent-color"] *,
+.dark nav div[class*="bg-accent-color"]:hover,
+.dark nav div[class*="bg-accent-color"]:hover *,
+.dark .catalog-dropdown.bg-accent-color,
+.dark .catalog-dropdown.bg-accent-color *,
+.dark .catalog-dropdown.bg-accent-color:hover,
+.dark .catalog-dropdown.bg-accent-color:hover *,
+.dark .catalog-dropdown[class*="bg-accent-color"],
+.dark .catalog-dropdown[class*="bg-accent-color"] *,
+.dark nav .catalog-dropdown.bg-accent-color,
+.dark nav .catalog-dropdown.bg-accent-color *,
+.dark nav .catalog-dropdown.bg-accent-color:hover,
+.dark nav .catalog-dropdown.bg-accent-color:hover * {
+  color: white !important;
+}
+
+.dark .dashboard-primary-nav .bg-accent-color {
+  background-color: #3b82f6 !important;
+}
+.dark .dashboard-primary-nav .bg-accent-hover,
+.dark .dashboard-primary-nav .hover\:bg-accent-hover:hover {
+  background-color: #2563eb !important;
+}
+
+.dark .MuiButton-contained {
+  background-color: #3b82f6 !important;
+  color: white !important;
+}
+.dark .MuiButton-contained:hover {
+  background-color: #2563eb !important;
+}
+.dark .MuiButton-contained.MuiButton-colorError {
+  background-color: #ef4444 !important;
+}
+.dark .MuiButton-contained.MuiButton-colorError:hover {
+  background-color: #dc2626 !important;
+}
+
+.dark .dashboard-primary-nav .MuiButton-contained {
+  background-color: #3b82f6 !important;
+}
+.dark .dashboard-primary-nav .MuiButton-contained:hover {
+  background-color: #2563eb !important;
+}
+.dark .dashboard-primary-nav .MuiButton-contained.MuiButton-colorError {
+  background-color: #ef4444 !important;
+}
+.dark .dashboard-primary-nav .MuiButton-contained.MuiButton-colorError:hover {
+  background-color: #dc2626 !important;
+}
+
+.dark .bg-error-color {
+  background-color: #ef4444 !important;
+}
+.dark .bg-error-color:hover {
+  background-color: #dc2626 !important;
+}
+
+.dark .bg-error-color,
+.dark .bg-error-color *,
+.dark .bg-error-color:hover,
+.dark .bg-error-color:hover *,
+.dark .dashboard-primary-nav .bg-error-color,
+.dark .dashboard-primary-nav .bg-error-color *,
+.dark .dashboard-primary-nav .bg-error-color:hover,
+.dark .dashboard-primary-nav .bg-error-color:hover *,
+.dark [class*="bg-error-color"],
+.dark [class*="bg-error-color"] *,
+.dark [class*="bg-error-color"]:hover,
+.dark [class*="bg-error-color"]:hover * {
+  color: white !important;
 }

@@ -3,54 +3,16 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
-import DashboardNav from "@/app/ui/dashboard/dashboard-primary-nav";
-import CircularProgress from "@/app/ui/components/circular-progress";
-import { getCustomButtonStyles } from "@/app/ui/mui-custom-styles/custom-button";
-import AlertMessage from "@/app/ui/components/alert-message";
+import DashboardNav from "@/ui/dashboard/dashboard-primary-nav";
+import CircularProgress from "@/ui/components/circular-progress";
+import AlertMessage from "@/ui/components/alert-message";
 import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
 import OutlinedInput from "@mui/material/OutlinedInput";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
 import { useState, useRef, useEffect } from "react";
-
-interface Category {
-  name: string;
-  code: string;
-  imageUrl: string;
-}
-
-const fetchCategory = async (id: string) => {
-  const response = await fetch(`/api/dashboard/categories/${id}`);
-  if (!response.ok) {
-    throw new Error("Възникна грешка при извличане на категорията!");
-  }
-  return response.json();
-};
-
-const editCategory = async (updatedCategory: Category, id: string) => {
-  try {
-    const response = await fetch(`/api/dashboard/categories/${id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(updatedCategory),
-    });
-
-    const responseData = await response.json();
-
-    if (!response.ok) {
-      throw new Error(responseData.message);
-    }
-
-    return responseData;
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      throw new Error(error.message);
-    }
-  }
-};
+import { editCategory, fetchCategory } from "@/services/categoryService";
 
 export default function DashboardEditCategoryPage() {
   const router = useRouter();
@@ -169,13 +131,13 @@ export default function DashboardEditCategoryPage() {
   return (
     <>
       <DashboardNav />
-      <div className="container mx-auto p-8 max-w-5xl">
-        <h1 className="text-3xl font-bold text-center text-gray-800 mb-8 tracking-wide">
+      <div className="container mx-auto p-8 max-w-5xl min-h-screen">
+        <h1 className="text-3xl font-bold text-center text-text-primary mb-8 tracking-wide">
           Редактиране на категория
         </h1>
         <form
           onSubmit={handleCategorySubmit}
-          className="bg-white shadow-lg rounded-lg p-4 sm:p-6 space-y-4"
+          className="bg-card-bg shadow-lg rounded-lg p-4 sm:p-6 space-y-4 border border-card-border transition-colors duration-300"
         >
           <FormControl fullWidth variant="outlined" required>
             <InputLabel htmlFor="category-name">Име на категория</InputLabel>
@@ -240,8 +202,9 @@ export default function DashboardEditCategoryPage() {
           <Button
             type="submit"
             variant="contained"
+            className="font-bold"
             color="primary"
-            sx={getCustomButtonStyles}
+            fullWidth
             disabled={isEditing}
           >
             {isEditing ? "Редактиране..." : "Редактирай категорията"}

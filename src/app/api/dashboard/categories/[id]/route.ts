@@ -1,4 +1,4 @@
-import cloudinary from "@/app/lib/cloudinary.config";
+import cloudinary from "@/lib/cloudinary.config";
 import { PrismaClient } from "@prisma/client";
 import { NextResponse } from "next/server";
 
@@ -227,9 +227,9 @@ export async function DELETE(
       { status: 200 }
     );
   } catch (error) {
-    console.error("Възникна грешка при изтриването на категорията:", error);
+    console.error("Възникна грешка при изтриване на категорията:", error);
     return NextResponse.json(
-      { message: "Възникна грешка при изтриването на категорията!" },
+      { message: "Възникна грешка при изтриване на категорията!" },
       { status: 500 }
     );
   }

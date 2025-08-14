@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Image from "next/image";
 import { FaTrash } from "react-icons/fa";
-import DashboardNav from "@/app/ui/dashboard/dashboard-primary-nav";
+import DashboardNav from "@/ui/dashboard/dashboard-primary-nav";
 import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
 import OutlinedInput from "@mui/material/OutlinedInput";
@@ -13,47 +13,10 @@ import Select, { SelectChangeEvent } from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
-import CircularProgress from "@/app/ui/components/circular-progress";
-import { getCustomButtonStyles } from "@/app/ui/mui-custom-styles/custom-button";
-import AlertMessage from "@/app/ui/components/alert-message";
-import { Product, Subcategory } from "@prisma/client";
-
-const fetchProduct = async (id: string) => {
-  const response = await fetch(`/api/dashboard/products/${id}`);
-  if (!response.ok) {
-    throw new Error("Възникна грешка при извличане на продукта!");
-  }
-  return response.json();
-};
-
-const fetchSubcategories = async (): Promise<Subcategory[]> => {
-  const response = await fetch("/api/dashboard/subcategories");
-  if (!response.ok) {
-    throw new Error("Възникна грешка при извличане на подкатегориите!");
-  }
-  const data = await response.json();
-  return data.sort((a: Subcategory, b: Subcategory) =>
-    a.code.localeCompare(b.code)
-  );
-};
-
-const editProduct = async (id: string, updatedProduct: Product) => {
-  const response = await fetch(`/api/dashboard/products/${id}`, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(updatedProduct),
-  });
-
-  const responseData = await response.json();
-
-  if (!response.ok) {
-    throw new Error(responseData.message);
-  }
-
-  return responseData;
-};
+import CircularProgress from "@/ui/components/circular-progress";
+import AlertMessage from "@/ui/components/alert-message";
+import { editProduct, fetchProduct } from "@/services/productService";
+import { fetchSubcategories } from "@/services/subcategoryService";
 
 export default function DashboardEditProductPage() {
   const router = useRouter();
@@ -208,13 +171,13 @@ export default function DashboardEditProductPage() {
   return (
     <>
       <DashboardNav />
-      <div className="container mx-auto px-4 py-4 sm:py-6 max-w-5xl">
-        <h1 className="text-2xl sm:text-3xl font-bold text-center text-gray-800 mb-4 sm:mb-6 tracking-wide">
+      <div className="container mx-auto px-4 py-4 sm:py-6 max-w-5xl min-h-screen">
+        <h1 className="text-2xl sm:text-3xl font-bold text-center text-text-primary mb-4 sm:mb-6 tracking-wide">
           Редактиране на продукт
         </h1>
         <form
           onSubmit={handleProductSubmit}
-          className="bg-white shadow-lg rounded-lg p-4 sm:p-6 space-y-4"
+          className="bg-card-bg shadow-lg rounded-lg p-4 sm:p-6 space-y-4 border border-card-border transition-colors duration-300"
         >
           <FormControl fullWidth variant="outlined" required>
             <InputLabel htmlFor="product-name">Име на продукт</InputLabel>
@@ -318,7 +281,7 @@ export default function DashboardEditProductPage() {
                   />
                   <button
                     type="button"
-                    className="absolute top-0 right-0 p-2 bg-red-600 hover:bg-red-800 transition text-white rounded-full"
+                    className="absolute top-0 right-0 p-2 bg-error-color hover:bg-red-700 transition text-white rounded-full"
                     onClick={() => handleImageRemove(index)}
                   >
                     <FaTrash />
@@ -327,17 +290,16 @@ export default function DashboardEditProductPage() {
               ))}
             </div>
           )}
-          <div>
-            <Button
-              type="submit"
-              variant="contained"
-              color="primary"
-              sx={getCustomButtonStyles}
-              disabled={isEditing}
-            >
-              {isEditing ? "Редактиране..." : "Редактирай продукта"}
-            </Button>
-          </div>
+          <Button
+            type="submit"
+            variant="contained"
+            className="font-bold"
+            color="primary"
+            fullWidth
+            disabled={isEditing}
+          >
+            {isEditing ? "Редактиране..." : "Редактирай продукта"}
+          </Button>
           {alert && (
             <div>
               <AlertMessage severity={alert.severity} message={alert.message} />

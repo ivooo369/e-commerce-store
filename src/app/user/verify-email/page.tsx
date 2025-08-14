@@ -3,17 +3,7 @@
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
-
-const verifyEmail = async (token: string) => {
-  const response = await fetch(`/api/users/verify-email?token=${token}`);
-  const data = await response.json();
-
-  if (!response.ok) {
-    throw new Error(data.message);
-  }
-
-  return data;
-};
+import { verifyEmail } from "@/services/userService";
 
 export default function VerifyEmail() {
   const [message, setMessage] = useState("");
@@ -55,10 +45,10 @@ export default function VerifyEmail() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+      <div className="flex items-center justify-center min-h-screen bg-bg-secondary">
         <div className="flex flex-col items-center">
-          <div className="w-12 h-12 sm:w-16 sm:h-16 border-4 border-t-4 border-gray-200 border-t-blue-600 rounded-full animate-spin"></div>
-          <p className="mt-4 text-gray-700 text-sm sm:text-lg">
+          <div className="w-12 h-12 sm:w-16 sm:h-16 border-4 border-t-4 border-border-color border-t-accent-color rounded-full animate-spin"></div>
+          <p className="mt-4 text-text-secondary text-sm sm:text-lg">
             Моля, изчакайте...
           </p>
         </div>
@@ -67,19 +57,19 @@ export default function VerifyEmail() {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 px-4 sm:px-8">
-      <div className="bg-white p-4 sm:p-6 rounded-lg shadow-lg w-full max-w-xl sm:max-w-3xl text-center border border-gray-300">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-bg-secondary px-4 sm:px-8">
+      <div className="bg-card-bg p-4 sm:p-6 rounded-lg shadow-lg w-full max-w-xl sm:max-w-3xl text-center border border-card-border transition-colors duration-300">
         {successMessage && (
-          <h1 className="text-2xl sm:text-3xl font-bold text-green-700 mb-4 tracking-wide">
+          <h1 className="text-2xl sm:text-3xl font-bold text-success-color mb-4 tracking-wide">
             {successMessage}
           </h1>
         )}
         {message && !successMessage && (
-          <h1 className="text-2xl sm:text-3xl font-bold text-red-700 mb-4 tracking-wide">
+          <h1 className="text-2xl sm:text-3xl font-bold text-error-color mb-4 tracking-wide">
             {message}
           </h1>
         )}
-        <div className="mt-4 text-gray-700 text-base sm:text-lg">
+        <div className="mt-4 text-text-secondary text-base sm:text-lg">
           {successMessage === "Вашият имейл беше успешно потвърден!" ? (
             <p>
               Поздравления, <strong>{customerName}</strong>! Вече сте напълно
@@ -94,7 +84,7 @@ export default function VerifyEmail() {
         <div className="mt-4">
           <Link
             href="/"
-            className="text-blue-700 hover:underline text-lg sm:text-xl font-bold"
+            className="text-accent-color hover:text-accent-hover underline text-lg sm:text-xl font-bold transition-colors duration-300"
           >
             Обратно към началната страница
           </Link>

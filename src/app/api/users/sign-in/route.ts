@@ -2,14 +2,10 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcrypt";
 import { PrismaClient } from "@prisma/client";
 import jwt from "jsonwebtoken";
+import { DecodedToken } from "@/lib/interfaces";
 
 const prisma = new PrismaClient();
 const JWT_SECRET = process.env.JWT_SECRET;
-
-interface DecodedToken {
-  userId: string;
-  email: string;
-}
 
 export async function GET(req: Request) {
   try {

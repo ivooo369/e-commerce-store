@@ -1,30 +1,14 @@
 "use client";
 
-import MessageCard from "@/app/ui/components/message-card";
-import DashboardNav from "@/app/ui/dashboard/dashboard-primary-nav";
+import MessageCard from "@/ui/components/message-card";
+import DashboardNav from "@/ui/dashboard/dashboard-primary-nav";
 import Box from "@mui/material/Box";
-import CircularProgress from "@/app/ui/components/circular-progress";
-import ConfirmationModal from "@/app/ui/components/confirmation-modal";
-import { Message } from "@prisma/client";
+import CircularProgress from "@/ui/components/circular-progress";
+import ConfirmationModal from "@/ui/components/confirmation-modal";
+import { Message as MessagePrisma } from "@prisma/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-
-const fetchMessages = async (): Promise<Message[]> => {
-  const response = await fetch("/api/dashboard/messages");
-  if (!response.ok) {
-    throw new Error("Възникна грешка при извличане на съобщенията!");
-  }
-  return response.json();
-};
-
-const deleteMessage = async (id: string) => {
-  const response = await fetch(`/api/dashboard/messages/${id}`, {
-    method: "DELETE",
-  });
-  if (!response.ok) {
-    throw new Error("Възникна грешка при изтриване на съобщението!");
-  }
-};
+import { deleteMessage, fetchMessages } from "@/services/messageService";
 
 export default function DashboardMessagesPage() {
   const queryClient = useQueryClient();
@@ -46,11 +30,11 @@ export default function DashboardMessagesPage() {
     onMutate: async (id) => {
       await queryClient.cancelQueries({ queryKey: ["messages"] });
 
-      const previousMessages = queryClient.getQueryData<Message[]>([
+      const previousMessages = queryClient.getQueryData<MessagePrisma[]>([
         "messages",
       ]);
 
-      queryClient.setQueryData<Message[]>(
+      queryClient.setQueryData<MessagePrisma[]>(
         ["messages"],
         (oldMessages) =>
           oldMessages?.filter((message) => message.id !== id) || []
@@ -108,8 +92,8 @@ export default function DashboardMessagesPage() {
   return (
     <>
       <DashboardNav />
-      <div className="container mx-auto px-4 py-4 sm:py-6 max-w-5xl">
-        <h1 className="text-2xl sm:text-3xl font-bold text-center text-gray-800 mb-4 sm:mb-6 tracking-wide">
+      <div className="container mx-auto px-4 py-4 sm:py-6 max-w-5xl min-h-screen">
+        <h1 className="text-2xl sm:text-3xl font-bold text-center text-text-primary mb-4 sm:mb-6 tracking-wide">
           Съобщения
         </h1>
         {isLoading ? (
@@ -122,7 +106,7 @@ export default function DashboardMessagesPage() {
           </div>
         ) : messages.length === 0 ? (
           <div className="container mx-auto px-4 mt-4 font-bold">
-            <p className="text-center text-2xl p-16 bg-white rounded-md text-gray-600">
+            <p className="text-center text-2xl p-16 bg-card-bg rounded-md text-text-secondary border border-card-border transition-colors duration-300">
               Няма налични съобщения
             </p>
           </div>

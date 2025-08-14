@@ -2,74 +2,24 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import DashboardNav from "@/app/ui/dashboard/dashboard-primary-nav";
-import DashboardSecondaryNav from "@/app/ui/dashboard/dashboard-secondary-nav";
-import ProductCard from "@/app/ui/components/product-card-dashboard";
-import ConfirmationModal from "@/app/ui/components/confirmation-modal";
+import DashboardNav from "@/ui/dashboard/dashboard-primary-nav";
+import DashboardSecondaryNav from "@/ui/dashboard/dashboard-secondary-nav";
+import ProductCard from "@/ui/components/product-card-dashboard";
+import ConfirmationModal from "@/ui/components/confirmation-modal";
 import Box from "@mui/material/Box";
 import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
-import { Category, Product, Subcategory } from "@prisma/client";
-import DashboardSearch from "@/app/ui/dashboard/dashboard-search";
-import CircularProgress from "@/app/ui/components/circular-progress";
-import usePagination, { ITEMS_PER_PAGE } from "@/app/lib/usePagination";
-import PaginationButtons from "@/app/ui/components/pagination";
-
-interface ProductWithSubcategories extends Product {
-  subcategories: {
-    subcategory: Subcategory;
-    id: string;
-    name: string;
-    code: string;
-    categoryId: string;
-  }[];
-}
-
-const fetchProducts = async (): Promise<ProductWithSubcategories[]> => {
-  const response = await fetch("/api/dashboard/products");
-  if (!response.ok) {
-    throw new Error("Възникна грешка при извличане на продуктите!");
-  }
-  const data: ProductWithSubcategories[] = await response.json();
-  data.sort((a, b) => a.code.localeCompare(b.code));
-  return data;
-};
-
-const fetchCategories = async (): Promise<Category[]> => {
-  const response = await fetch("/api/dashboard/categories");
-  if (!response.ok) {
-    throw new Error("Възникна грешка при извличане на категориите!");
-  }
-  const data = await response.json();
-  data.sort((a: { code: string }, b: { code: string }) =>
-    a.code.localeCompare(b.code)
-  );
-  return data;
-};
-
-const fetchSubcategories = async (): Promise<Subcategory[]> => {
-  const response = await fetch("/api/dashboard/subcategories");
-  if (!response.ok) {
-    throw new Error("Възникна грешка при извличане на подкатегориите!");
-  }
-  const data = await response.json();
-  data.sort((a: { code: string }, b: { code: string }) =>
-    a.code.localeCompare(b.code)
-  );
-  return data;
-};
-
-const deleteProduct = async (id: string) => {
-  const response = await fetch(`/api/dashboard/products/${id}`, {
-    method: "DELETE",
-  });
-
-  if (!response.ok) {
-    throw new Error("Възникна грешка при изтриване на продукта!");
-  }
-};
+import { Category, Subcategory } from "@prisma/client";
+import DashboardSearch from "@/ui/dashboard/dashboard-search";
+import CircularProgress from "@/ui/components/circular-progress";
+import usePagination, { ITEMS_PER_PAGE } from "@/lib/usePagination";
+import PaginationButtons from "@/ui/components/pagination";
+import { ProductWithSubcategories } from "@/lib/interfaces";
+import { deleteProduct, fetchProducts } from "@/services/productService";
+import { fetchCategories } from "@/services/categoryService";
+import { fetchSubcategories } from "@/services/subcategoryService";
 
 export default function DashboardProductsPage() {
   const queryClient = useQueryClient();
@@ -277,7 +227,7 @@ export default function DashboardProductsPage() {
           </div>
         ) : currentItems.length === 0 ? (
           <div className="container mx-auto font-bold min-w-full">
-            <p className="text-center text-2xl p-16 bg-white rounded-md text-gray-600">
+            <p className="text-center text-2xl p-16 bg-card-bg rounded-md text-text-secondary border border-card-border transition-colors duration-300">
               Няма намерени продукти
             </p>
           </div>

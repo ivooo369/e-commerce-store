@@ -13,8 +13,7 @@ import FormControl from "@mui/material/FormControl";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import Button from "@mui/material/Button";
-import { getCustomButtonStyles } from "@/app/ui/mui-custom-styles/custom-button";
-import AlertMessage from "@/app/ui/components/alert-message";
+import AlertMessage from "@/ui/components/alert-message";
 
 export default function DashboardLoginPage() {
   const [customerUsername, setCustomerUsername] = useState("");
@@ -79,9 +78,9 @@ export default function DashboardLoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col justify-center items-center bg-gray-200">
-      <div className="bg-white p-6 rounded-lg shadow-2xl w-full max-w-lg">
-        <h1 className="text-2xl font-bold text-center mb-6 tracking-wide">
+    <div className="min-h-screen flex flex-col justify-center items-center bg-bg-secondary transition-colors duration-300">
+      <div className="bg-card-bg p-6 rounded-lg shadow-2xl w-full max-w-lg border border-card-border transition-colors duration-300">
+        <h1 className="text-2xl font-bold text-center mb-6 tracking-wide text-text-primary">
           Администраторски Панел - Вход
         </h1>
         <form className="space-y-4" onSubmit={handleSignIn}>
@@ -120,9 +119,9 @@ export default function DashboardLoginPage() {
           <Button
             type="submit"
             variant="contained"
+            className="font-bold"
             color="primary"
             fullWidth
-            sx={getCustomButtonStyles}
             disabled={isEntering}
           >
             {isEntering ? "Влизане..." : "Вход"}

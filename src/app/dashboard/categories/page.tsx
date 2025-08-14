@@ -1,35 +1,18 @@
 "use client";
 
 import { Category } from "@prisma/client";
-import DashboardNav from "@/app/ui/dashboard/dashboard-primary-nav";
-import DashboardSecondaryNav from "@/app/ui/dashboard/dashboard-secondary-nav";
-import CategoryCard from "@/app/ui/components/category-card-dashboard";
-import ConfirmationModal from "@/app/ui/components/confirmation-modal";
-import DashboardSearch from "@/app/ui/dashboard/dashboard-search";
-import CircularProgress from "@/app/ui/components/circular-progress";
-import PaginationButtons from "@/app/ui/components/pagination";
-import usePagination, { ITEMS_PER_PAGE } from "@/app/lib/usePagination";
+import DashboardNav from "@/ui/dashboard/dashboard-primary-nav";
+import DashboardSecondaryNav from "@/ui/dashboard/dashboard-secondary-nav";
+import CategoryCard from "@/ui/components/category-card-dashboard";
+import ConfirmationModal from "@/ui/components/confirmation-modal";
+import DashboardSearch from "@/ui/dashboard/dashboard-search";
+import CircularProgress from "@/ui/components/circular-progress";
+import PaginationButtons from "@/ui/components/pagination";
+import usePagination, { ITEMS_PER_PAGE } from "@/lib/usePagination";
 import Box from "@mui/material/Box";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-
-const fetchCategories = async (): Promise<Category[]> => {
-  const response = await fetch("/api/dashboard/categories");
-  if (!response.ok) {
-    throw new Error("Възникна грешка при извличане на категориите!");
-  }
-  return await response.json();
-};
-
-const deleteCategory = async (id: string) => {
-  const response = await fetch(`/api/dashboard/categories/${id}`, {
-    method: "DELETE",
-  });
-  if (!response.ok) {
-    throw new Error("Възникна грешка при изтриване на категорията!");
-  }
-  return id;
-};
+import { deleteCategory, fetchCategories } from "@/services/categoryService";
 
 export default function DashboardCategoriesPage() {
   const queryClient = useQueryClient();
@@ -114,13 +97,13 @@ export default function DashboardCategoriesPage() {
           </Box>
         ) : isError ? (
           <div className="text-center py-10">
-            <h2 className="text-2xl font-bold">
+            <h2 className="text-2xl font-bold text-text-primary">
               Възникна грешка при извличане на категориите
             </h2>
           </div>
         ) : currentItems.length === 0 ? (
           <div className="container mx-auto font-bold min-w-full">
-            <p className="text-center text-2xl p-16 bg-white rounded-md text-gray-600">
+            <p className="text-center text-2xl p-16 bg-card-bg rounded-md text-text-secondary border border-card-border transition-colors duration-300">
               Няма намерени категории
             </p>
           </div>

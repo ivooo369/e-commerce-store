@@ -20,7 +20,6 @@ export async function DELETE(
     const user = await prisma.customer.findUnique({
       where: { id: id },
     });
-    console.log(user);
     if (!user) {
       return NextResponse.json(
         { message: "Потребителят не е намерен!" },
@@ -35,9 +34,9 @@ export async function DELETE(
       { status: 200 }
     );
   } catch (error) {
-    console.error("Възникна грешка при изтриването на акаунта:", error);
+    console.error("Възникна грешка при изтриване на акаунта:", error);
     return NextResponse.json(
-      { message: "Възникна грешка при изтриването на акаунта!" },
+      { message: "Възникна грешка при изтриване на акаунта!" },
       { status: 500 }
     );
   }
