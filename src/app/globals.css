@@ -74,6 +74,13 @@ body .MuiAlert-icon {
   background-color: var(--card-hover) !important;
 }
 
+.product-card .MuiSvgIcon-root[style*="#FFD700"],
+.product-card .MuiSvgIcon-root[style*="rgb(255, 215, 0)"] {
+  color: #ffd700 !important;
+  fill: #ffd700 !important;
+  stroke: #ffd700 !important;
+}
+
 .MuiAlert-root.MuiAlert-filled.MuiAlert-filledSuccess,
 .MuiAlert-root.MuiAlert-filled.MuiAlert-filledError {
   background-color: var(--bg-primary) !important;

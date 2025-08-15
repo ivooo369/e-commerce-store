@@ -7,7 +7,6 @@ export type Theme = "light" | "dark";
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-// Helper function to safely access localStorage
 const getStoredTheme = (): Theme | null => {
   if (typeof window === "undefined") return null;
   const storedTheme = localStorage.getItem("theme") as Theme;
@@ -15,21 +14,17 @@ const getStoredTheme = (): Theme | null => {
 };
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  // Initialize with a default theme that will be updated in useEffect
   const [theme, setTheme] = useState<Theme>("light");
   const [isMounted, setIsMounted] = useState(false);
 
-  // Only run on the client side after component mounts
   useEffect(() => {
     setIsMounted(true);
 
-    // Get the saved theme from localStorage if it exists
     const savedTheme = getStoredTheme();
 
     if (savedTheme) {
       setTheme(savedTheme);
     } else {
-      // If no saved theme, check system preference
       const systemTheme = window.matchMedia("(prefers-color-scheme: dark)")
         .matches
         ? "dark"
@@ -37,7 +32,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       setTheme(systemTheme);
     }
 
-    // Listen for theme changes in other tabs
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === "theme" && e.newValue) {
         const newTheme = e.newValue as Theme;
@@ -45,10 +39,8 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       }
     };
 
-    // Listen for system theme changes
     const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
     const handleSystemThemeChange = (e: MediaQueryListEvent) => {
-      // Only change if user hasn't explicitly set a preference
       if (!getStoredTheme()) {
         const newTheme = e.matches ? "dark" : "light";
         setTheme(newTheme);
@@ -64,14 +56,12 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
-  // Update the document class and localStorage when theme changes
   useEffect(() => {
     if (!isMounted) return;
 
     document.documentElement.classList.remove("light", "dark");
     document.documentElement.classList.add(theme);
 
-    // Only update localStorage if we're on the client side
     if (typeof window !== "undefined") {
       localStorage.setItem("theme", theme);
     }

@@ -13,10 +13,8 @@ export const metadata: Metadata = {
   },
 };
 
-// This script will run before the page is interactive to prevent theme flash
 const themeScript = `
   (function() {
-    // Get the theme from localStorage or system preference
     const getStoredTheme = () => {
       if (typeof window !== 'undefined') {
         const storedTheme = localStorage.getItem('theme');
@@ -28,7 +26,6 @@ const themeScript = `
     };
     
     const theme = getStoredTheme();
-    // Set the theme class immediately
     document.documentElement.classList.add(theme);
   })();
 `;
@@ -41,7 +38,6 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        {/* Add the theme script before any content is rendered */}
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
       <body>

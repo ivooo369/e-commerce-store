@@ -152,3 +152,7 @@ export interface ThemeContextType {
   theme: Theme;
   toggleTheme: () => void;
 }
+
+export interface FavoritesState {
+  products: Product[];
+}

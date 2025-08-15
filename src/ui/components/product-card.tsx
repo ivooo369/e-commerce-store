@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import CardMedia from "@mui/material/CardMedia";
@@ -8,23 +8,26 @@ import Link from "next/link";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import StarBorderIcon from "@mui/icons-material/StarBorder";
 import StarIcon from "@mui/icons-material/Star";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/lib/store";
+import { toggleFavorite } from "@/lib/favoritesSlice";
 import { ProductCardProps } from "@/lib/interfaces";
 
 export default function ProductCard({
   product,
   onAddToCart,
 }: ProductCardProps) {
+  const dispatch = useDispatch();
   const { isLoggedIn } = useSelector((state: RootState) => state.user);
-  const [isFavorite, setIsFavorite] = useState(false);
+  const favorites = useSelector((state: RootState) => state.favorites.products);
+  const isFavorite = favorites.some((fav) => fav.code === product.code);
 
   const onToggleFavorite = () => {
     if (!isLoggedIn) {
       alert("Трябва да влезете в акаунта си, за да добавяте към любими!");
       return;
     }
-    setIsFavorite((prev) => !prev);
+    dispatch(toggleFavorite(product));
   };
 
   return (
@@ -52,7 +55,7 @@ export default function ProductCard({
               {isFavorite ? (
                 <StarIcon style={{ color: "#FFD700", fontSize: "1.8rem" }} />
               ) : (
-                <StarBorderIcon style={{ fontSize: "1.8rem" }} />
+                <StarBorderIcon style={{ color: "#FFD700", fontSize: "1.8rem" }} />
               )}
             </IconButton>
           )}
