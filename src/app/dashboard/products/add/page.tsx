@@ -207,7 +207,7 @@ export default function DashboardAddNewProductPage() {
               accept="image/*"
               multiple
               onChange={(e) => handleFileChange(e.target.files)}
-              style={{ display: "none" }}
+              className="hidden"
               id="upload-button"
               ref={fileInputRef}
             />
@@ -216,7 +216,7 @@ export default function DashboardAddNewProductPage() {
                 variant="outlined"
                 component="span"
                 fullWidth
-                sx={{ textTransform: "none" }}
+                className="normal-case"
               >
                 {productImageUrls.length > 0
                   ? `Качени изображения (${productImageUrls.length})`

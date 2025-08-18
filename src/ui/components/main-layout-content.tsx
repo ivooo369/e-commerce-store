@@ -1,10 +1,10 @@
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { setUser } from "@/lib/userSlice";
+import { setUser, clearUser } from "@/lib/userSlice";
 import { usePathname } from "next/navigation";
 import Header from "../layouts/header";
 import Footer from "../layouts/footer";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 export const fetchUserData = async () => {
@@ -23,6 +23,7 @@ export default function MainLayoutContent({
   const pathname = usePathname();
   const dispatch = useDispatch();
 
+  const queryClient = useQueryClient();
   const { data: userData } = useQuery({
     queryKey: ["userData"],
     queryFn: fetchUserData,
@@ -30,10 +31,48 @@ export default function MainLayoutContent({
   });
 
   useEffect(() => {
+    function handleStorageChange(e: StorageEvent) {
+      if (e.key === "userData") {
+        queryClient.invalidateQueries({ queryKey: ["userData"] });
+      }
+    }
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, [queryClient]);
+
+  useEffect(() => {
     if (userData) {
       dispatch(setUser(userData));
     }
   }, [userData, dispatch]);
+
+  useEffect(() => {
+    function isTokenExpired(token: string) {
+      if (!token) return true;
+      try {
+        const payload = JSON.parse(atob(token.split(".")[1]));
+        return payload.exp * 1000 < Date.now();
+      } catch {
+        return true;
+      }
+    }
+
+    function autoLogoutIfTokenExpired() {
+      const userDataStr = localStorage.getItem("userData");
+      if (userDataStr) {
+        try {
+          const userData = JSON.parse(userDataStr);
+          if (isTokenExpired(userData.token)) {
+            localStorage.removeItem("userData");
+            dispatch(clearUser());
+          }
+        } catch {}
+      }
+    }
+
+    const interval = setInterval(autoLogoutIfTokenExpired, 5000);
+    return () => clearInterval(interval);
+  }, [dispatch]);
 
   const isDashboard = pathname.startsWith("/dashboard");
   const isAdmin = pathname.startsWith("/admin");

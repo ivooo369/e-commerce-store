@@ -78,9 +78,8 @@ export default function Header() {
               alt="Lipci Design Studio Logo"
               width={100}
               height={100}
-              className="rounded-md"
+              className="rounded-md w-auto h-auto"
               priority
-              style={{ width: "auto", height: "auto" }}
             />
           </Link>
           <span
@@ -201,10 +200,7 @@ export default function Header() {
               }}
               aria-label="Начало"
             >
-              <HomeIcon
-                className="mr-2"
-                style={{ width: 28.5, height: 28.5 }}
-              />
+              <HomeIcon className="mr-2 w-[28.5px] h-[28.5px]" />
               НАЧАЛО
             </Link>
             <div
@@ -219,10 +215,7 @@ export default function Header() {
               onClick={toggleCatalogMenu}
               aria-label="Каталог"
             >
-              <ViewListIcon
-                className="mr-2"
-                style={{ width: 28, height: 28 }}
-              />
+              <ViewListIcon className="mr-2 w-[28px] h-[28px]" />
               КАТАЛОГ
               {isCatalogMenuOpen && (
                 <div

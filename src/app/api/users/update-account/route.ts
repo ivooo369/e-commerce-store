@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 import jwt from "jsonwebtoken";
-import { DecodedToken } from "@/lib/interfaces";
+import { DecodedToken, UpdateUser } from "@/lib/interfaces";
 
 export const dynamic = "force-dynamic";
 const prisma = new PrismaClient();
@@ -29,8 +29,7 @@ export async function GET(req: Request) {
 
     try {
       decoded = jwt.verify(token, JWT_SECRET) as { userId: string };
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (error) {
+    } catch {
       return NextResponse.json(
         { message: "Невалиден или изтекъл токен!" },
         { status: 401 }
@@ -94,8 +93,7 @@ export async function PUT(req: Request) {
 
     try {
       decoded = jwt.verify(token, JWT_SECRET) as DecodedToken;
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (error) {
+    } catch {
       return NextResponse.json(
         { message: "Невалиден или изтекъл токен!" },
         { status: 401 }
@@ -116,14 +114,7 @@ export async function PUT(req: Request) {
       );
     }
 
-    const updatedData: {
-      firstName?: string;
-      lastName?: string;
-      email?: string;
-      city?: string;
-      address?: string;
-      phone?: string;
-    } = {};
+    const updatedData: UpdateUser = {};
 
     if (firstName) updatedData.firstName = firstName.trim();
     if (lastName) updatedData.lastName = lastName.trim();

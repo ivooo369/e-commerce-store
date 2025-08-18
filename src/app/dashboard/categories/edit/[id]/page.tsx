@@ -175,7 +175,7 @@ export default function DashboardEditCategoryPage() {
                 variant="outlined"
                 component="span"
                 fullWidth
-                sx={{ textTransform: "none", height: "100%" }}
+                className="normal-case"
               >
                 {selectedFile
                   ? selectedFile.name

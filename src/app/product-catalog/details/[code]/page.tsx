@@ -78,8 +78,8 @@ export default function ProductDetailsPage({
         <p>{error.message}</p>
         <Button
           variant="contained"
+          className="mt-2 font-bold"
           onClick={handleBackClick}
-          sx={{ marginTop: 2, fontWeight: "bold" }}
         >
           Назад
         </Button>
@@ -95,7 +95,7 @@ export default function ProductDetailsPage({
         </p>
         <Button
           variant="contained"
-          sx={{ marginTop: 2, fontWeight: "bold" }}
+          className="mt-2 font-bold"
           onClick={handleBackClick}
         >
           Назад

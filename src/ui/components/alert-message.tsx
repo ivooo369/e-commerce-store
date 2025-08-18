@@ -16,14 +16,7 @@ export default function AlertMessage({ severity, message }: AlertMessageProps) {
       variant="filled"
       severity={severity}
       icon={icon}
-      sx={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        textAlign: "center",
-        gap: "0.5rem",
-        fontWeight: "bold",
-      }}
+      className="flex justify-center gap-2 font-bold"
     >
       {message}
     </Alert>

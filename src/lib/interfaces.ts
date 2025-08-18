@@ -156,3 +156,12 @@ export interface ThemeContextType {
 export interface FavoritesState {
   products: Product[];
 }
+
+export interface UpdateUser {
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  city?: string;
+  address?: string;
+  phone?: string;
+}

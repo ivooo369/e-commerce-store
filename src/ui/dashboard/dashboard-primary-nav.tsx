@@ -28,9 +28,8 @@ export default function DashboardNav() {
             alt="Lipci Design Studio Logo"
             width={50}
             height={50}
-            className="rounded-md mr-4"
+            className="rounded-md mr-4 w-auto h-auto"
             priority
-            style={{ width: "auto", height: "auto" }}
           />
         </Link>
         <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center sm:text-left tracking-wide text-text-primary">

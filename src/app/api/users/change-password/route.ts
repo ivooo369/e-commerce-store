@@ -27,8 +27,7 @@ export async function POST(req: Request) {
     let decodedToken: JwtPayload | string;
     try {
       decodedToken = jwt.verify(token, JWT_SECRET) as JwtPayload;
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (error) {
+    } catch {
       return NextResponse.json(
         { message: "Невалиден или изтекъл токен!" },
         { status: 401 }

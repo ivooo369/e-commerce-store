@@ -13,12 +13,7 @@ export default function ThemeToggle() {
     >
       <IconButton
         onClick={toggleTheme}
-        sx={{
-          color: "var(--text-primary)",
-          "&:hover": {
-            backgroundColor: "var(--bg-secondary)",
-          },
-        }}
+        className="text-[var(--text-primary)] hover:bg-[var(--bg-secondary)]"
         aria-label="Toggle theme"
       >
         {theme === "light" ? <Brightness4 /> : <Brightness7 />}

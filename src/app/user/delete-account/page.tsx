@@ -110,10 +110,7 @@ export default function DeleteAccountPage() {
           <Button
             variant="contained"
             color="error"
-            sx={{
-              fontWeight: "bold",
-              margin: "auto",
-            }}
+            className="font-bold"
             onClick={handleDeleteAccount}
             disabled={isDeleting}
           >

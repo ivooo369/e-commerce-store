@@ -39,7 +39,7 @@ export default function ProductCard({
         alt={product.name}
         onContextMenu={(e) => e.preventDefault()}
       />
-      <CardContent sx={{ paddingBottom: "1rem !important" }}>
+      <CardContent className="!pb-4">
         <div className="relative flex items-center justify-center">
           <p className="text-xl font-bold truncate whitespace-nowrap text-text-primary">
             {product.name}
@@ -53,9 +53,9 @@ export default function ProductCard({
               className="absolute right-0"
             >
               {isFavorite ? (
-                <StarIcon style={{ color: "#FFD700", fontSize: "1.8rem" }} />
+                <StarIcon className="text-yellow-400 text-[1.8rem]" />
               ) : (
-                <StarBorderIcon style={{ color: "#FFD700", fontSize: "1.8rem" }} />
+                <StarBorderIcon className="text-yellow-400 text-[1.8rem]" />
               )}
             </IconButton>
           )}
@@ -66,23 +66,14 @@ export default function ProductCard({
         </p>
         <div className="mt-4 flex justify-center gap-3">
           <Link href={`/product-catalog/details/${product.code}`}>
-            <Button
-              variant="contained"
-              sx={{
-                fontWeight: "bold",
-                maxWidth: "8rem",
-              }}
-            >
+            <Button variant="contained" className="font-bold max-w-32">
               Детайли
             </Button>
           </Link>
           <Button
             variant="contained"
             color="error"
-            sx={{
-              fontWeight: "bold",
-              maxWidth: "8rem",
-            }}
+            className="font-bold max-w-32"
             onClick={() => onAddToCart(product.id)}
             startIcon={<ShoppingCartIcon />}
           >

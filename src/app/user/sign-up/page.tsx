@@ -258,7 +258,7 @@ export default function SignUpPage() {
         </FormControl>
         <div className="flex justify-center">
           <FormControlLabel
-            style={{ margin: 0 }}
+            className="m-0"
             control={
               <Checkbox
                 checked={areTermsAccepted}

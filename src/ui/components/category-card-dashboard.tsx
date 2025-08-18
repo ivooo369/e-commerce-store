@@ -29,15 +29,7 @@ export default function CategoryCard({
           <Link href={`/dashboard/categories/edit/${category.id}`}>
             <Button
               variant="contained"
-              sx={{
-                fontWeight: "bold",
-                width: "8rem",
-                backgroundColor: "#3b82f6",
-                "&:hover": {
-                  backgroundColor: "#2563eb",
-                },
-                color: "white",
-              }}
+              className="font-bold w-32 bg-blue-500 hover:bg-blue-600 text-white"
             >
               Редактирай
             </Button>
@@ -45,16 +37,7 @@ export default function CategoryCard({
           <Button
             variant="contained"
             color="error"
-            sx={{
-              display: "flex",
-              fontWeight: "bold",
-              width: "8rem",
-              gap: "0.375rem",
-              backgroundColor: "#ef4444",
-              "&:hover": {
-                backgroundColor: "#dc2626",
-              },
-            }}
+            className="flex font-bold w-32 gap-1.5 bg-red-500 hover:bg-red-600"
             onClick={() => onDelete(category.id)}
           >
             <FaTrash /> Изтрий

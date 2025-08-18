@@ -18,113 +18,40 @@ export default function ConfirmationModal({
   return (
     <Modal open={isOpen} onClose={onClose}>
       {isDeleting ? (
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            boxShadow: 24,
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            textAlign: "center",
-            padding: 8,
-            backgroundColor: "var(--card-bg)",
-            borderRadius: "0.5rem",
-            color: "var(--text-primary)",
-          }}
-        >
+        <Box className="flex flex-col shadow-2xl absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center p-8 bg-[var(--card-bg)] rounded-lg text-[var(--text-primary)]">
           <CircularProgress message={deletingMessage || "Изтриване..."} />
         </Box>
       ) : (
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "center",
-            alignItems: "center",
-            padding: 4,
-            border: "5px solid var(--error-color)",
-            boxShadow: 24,
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            backgroundColor: "var(--card-bg)",
-            color: "var(--text-primary)",
-          }}
-        >
+        <Box className="flex flex-col justify-center items-center p-8 border-[5px] border-[var(--error-color)] shadow-2xl absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[var(--card-bg)] text-[var(--text-primary)]">
           <div className="flex items-center mb-4 text-error-color">
             <WarningIcon className="mr-2" fontSize="large" />
             <Typography
               variant="h5"
               component="h2"
-              sx={{
-                fontWeight: "bold",
-                textAlign: "center",
-                fontSize: "1.125rem",
-                "@media (min-width: 768px)": {
-                  fontSize: "1.25rem",
-                },
-                "@media (min-width: 1024px)": {
-                  fontSize: "1.5rem",
-                },
-              }}
+              className="font-bold text-center text-lg md:text-xl lg:text-2xl"
             >
               Внимание!
             </Typography>
           </div>
           <Typography
             variant="h6"
-            sx={{
-              textAlign: "center",
-              marginBottom: "1rem",
-              fontSize: "1rem",
-              fontWeight: "bold",
-              "@media (min-width: 768px)": {
-                fontSize: "1.125rem",
-              },
-              "@media (min-width: 1024px)": {
-                fontSize: "1.25rem",
-              },
-            }}
+            className="text-center mb-4 text-base font-bold md:text-lg lg:text-xl"
           >
             {mainMessage}
           </Typography>
-          <div className="mt-4 flex justify-between w-full">
+          <div className="flex justify-between w-full">
             <Button
               variant="contained"
               color="error"
               onClick={onConfirm}
-              sx={{
-                display: "flex",
-                flex: 1,
-                fontWeight: "bold",
-                width: "8rem",
-                gap: "0.375rem",
-                backgroundColor: "#ef4444",
-                "&:hover": {
-                  backgroundColor: "#dc2626",
-                },
-              }}
+              className="flex flex-1 font-bold w-32 gap-1.5 bg-red-500 hover:bg-red-600"
             >
               <FaTrash /> Изтрий
             </Button>
             <Button
               variant="contained"
               onClick={onClose}
-              sx={{
-                display: "flex",
-                flex: 1,
-                fontWeight: "bold",
-                width: "8rem",
-                backgroundColor: "#3b82f6",
-                "&:hover": {
-                  backgroundColor: "#2563eb",
-                },
-                color: "white",
-                marginLeft: "0.5rem",
-              }}
+              className="flex flex-1 font-bold w-32 bg-blue-500 hover:bg-blue-600 text-white ml-3"
             >
               Отказ
             </Button>

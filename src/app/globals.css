@@ -83,7 +83,7 @@ body .MuiAlert-icon {
 
 .MuiAlert-root.MuiAlert-filled.MuiAlert-filledSuccess,
 .MuiAlert-root.MuiAlert-filled.MuiAlert-filledError {
-  background-color: var(--bg-primary) !important;
+  background-color: var(--bg-primary);
 }
 
 .MuiAlert-filledSuccess {
@@ -594,4 +594,15 @@ select:-webkit-autofill:focus {
 .dark [class*="bg-error-color"]:hover,
 .dark [class*="bg-error-color"]:hover * {
   color: white !important;
+}
+
+.dark .MuiInputLabel-root.Mui-focused .MuiInputLabel-asterisk {
+  color: #1976d2 !important;
+}
+
+.dark .product-card .MuiSvgIcon-root.text-yellow-400,
+.dark .product-card .MuiSvgIcon-root.text-yellow-400 * {
+  color: #ffd700 !important;
+  fill: #ffd700 !important;
+  stroke: #ffd700 !important;
 }

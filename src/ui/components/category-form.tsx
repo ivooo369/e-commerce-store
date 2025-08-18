@@ -107,7 +107,7 @@ export default function CategoryForm({ refetch }: { refetch: () => void }) {
           type="file"
           accept="image/*"
           onChange={handleFileChange}
-          style={{ display: "none" }}
+          className="hidden"
           id="upload-button"
           ref={fileInputRef}
         />
@@ -116,7 +116,7 @@ export default function CategoryForm({ refetch }: { refetch: () => void }) {
             variant="outlined"
             component="span"
             fullWidth
-            sx={{ textTransform: "none" }}
+            className="normal-case"
           >
             {selectedFile ? selectedFile.name : "Качете изображение *"}
           </Button>

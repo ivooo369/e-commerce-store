@@ -19,7 +19,7 @@ export default function ProductCard({
         alt={product.name}
         onContextMenu={(e) => e.preventDefault()}
       />
-      <CardContent sx={{ paddingBottom: "1rem !important" }}>
+      <CardContent className="!pb-4">
         <p className="text-xl font-bold truncate whitespace-nowrap text-text-primary">
           {product.name}
         </p>
@@ -31,15 +31,7 @@ export default function ProductCard({
           <Link href={`/dashboard/products/edit/${product.id}`}>
             <Button
               variant="contained"
-              sx={{
-                fontWeight: "bold",
-                width: "8rem",
-                backgroundColor: "#3b82f6",
-                "&:hover": {
-                  backgroundColor: "#2563eb",
-                },
-                color: "white",
-              }}
+              className="font-bold w-32 bg-blue-500 hover:bg-blue-600 text-white"
             >
               Редактирай
             </Button>
@@ -47,16 +39,7 @@ export default function ProductCard({
           <Button
             variant="contained"
             color="error"
-            sx={{
-              display: "flex",
-              fontWeight: "bold",
-              width: "8rem",
-              gap: "0.375rem",
-              backgroundColor: "#ef4444",
-              "&:hover": {
-                backgroundColor: "#dc2626",
-              },
-            }}
+            className="flex font-bold w-32 gap-1.5 bg-red-500 hover:bg-red-600"
             onClick={() => onDelete(product.id)}
           >
             <FaTrash /> Изтрий
