@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   FormControl,
   InputLabel,
@@ -18,17 +18,35 @@ import PaginationButtons from "@/ui/components/pagination";
 import { useQuery } from "@tanstack/react-query";
 import { CategoryPageProps } from "@/lib/interfaces";
 import { fetchFilteredProducts } from "@/services/productService";
+import { useDispatch, useSelector } from "react-redux";
+import { loadFavorites } from "@/lib/favoritesSlice";
+import { RootState, AppDispatch } from "@/lib/store";
 
 export default function CategoryPageServerComponent({
   category,
   subcategories,
 }: CategoryPageProps) {
+  const dispatch = useDispatch<AppDispatch>();
+  const { isLoggedIn, id: userId } = useSelector(
+    (state: RootState) => state.user
+  );
+
+  const loadUserFavorites = useCallback(() => {
+    if (isLoggedIn && userId) {
+      dispatch(loadFavorites(userId));
+    }
+  }, [dispatch, isLoggedIn, userId]);
+
+  useEffect(() => {
+    loadUserFavorites();
+  }, [loadUserFavorites]);
   const [selectedSubcategories, setSelectedSubcategories] = useState<string[]>(
     []
   );
   const [sortOption, setSortOption] = useState<string>("newest");
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 500]);
 
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [isQueryEnabled, setIsQueryEnabled] = useState(false);
 
   const { data: products = [], isLoading } = useQuery<Product[]>({
@@ -40,6 +58,8 @@ export default function CategoryPageServerComponent({
 
   useEffect(() => {
     setIsQueryEnabled(true);
+    const timer = setTimeout(() => setIsInitialLoad(false), 100);
+    return () => clearTimeout(timer);
   }, [category.id, selectedSubcategories]);
 
   const handleSubcategoryChange = (event: SelectChangeEvent<string[]>) => {
@@ -146,7 +166,7 @@ export default function CategoryPageServerComponent({
         />
       )}
       <div>
-        {isLoading ? (
+        {isLoading || isInitialLoad ? (
           <Box className="flex justify-center items-center py-10 my-auto">
             <CircularProgress message="Зареждане на продуктите..." />
           </Box>

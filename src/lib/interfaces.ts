@@ -1,5 +1,4 @@
 import {
-  Product as ProductPrisma,
   Category as CategoryPrisma,
   Subcategory as SubcategoryPrisma,
 } from "@prisma/client";
@@ -40,12 +39,7 @@ export interface Customer {
   phone: string;
 }
 
-export interface Product {
-  name: string;
-  code: string;
-  price: number | undefined;
-  description: string;
-  images: string[];
+export interface Product extends ProductBase {
   subcategoryIds?: string[];
 }
 
@@ -72,7 +66,7 @@ export interface Message {
   content: string;
 }
 
-export interface ProductWithSubcategories extends ProductPrisma {
+export interface ProductWithSubcategories extends ProductBase {
   subcategories: {
     subcategory: Subcategory;
     id: string;
@@ -121,12 +115,23 @@ export interface PaginationButtonsProps {
 }
 
 export interface DashboardProductCardProps {
-  product: ProductPrisma;
+  product: ProductBase;
   onDelete: (id: string) => void;
 }
 
+type ProductBase = {
+  id?: string;
+  name: string;
+  code: string;
+  price: number;
+  description: string;
+  images: string[];
+  createdAt?: Date;
+  updatedAt?: Date;
+};
+
 export interface ProductCardProps {
-  product: ProductPrisma;
+  product: ProductBase;
   onAddToCart: (id: string) => void;
 }
 
@@ -164,4 +169,10 @@ export interface UpdateUser {
   city?: string;
   address?: string;
   phone?: string;
+}
+
+export interface FavoritesState {
+  products: Product[];
+  loading: boolean;
+  error: string | null;
 }

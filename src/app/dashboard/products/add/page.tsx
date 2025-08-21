@@ -109,6 +109,15 @@ export default function DashboardAddNewProductPage() {
           )
         : [];
 
+      if (price === undefined) {
+        setAlert({
+          message: "Моля, въведете цена на продукта!",
+          severity: "error",
+        });
+        setIsAdding(false);
+        return;
+      }
+
       createProductMutation.mutate({
         name: productName,
         code: productCode,

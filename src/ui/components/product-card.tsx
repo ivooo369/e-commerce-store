@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import CardMedia from "@mui/material/CardMedia";
@@ -10,32 +10,93 @@ import StarBorderIcon from "@mui/icons-material/StarBorder";
 import StarIcon from "@mui/icons-material/Star";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/lib/store";
-import { toggleFavorite } from "@/lib/favoritesSlice";
+import {
+  addFavoriteToServer,
+  removeFavoriteFromServer,
+} from "@/lib/favoritesSlice";
 import { ProductCardProps } from "@/lib/interfaces";
+import { AppDispatch } from "@/lib/store";
 
 export default function ProductCard({
   product,
   onAddToCart,
 }: ProductCardProps) {
-  const dispatch = useDispatch();
-  const { isLoggedIn } = useSelector((state: RootState) => state.user);
-  const favorites = useSelector((state: RootState) => state.favorites.products);
-  const isFavorite = favorites.some((fav) => fav.code === product.code);
+  const dispatch = useDispatch<AppDispatch>();
+  const { isLoggedIn, id: userId } = useSelector(
+    (state: RootState) => state.user
+  );
+  const { products: favorites, loading: favoritesLoading } = useSelector(
+    (state: RootState) => state.favorites
+  );
+  const [isToggling, setIsToggling] = useState(false);
+  const [isFavoriteState, setIsFavoriteState] = useState(false);
 
-  const onToggleFavorite = () => {
-    if (!isLoggedIn) {
+  useEffect(() => {
+    if (product.id) {
+      setIsFavoriteState(favorites.some((fav) => fav.id === product.id));
+    }
+  }, [favorites, product.id]);
+
+  const isFavorite = product.id && isFavoriteState;
+
+  const onToggleFavorite = async () => {
+    if (!isLoggedIn || !userId) {
       alert("Трябва да влезете в акаунта си, за да добавяте към любими!");
       return;
     }
-    dispatch(toggleFavorite(product));
+
+    setIsFavoriteState(!isFavoriteState);
+
+    if (!product.id) {
+      console.error("Идентификаторът на продукта липсва!");
+      return;
+    }
+
+    if (isToggling || favoritesLoading) return;
+
+    setIsToggling(true);
+
+    try {
+      if (isFavorite) {
+        dispatch(
+          removeFavoriteFromServer({
+            productId: product.id,
+            customerId: userId,
+          })
+        );
+      } else {
+        dispatch(addFavoriteToServer({ product, customerId: userId }));
+      }
+    } catch (error) {
+      console.error(
+        "Възникна грешка при обновяване на списъка с любими продукти:",
+        error
+      );
+      setIsFavoriteState(!isFavoriteState);
+    } finally {
+      setIsToggling(false);
+    }
   };
+
+  const handleAddToCart = () => {
+    if (product.id) {
+      onAddToCart(product.id);
+    } else {
+      console.error("Идентификаторът на продукта липсва!");
+    }
+  };
+
+  if (!product.id) {
+    console.error("Идентификаторът на продукта липсва!");
+    return null;
+  }
 
   return (
     <Card className="product-card max-w-xs mx-auto text-center min-w-full flex flex-col justify-between shadow-lg transition-colors duration-300">
       <CardMedia
         className="h-52 w-full object-cover"
         component="img"
-        image={product.images[0]}
+        image={product.images?.[0] || "/placeholder-product.jpg"}
         alt={product.name}
         onContextMenu={(e) => e.preventDefault()}
       />
@@ -47,15 +108,24 @@ export default function ProductCard({
           {isLoggedIn && (
             <IconButton
               onClick={onToggleFavorite}
+              disabled={isToggling || favoritesLoading || !product.id}
               aria-label={
                 isFavorite ? "Remove from Favorites" : "Add to Favorites"
               }
               className="absolute right-0"
             >
               {isFavorite ? (
-                <StarIcon className="text-yellow-400 text-[1.8rem]" />
+                <StarIcon
+                  className={`text-yellow-400 text-[1.8rem] ${
+                    isToggling ? "opacity-50" : ""
+                  }`}
+                />
               ) : (
-                <StarBorderIcon className="text-yellow-400 text-[1.8rem]" />
+                <StarBorderIcon
+                  className={`text-yellow-400 text-[1.8rem] ${
+                    isToggling ? "opacity-50" : ""
+                  }`}
+                />
               )}
             </IconButton>
           )}
@@ -64,20 +134,28 @@ export default function ProductCard({
         <p className="text-base font-bold text-text-primary">
           Цена: {product.price} лв.
         </p>
-        <div className="mt-4 flex justify-center gap-3">
-          <Link href={`/product-catalog/details/${product.code}`}>
-            <Button variant="contained" className="font-bold max-w-32">
-              Детайли
+        <div className="mt-4 flex flex-col gap-3 w-full">
+          <Link
+            href={`/product-catalog/details/${product.code || "#"}`}
+            className="w-full"
+          >
+            <Button
+              variant="contained"
+              className="font-bold w-full bg-blue-500 hover:bg-blue-600 text-white"
+              fullWidth
+            >
+              Виж детайли
             </Button>
           </Link>
           <Button
             variant="contained"
-            color="error"
-            className="font-bold max-w-32"
-            onClick={() => onAddToCart(product.id)}
+            className="font-bold w-full bg-red-500 hover:bg-red-600 text-white"
+            onClick={handleAddToCart}
             startIcon={<ShoppingCartIcon />}
+            fullWidth
+            disabled={!product.id}
           >
-            Купи
+            Добави в количката
           </Button>
         </div>
       </CardContent>

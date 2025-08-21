@@ -66,7 +66,7 @@ export default function ProductDetailsPage({
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center py-10 my-auto">
+      <div className="container mx-auto py-4 sm:py-6 bg-bg-primary min-h-[60vh] flex items-center justify-center">
         <CircularProgress message="Зареждане на данните на продукта..." />
       </div>
     );
@@ -178,16 +178,14 @@ export default function ProductDetailsPage({
           <div className="flex flex-col sm:flex-row justify-center gap-4 mt-2 sm:mt-4">
             <Button
               variant="contained"
-              className="font-bold"
-              color="primary"
+              className="font-bold bg-red-500 hover:bg-red-600 text-white"
               startIcon={<ShoppingCartIcon />}
             >
               Добави в количката
             </Button>
             <Button
               variant="contained"
-              className="font-bold"
-              color="error"
+              className="font-bold bg-blue-500 hover:bg-blue-600 text-white"
               onClick={handleBackClick}
             >
               Назад

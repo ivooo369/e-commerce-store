@@ -10,6 +10,12 @@ export default function ProductCard({
   product,
   onDelete,
 }: DashboardProductCardProps) {
+  const handleDelete = () => {
+    if (product.id) {
+      onDelete(product.id);
+    }
+  };
+
   return (
     <Card className="product-card max-w-xs mx-auto text-center min-w-full flex flex-col justify-between shadow-lg transition-colors duration-300">
       <CardMedia
@@ -28,10 +34,13 @@ export default function ProductCard({
           Цена: {product.price} лв.
         </p>
         <div className="mt-4 flex justify-center gap-2 dashboard-primary-nav">
-          <Link href={`/dashboard/products/edit/${product.id}`}>
+          <Link
+            href={product.id ? `/dashboard/products/edit/${product.id}` : "#"}
+          >
             <Button
               variant="contained"
               className="font-bold w-32 bg-blue-500 hover:bg-blue-600 text-white"
+              disabled={!product.id}
             >
               Редактирай
             </Button>
@@ -40,7 +49,8 @@ export default function ProductCard({
             variant="contained"
             color="error"
             className="flex font-bold w-32 gap-1.5 bg-red-500 hover:bg-red-600"
-            onClick={() => onDelete(product.id)}
+            onClick={handleDelete}
+            disabled={!product.id}
           >
             <FaTrash /> Изтрий
           </Button>

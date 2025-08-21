@@ -554,10 +554,16 @@ select:-webkit-autofill:focus {
 .dark .MuiButton-contained:hover {
   background-color: #2563eb !important;
 }
-.dark .MuiButton-contained.MuiButton-colorError {
+.dark .MuiButton-contained.MuiButton-colorError,
+.dark .MuiButton-contained.bg-red-500,
+.dark .MuiButton-contained.bg-red-500:hover,
+.dark .MuiButton-contained.bg-red-600,
+.dark .MuiButton-contained.bg-red-600:hover {
   background-color: #ef4444 !important;
 }
-.dark .MuiButton-contained.MuiButton-colorError:hover {
+.dark .MuiButton-contained.MuiButton-colorError:hover,
+.dark .MuiButton-contained.bg-red-500:hover,
+.dark .MuiButton-contained.bg-red-600:hover {
   background-color: #dc2626 !important;
 }
 

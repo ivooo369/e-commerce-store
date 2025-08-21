@@ -86,6 +86,13 @@ export async function POST(req: Request) {
       );
     }
 
+    if (typeof existingUser.password !== "string") {
+      return NextResponse.json(
+        { message: "Невалиден формат на паролата!" },
+        { status: 500 }
+      );
+    }
+
     const isPasswordValid = await bcrypt.compare(
       password.trim(),
       existingUser.password

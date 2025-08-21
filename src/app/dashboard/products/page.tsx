@@ -238,7 +238,7 @@ export default function DashboardProductsPage() {
                 <ProductCard
                   key={product.id}
                   product={product}
-                  onDelete={() => handleOpenModal(product.id)}
+                  onDelete={() => product.id && handleOpenModal(product.id)}
                 />
               ))}
             </div>

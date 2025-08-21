@@ -20,7 +20,7 @@
     "@tanstack/react-query-devtools": "^5.64.1",
     "@types/jsonwebtoken": "^9.0.7",
     "@vercel/postgres": "^0.10.0",
-    "axios": "^1.8.4",
+    "axios": "^1.11.0",
     "bcrypt": "^5.1.1",
     "cloudinary": "^2.5.1",
     "dotenv": "^16.4.5",
