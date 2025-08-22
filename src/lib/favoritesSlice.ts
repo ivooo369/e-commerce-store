@@ -1,3 +1,4 @@
+import axios, { AxiosError } from "axios";
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { FavoritesState, Product } from "./interfaces";
 
@@ -11,17 +12,16 @@ export const loadFavorites = createAsyncThunk(
   "favorites/loadFavorites",
   async (customerId: string, { rejectWithValue }) => {
     try {
-      const response = await fetch(`/api/public/favorites?customerId=${customerId}`);
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to fetch favorites');
-      }
-      return await response.json();
-    } catch (error) {
+      const { data } = await axios.get(`/api/public/favorites`, {
+        params: { customerId },
+      });
+      return data;
+    } catch (err) {
+      const error = err as AxiosError<{ message?: string }>;
       return rejectWithValue(
-        error instanceof Error
-          ? error.message
-          : "Възникна грешка при зареждане на любимите продукти!"
+        error.response?.data?.message ||
+          error.message ||
+          "Възникна грешка при зареждане на любимите продукти!"
       );
     }
   }
@@ -38,25 +38,17 @@ export const addFavoriteToServer = createAsyncThunk(
     }
 
     try {
-      const response = await fetch('/api/public/favorites', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ customerId, productId: product.id }),
+      await axios.post(`/api/public/favorites`, {
+        customerId,
+        productId: product.id,
       });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to add favorite');
-      }
-
       return product;
-    } catch (error) {
+    } catch (err) {
+      const error = err as AxiosError<{ message?: string }>;
       return rejectWithValue(
-        error instanceof Error
-          ? error.message
-          : "Възникна грешка при добавяне на продукта в 'Любими'!"
+        error.response?.data?.message ||
+          error.message ||
+          "Възникна грешка при добавяне на продукта в 'Любими'!"
       );
     }
   }
@@ -69,25 +61,16 @@ export const removeFavoriteFromServer = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      const response = await fetch('/api/public/favorites', {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ customerId, productId }),
+      await axios.delete(`/api/public/favorites`, {
+        data: { customerId, productId },
       });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to remove favorite');
-      }
-
       return productId;
-    } catch (error) {
+    } catch (err) {
+      const error = err as AxiosError<{ message?: string }>;
       return rejectWithValue(
-        error instanceof Error
-          ? error.message
-          : "Грешка при премахване на любим продукт"
+        error.response?.data?.message ||
+          error.message ||
+          "Грешка при премахване на любим продукт"
       );
     }
   }
