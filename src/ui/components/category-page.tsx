@@ -102,7 +102,7 @@ export default function CategoryPageServerComponent({
     usePagination<Product>(filteredProducts);
 
   return (
-    <div className="container mx-auto py-4 sm:py-6 bg-bg-primary min-h-screen">
+    <div className="container mx-auto py-4 sm:py-6 bg-bg-primary">
       <h1 className="text-3xl text-center font-bold mb-0 sm:mb-2 tracking-wide text-text-primary">
         {category.name}
       </h1>

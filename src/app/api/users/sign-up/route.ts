@@ -59,7 +59,12 @@ export async function POST(req: Request) {
       { expiresIn: "1h" }
     );
 
-    const verificationLink = `http://localhost:3000/user/verify-email?token=${verificationToken}`;
+    const baseUrl =
+      process.env.NEXTAUTH_URL ||
+      (process.env.VERCEL_URL
+        ? `https://${process.env.VERCEL_URL}`
+        : "http://localhost:3000");
+    const verificationLink = `${baseUrl}/user/verify-email?token=${verificationToken}`;
 
     const transporter = nodemailer.createTransport({
       service: "gmail",

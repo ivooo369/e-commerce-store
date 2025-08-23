@@ -132,7 +132,7 @@ export default function DashboardEditSubcategoryPage() {
   return (
     <>
       <DashboardNav />
-      <div className="container mx-auto p-8 max-w-5xl min-h-screen">
+      <div className="flex flex-col justify-center container mx-auto p-8 max-w-5xl min-h-screen min-h-[calc(100vh-137px)]">
         <h1 className="text-3xl font-bold text-center text-text-primary mb-8 tracking-wide">
           Редактиране на подкатегория
         </h1>

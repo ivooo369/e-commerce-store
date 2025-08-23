@@ -37,14 +37,19 @@ function Results() {
 
   if (isLoading) {
     return (
-      <Box className="flex justify-center items-center py-10 my-auto">
-        <CircularProgress message="Зареждане на продуктите..." />
-      </Box>
+      <div className="container mx-auto py-4 sm:py-6 bg-bg-primary flex flex-col">
+        <h1 className="text-3xl text-center font-bold mb-4 sm:mb-6 tracking-wide text-text-primary">
+          Резултати за &quot;{query}&quot;
+        </h1>
+        <div className="flex-1 flex items-center justify-center">
+          <CircularProgress message="Зареждане на продуктите..." />
+        </div>
+      </div>
     );
   }
 
   return (
-    <div className="container mx-auto py-4 sm:py-6 bg-bg-primary min-h-screen">
+    <div className="container mx-auto py-4 sm:py-6 bg-bg-primary min-h-[calc(100vh-243.5px)]">
       <h1 className="text-3xl text-center font-bold mb-4 sm:mb-6 tracking-wide text-text-primary">
         Резултати за &quot;{query}&quot;
       </h1>

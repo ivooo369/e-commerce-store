@@ -78,15 +78,15 @@ export default function DeleteAccountPage() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 sm:py-10 bg-bg-primary min-h-screen">
-      <div className="container mx-auto max-w-4xl bg-card-bg shadow-lg rounded-lg px-4 py-4 sm:py-6 border border-card-border transition-colors duration-300">
+    <div className="flex flex-col items-center justify-center min-h-[calc(100vh-243.5px)]">
+      <div className="w-full max-w-4xl bg-card-bg shadow-lg rounded-lg p-6 border border-card-border transition-colors duration-300">
         <h1 className="text-2xl sm:text-3xl text-error-color font-bold text-center mb-4 sm:mb-6 tracking-wide">
           Сигурни ли сте, че искате да изтриете акаунта си?
         </h1>
-        <h3 className="font-semibold text-lg sm:text-xl text-center mb-3 text-text-secondary">
+        <h3 className="font-semibold text-lg sm:text-xl text-center mb-6 text-text-secondary">
           Когато изтриете своя акаунт няма да имате възможност:
         </h3>
-        <ul className="space-y-2 text-base sm:text-lg m-auto w-3/5 text-text-secondary">
+        <ul className="space-y-4 max-w-2xl mx-auto text-base sm:text-lg text-text-secondary">
           <li className="flex items-center gap-4">
             <FiX className="text-error-color flex-shrink-0" size={35} />
             <span className="leading-6">
@@ -106,7 +106,7 @@ export default function DeleteAccountPage() {
             </span>
           </li>
         </ul>
-        <div className="flex flex-col items-center gap-2 mt-4">
+        <div className="flex flex-col items-center gap-4 mt-8">
           <Button
             variant="contained"
             color="error"
@@ -124,7 +124,7 @@ export default function DeleteAccountPage() {
           </Link>
         </div>
         {alert && (
-          <div className="mt-4">
+          <div className="mt-6">
             <AlertMessage severity={alert.severity} message={alert.message} />
           </div>
         )}

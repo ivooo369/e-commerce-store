@@ -216,7 +216,7 @@ export default function DashboardProductsPage() {
           </div>
         )}
         {isLoading ? (
-          <Box className="flex justify-center items-center py-10 my-auto">
+          <Box className="flex justify-center items-center min-h-[50vh] w-full">
             <CircularProgress message="Зареждане на продуктите..." />
           </Box>
         ) : isError ? (

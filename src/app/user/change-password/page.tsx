@@ -103,7 +103,7 @@ export default function ChangePasswordPage() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-4 sm:py-6 max-w-5xl bg-bg-primary min-h-screen">
+    <div className="flex flex-col justify-center container mx-auto px-4 py-4 sm:py-6 max-w-5xl bg-bg-primary min-h-[calc(100vh-243.5px)]">
       <h1 className="text-2xl sm:text-3xl font-bold text-center mb-4 sm:mb-6 tracking-wide text-text-primary">
         Смяна на парола
       </h1>
@@ -206,6 +206,7 @@ export default function ChangePasswordPage() {
         <Button
           type="submit"
           variant="contained"
+          className="font-bold"
           color="primary"
           fullWidth
           disabled={isChanging}

@@ -18,20 +18,21 @@ model Admin {
 }
 
 model Customer {
-  id                String    @id(map: "customers_new_pkey") @default(uuid())
-  firstName         String?   @map("first_name") @db.VarChar(50)
-  lastName          String?   @map("last_name") @db.VarChar(50)
-  email             String?   @unique(map: "customers_new_email_key") @db.VarChar(255)
-  password          String?   @db.VarChar(255)
-  city              String?   @db.VarChar(100)
-  address           String?   @db.VarChar(255)
-  phone             String?   @db.VarChar(20)
-  isVerified        Boolean?  @default(false) @map("is_verified")
-  verificationToken String?   @unique(map: "customers_new_verification_token_key") @map("verification_token") @db.VarChar(255)
-  tokenExpiration   DateTime? @map("token_expiration") @db.Timestamptz(6)
-  createdAt         DateTime? @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt         DateTime? @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  id                String     @id(map: "customers_new_pkey") @default(uuid())
+  firstName         String?    @map("first_name") @db.VarChar(50)
+  lastName          String?    @map("last_name") @db.VarChar(50)
+  email             String?    @unique(map: "customers_new_email_key") @db.VarChar(255)
+  password          String?    @db.VarChar(255)
+  city              String?    @db.VarChar(100)
+  address           String?    @db.VarChar(255)
+  phone             String?    @db.VarChar(20)
+  isVerified        Boolean?   @default(false) @map("is_verified")
+  verificationToken String?    @unique(map: "customers_new_verification_token_key") @map("verification_token") @db.VarChar(255)
+  tokenExpiration   DateTime?  @map("token_expiration") @db.Timestamptz(6)
+  createdAt         DateTime?  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt         DateTime?  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
   favorites         Favorite[]
+  cart              Cart[]
 
   @@map("customers")
 }
@@ -47,6 +48,7 @@ model Product {
   updatedAt     DateTime             @updatedAt @map("updated_at") @db.Timestamptz(6)
   subcategories ProductSubcategory[]
   favorites     Favorite[]
+  cart          Cart[]
 
   @@map("products")
 }
@@ -102,7 +104,7 @@ model Order {
 }
 
 model Message {
-  id         String   @id @default(dbgenerated("gen_random_uuid()"))
+  id         String   @id @default(uuid())
   customerId String?  @map("customer_id")
   name       String   @db.VarChar(100)
   email      String   @db.VarChar(255)
@@ -114,7 +116,7 @@ model Message {
 }
 
 model Favorite {
-  id         String   @id @default(dbgenerated("gen_random_uuid()"))
+  id         String   @id @default(uuid())
   customerId String   @map("customer_id")
   productId  String   @map("product_id")
   product    Product  @relation(fields: [productId], references: [id])
@@ -124,4 +126,18 @@ model Favorite {
 
   @@unique([customerId, productId])
   @@map("favorites")
+}
+
+model Cart {
+  id         String   @id @default(uuid())
+  customerId String   @map("customer_id")
+  productId  String   @map("product_id")
+  quantity   Int      @default(1)
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt  DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([customerId, productId])
+  @@map("carts")
 }
