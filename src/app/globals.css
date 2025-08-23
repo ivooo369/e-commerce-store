@@ -1,8 +1,11 @@
-@import "tailwindcss/base";
-@import "tailwindcss/components";
-@import "tailwindcss/utilities";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
+  --font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
   --bg-primary: #ffffff;
   --bg-secondary: #f5f5f5;
   --bg-tertiary: #e5e7eb;
@@ -42,6 +45,14 @@
   --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3), 0 1px 2px 0 rgba(0, 0, 0, 0.2);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3),
     0 4px 6px -2px rgba(0, 0, 0, 0.2);
+}
+
+html,
+body {
+  font-family: var(--font-sans);
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
@@ -506,37 +517,26 @@ select:-webkit-autofill:focus {
 .dark .bg-accent-color *,
 .dark .bg-accent-color:hover,
 .dark .bg-accent-color:hover *,
-.dark nav .bg-accent-color,
-.dark nav .bg-accent-color *,
-.dark nav .bg-accent-color:hover,
-.dark nav .bg-accent-color:hover *,
+.dark .dashboard-primary-nav .bg-accent-color,
+.dark .dashboard-primary-nav .bg-accent-color *,
+.dark .dashboard-primary-nav .bg-accent-color:hover,
+.dark .dashboard-primary-nav .bg-accent-color:hover *,
 .dark [class*="bg-accent-color"],
 .dark [class*="bg-accent-color"] *,
-.dark .search-container .bg-accent-color,
-.dark .search-container .bg-accent-color *,
-.dark .search-container .bg-accent-color:hover,
-.dark .search-container .bg-accent-color:hover *,
-.dark .search-container button[class*="bg-accent-color"],
-.dark .search-container button[class*="bg-accent-color"] *,
-.dark nav [class*="bg-accent-color"],
-.dark nav [class*="bg-accent-color"] *,
-.dark nav [class*="bg-accent-color"]:hover,
-.dark nav [class*="bg-accent-color"]:hover *,
-.dark nav div[class*="bg-accent-color"],
-.dark nav div[class*="bg-accent-color"] *,
-.dark nav div[class*="bg-accent-color"]:hover,
-.dark nav div[class*="bg-accent-color"]:hover *,
-.dark .catalog-dropdown.bg-accent-color,
-.dark .catalog-dropdown.bg-accent-color *,
-.dark .catalog-dropdown.bg-accent-color:hover,
-.dark .catalog-dropdown.bg-accent-color:hover *,
-.dark .catalog-dropdown[class*="bg-accent-color"],
-.dark .catalog-dropdown[class*="bg-accent-color"] *,
-.dark nav .catalog-dropdown.bg-accent-color,
-.dark nav .catalog-dropdown.bg-accent-color *,
-.dark nav .catalog-dropdown.bg-accent-color:hover,
-.dark nav .catalog-dropdown.bg-accent-color:hover * {
+.dark [class*="bg-accent-color"]:hover,
+.dark [class*="bg-accent-color"]:hover * {
   color: white !important;
+}
+
+.dark .MuiInputLabel-root.Mui-focused .MuiInputLabel-asterisk {
+  color: #1976d2 !important;
+}
+
+.dark .product-card .MuiSvgIcon-root.text-yellow-400,
+.dark .product-card .MuiSvgIcon-root.text-yellow-400 * {
+  color: #ffd700 !important;
+  fill: #ffd700 !important;
+  stroke: #ffd700 !important;
 }
 
 .dark .dashboard-primary-nav .bg-accent-color {
@@ -600,15 +600,4 @@ select:-webkit-autofill:focus {
 .dark [class*="bg-error-color"]:hover,
 .dark [class*="bg-error-color"]:hover * {
   color: white !important;
-}
-
-.dark .MuiInputLabel-root.Mui-focused .MuiInputLabel-asterisk {
-  color: #1976d2 !important;
-}
-
-.dark .product-card .MuiSvgIcon-root.text-yellow-400,
-.dark .product-card .MuiSvgIcon-root.text-yellow-400 * {
-  color: #ffd700 !important;
-  fill: #ffd700 !important;
-  stroke: #ffd700 !important;
 }

@@ -11,7 +11,11 @@ import { useSelector, useDispatch } from "react-redux";
 import { setUser } from "@/lib/userSlice";
 import { RootState } from "@/lib/store";
 import CircularProgress from "@/ui/components/circular-progress";
-import { fetchUserData, updateUserData } from "@/services/userService";
+import {
+  fetchUserData,
+  updateUserData,
+  resendVerificationEmail,
+} from "@/services/userService";
 
 export default function MyAccountPage() {
   const dispatch = useDispatch();
@@ -29,6 +33,8 @@ export default function MyAccountPage() {
     message: string;
     severity: "success" | "error";
   } | null>(null);
+
+  const [isResending, setIsResending] = useState(false);
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["userAccountData", signedInUser.token],
@@ -194,22 +200,83 @@ export default function MyAccountPage() {
                 <span className="font-semibold">Акаунтът Ви е верифициран</span>
               </>
             ) : (
-              <>
-                <svg
-                  className="h-5 w-5 text-red-700"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
+              <div className="w-full space-y-3">
+                <div className="flex items-center justify-center space-x-2">
+                  <svg
+                    className="h-5 w-5 text-red-700 flex-shrink-0"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  <span className="font-semibold text-base">
+                    Акаунтът Ви не е верифициран
+                  </span>
+                </div>
+                <Button
+                  onClick={async (e) => {
+                    e.stopPropagation();
+                    if (isResending) return;
+                    setIsResending(true);
+                    try {
+                      await resendVerificationEmail(signedInUser.token!);
+                      setAlert({
+                        message:
+                          "Регистрацията Ви е почти готова! Моля, отворете имейла си и кликнете върху линка за верификация!",
+                        severity: "success",
+                      });
+                    } catch (error) {
+                      setAlert({
+                        message:
+                          error instanceof Error
+                            ? error.message
+                            : "Грешка при изпращане на имейл за верификация",
+                        severity: "error",
+                      });
+                    } finally {
+                      setIsResending(false);
+                      setTimeout(() => setAlert(null), 5000);
+                    }
+                  }}
+                  disabled={isResending}
+                  variant="contained"
+                  color="primary"
+                  className="font-bold"
+                  fullWidth
                 >
-                  <path
-                    fillRule="evenodd"
-                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-                <span className="font-semibold">
-                  Акаунтът Ви не е верифициран
-                </span>
-              </>
+                  {isResending ? (
+                    <span className="flex items-center justify-center">
+                      <svg
+                        className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        ></circle>
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        ></path>
+                      </svg>
+                      Изпращане...
+                    </span>
+                  ) : (
+                    "Получи имейл за потвърждение"
+                  )}
+                </Button>
+              </div>
             )}
           </div>
         </div>
@@ -298,6 +365,7 @@ export default function MyAccountPage() {
           </FormControl>
           <Button
             variant="contained"
+            className="font-bold"
             color="primary"
             type="submit"
             disabled={isUpdating}

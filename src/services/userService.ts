@@ -2,6 +2,7 @@ import axios from "axios";
 import { UserData } from "@/lib/interfaces";
 import { Customer } from "@/lib/interfaces";
 import { handleError } from "@/lib/handleError";
+import jwt from "jsonwebtoken";
 
 export const fetchUserData = async (token: string) => {
   try {
@@ -93,6 +94,29 @@ export const signIn = async (formData: { email: string; password: string }) => {
 export const verifyEmail = async (token: string) => {
   try {
     const { data } = await axios.get(`/api/users/verify-email?token=${token}`);
+    return data;
+  } catch (error) {
+    throw new Error(handleError(error));
+  }
+};
+
+export const resendVerificationEmail = async (token: string) => {
+  try {
+    const decoded = jwt.decode(token) as { email?: string };
+    if (!decoded?.email) {
+      throw new Error("Невалиден токен! Моля, влезте отново в акаунта си!");
+    }
+
+    const { data } = await axios.post(
+      "/api/users/resend-verification",
+      { email: decoded.email },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
     return data;
   } catch (error) {
     throw new Error(handleError(error));

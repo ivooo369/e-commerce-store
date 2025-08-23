@@ -103,7 +103,7 @@ export default function Header() {
                 {isAccountMenuOpen && (
                   <div
                     ref={accountMenuRef}
-                    className="absolute top-full left-0 bg-card-bg shadow-lg rounded p-2 z-50 w-48 border border-border-color transition-colors duration-300"
+                    className="absolute top-full left-0 bg-card-bg shadow-lg rounded p-2 z-50 w-[200px] border border-border-color transition-colors duration-300"
                   >
                     <Link
                       href="/user/my-account"
@@ -204,14 +204,11 @@ export default function Header() {
               НАЧАЛО
             </Link>
             <div
-              className={`catalog-dropdown relative flex items-center rounded px-3 py-2 transition duration-300 text-sm md:text-base cursor-pointer dark:text-accent-color ${
+              className={`catalog-dropdown relative flex items-center rounded px-3 py-2 transition duration-300 text-sm md:text-base cursor-pointer ${
                 pathname.includes("/product-catalog")
-                  ? "bg-accent-color hover:bg-accent-hover"
-                  : "hover:bg-bg-tertiary"
+                  ? "bg-accent-color hover:bg-accent-hover text-white"
+                  : "hover:bg-bg-tertiary text-text-primary dark:text-accent-color dark:hover:text-accent-hover"
               }`}
-              style={{
-                color: pathname.includes("/product-catalog") ? "white" : "",
-              }}
               onClick={toggleCatalogMenu}
               aria-label="Каталог"
             >
@@ -220,7 +217,7 @@ export default function Header() {
               {isCatalogMenuOpen && (
                 <div
                   ref={catalogMenuRef}
-                  className="absolute top-full left-0 bg-card-bg shadow-lg rounded p-2 z-50 w-48 border border-border-color transition-colors duration-300"
+                  className="absolute top-full left-0 bg-card-bg shadow-lg rounded p-2 z-50 border border-border-color transition-colors duration-300"
                 >
                   {isLoading ? (
                     <p className="text-text-secondary">Зареждане...</p>

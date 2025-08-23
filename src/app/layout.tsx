@@ -1,6 +1,14 @@
+import { Inter } from 'next/font/google';
 import MainLayout from "@/ui/layouts/main-layout";
 import { Metadata } from "next";
 import "./globals.css";
+
+const inter = Inter({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-inter',
+  weight: ['400', '500', '600', '700'],
+});
 
 export const metadata: Metadata = {
   title: {
@@ -27,6 +35,7 @@ const themeScript = `
     
     const theme = getStoredTheme();
     document.documentElement.classList.add(theme);
+    document.documentElement.style.colorScheme = theme;
   })();
 `;
 
@@ -36,11 +45,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning className={inter.variable}>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
-      <body>
+      <body className={`${inter.className} min-h-screen bg-bg-primary text-text-primary`}>
         <MainLayout>{children}</MainLayout>
       </body>
     </html>
