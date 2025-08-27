@@ -1,13 +1,13 @@
-import { Inter } from 'next/font/google';
+import { Inter } from "next/font/google";
 import MainLayout from "@/ui/layouts/main-layout";
 import { Metadata } from "next";
 import "./globals.css";
 
 const inter = Inter({
-  subsets: ['latin'],
-  display: 'swap',
-  variable: '--font-inter',
-  weight: ['400', '500', '600', '700'],
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-inter",
+  weight: ["400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -49,7 +49,9 @@ export default function RootLayout({
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
-      <body className={`${inter.className} min-h-screen bg-bg-primary text-text-primary`}>
+      <body
+        className={`${inter.className} min-h-screen bg-bg-primary text-text-primary`}
+      >
         <MainLayout>{children}</MainLayout>
       </body>
     </html>

@@ -1,7 +1,47 @@
 import axios from "axios";
+import { PrismaClient } from "@prisma/client";
 import { Product, ProductWithSubcategories } from "@/lib/interfaces";
 import { Product as PrismaSchema, Subcategory } from "@prisma/client";
 import { handleError } from "@/lib/handleError";
+
+const prisma = new PrismaClient();
+const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+
+export const fetchAllPublicProducts = async (): Promise<
+  ProductWithSubcategories[]
+> => {
+  if (typeof window === "undefined") {
+    try {
+      const products = await prisma.product.findMany({
+        include: {
+          subcategories: {
+            include: {
+              subcategory: {
+                include: {
+                  category: true,
+                },
+              },
+            },
+          },
+        },
+        orderBy: { code: "asc" },
+      });
+      return products as unknown as ProductWithSubcategories[];
+    } catch (error) {
+      console.error("Възникна грешка при извличане на продуктите:", error);
+      throw new Error(handleError(error));
+    }
+  }
+
+  try {
+    const response = await axios.get(`${baseUrl}/api/public/products`);
+    const data: ProductWithSubcategories[] = response.data;
+    return data.sort((a, b) => a.code.localeCompare(b.code));
+  } catch (error) {
+    console.error("Възникна грешка при извличане на продуктите:", error);
+    throw new Error(handleError(error));
+  }
+};
 
 export const fetchProducts = async (): Promise<ProductWithSubcategories[]> => {
   try {

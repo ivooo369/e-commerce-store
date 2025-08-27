@@ -181,7 +181,7 @@ export async function PUT(
       { status: 200 }
     );
   } catch (error) {
-    console.error("Грешка при обновяване на продукта:", error);
+    console.error("Възникна грешка при обновяване на продукта:", error);
     return NextResponse.json(
       { message: "Възникна грешка! Моля, опитайте отново!" },
       { status: 500 }
@@ -196,11 +196,30 @@ export async function DELETE(
   try {
     const { id } = params;
 
-    const product = await prisma.product.findUnique({ where: { id } });
-    if (product?.images) {
+    const product = await prisma.product.findUnique({
+      where: { id },
+      include: { favorites: true },
+    });
+
+    if (!product) {
+      return NextResponse.json(
+        { message: "Продуктът не е намерен!" },
+        { status: 404 }
+      );
+    }
+
+    if (product.favorites && product.favorites.length > 0) {
+      await prisma.favorite.deleteMany({
+        where: { productId: id },
+      });
+    }
+
+    if (product.images && product.images.length > 0) {
       const deleteImagePromises = product.images.map((imageUrl) => {
         const publicId = imageUrl.split("/").pop()?.split(".")[0];
-        return cloudinary.uploader.destroy(`LIPCI/products/${publicId}`);
+        return publicId
+          ? cloudinary.uploader.destroy(`LIPCI/products/${publicId}`)
+          : Promise.resolve();
       });
       await Promise.all(deleteImagePromises);
     }

@@ -166,7 +166,7 @@ export default function DashboardEditCategoryPage() {
               type="file"
               accept="image/*"
               onChange={(e) => handleFileChange(e.target.files)}
-              style={{ display: "none" }}
+              className="hidden"
               id="upload-button"
               ref={fileInputRef}
             />

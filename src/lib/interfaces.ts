@@ -39,7 +39,8 @@ export interface Customer {
   phone: string;
 }
 
-export interface Product extends ProductBase {
+export interface Product extends Omit<ProductBase, 'id'> {
+  id?: string;
   subcategoryIds?: string[];
 }
 
@@ -67,13 +68,21 @@ export interface Message {
 }
 
 export interface ProductWithSubcategories extends ProductBase {
-  subcategories: {
-    subcategory: Subcategory;
+  subcategories: Array<{
     id: string;
     name: string;
     code: string;
     categoryId: string;
-  }[];
+    subcategory: {
+      id: string;
+      name: string;
+      code: string;
+      categoryId: string;
+      category: {
+        name: string;
+      };
+    };
+  }>;
 }
 
 export interface AlertMessageProps {
@@ -94,8 +103,11 @@ export interface CategoryPageProps {
   category: {
     id: string;
     name: string;
+    description?: string;
   };
   subcategories: SubcategoryPrisma[];
+  allProducts?: ProductWithRelations[];
+  categories?: CategoryPrisma[];
 }
 
 export interface ConfirmationModalProps {
@@ -112,6 +124,7 @@ export interface PaginationButtonsProps {
   totalItems: number;
   paginate: (pageNumber: number) => void;
   currentPage: number;
+  className?: string;
 }
 
 export interface DashboardProductCardProps {
@@ -119,20 +132,20 @@ export interface DashboardProductCardProps {
   onDelete: (id: string) => void;
 }
 
-type ProductBase = {
+export interface ProductBase {
   id?: string;
   name: string;
   code: string;
   price: number;
   description: string;
   images: string[];
-  createdAt?: Date;
-  updatedAt?: Date;
-};
+  createdAt?: Date | string;
+  updatedAt?: Date | string;
+}
 
 export interface ProductCardProps {
   product: ProductBase;
-  onAddToCart: (id: string) => void;
+  onAddToCart?: (id: string) => void;
 }
 
 export interface DashboardSubcategoryCardProps {
@@ -171,8 +184,37 @@ export interface UpdateUser {
   phone?: string;
 }
 
+export interface CartItem {
+  product: ProductBase;
+  quantity: number;
+}
+
 export interface FavoritesState {
   products: Product[];
   loading: boolean;
   error: string | null;
+}
+
+export interface ProductWithRelations {
+  id: string;
+  name: string;
+  code: string;
+  price: number;
+  description: string;
+  images: string[];
+  subcategories: Array<{
+    subcategory: {
+      id: string;
+      name: string;
+      code: string;
+      category: {
+        id: string;
+        name: string;
+        code: string;
+        imageUrl: string | null;
+      };
+    };
+  }>;
+  createdAt: Date;
+  updatedAt: Date;
 }

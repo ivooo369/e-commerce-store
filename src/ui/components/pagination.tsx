@@ -8,7 +8,8 @@ export default function PaginationButtons({
   totalItems,
   paginate,
   currentPage,
-}: PaginationButtonsProps) {
+  className = ""
+}: PaginationButtonsProps & { className?: string }) {
   const pageCount = Math.ceil(totalItems / itemsPerPage);
 
   const handlePageChange = (event: ChangeEvent<unknown>, value: number) => {
@@ -16,7 +17,7 @@ export default function PaginationButtons({
   };
 
   return (
-    <Stack spacing={2} className="justify-self-center">
+    <Stack spacing={2} className={`justify-self-center ${className}`}>
       <Pagination
         count={pageCount}
         onChange={handlePageChange}

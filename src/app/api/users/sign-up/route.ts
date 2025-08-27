@@ -56,7 +56,7 @@ export async function POST(req: Request) {
     const token = jwt.sign(
       { userId: newUser.id, email: newUser.email },
       JWT_SECRET,
-      { expiresIn: "1h" }
+      { expiresIn: "24h" }
     );
 
     await sendVerificationEmail(email, verificationToken);

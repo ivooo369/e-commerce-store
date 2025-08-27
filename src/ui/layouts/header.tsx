@@ -3,6 +3,7 @@ import Image from "next/image";
 import { MdAccountCircle } from "react-icons/md";
 import { usePathname } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
+import {} from "next/dynamic";
 import HomeIcon from "@mui/icons-material/Home";
 import ViewListIcon from "@mui/icons-material/ViewList";
 import InfoIcon from "@mui/icons-material/Info";
@@ -16,6 +17,8 @@ import { clearUser } from "@/lib/userSlice";
 import { RootState } from "@/lib/store";
 import { useQuery } from "@tanstack/react-query";
 import { fetchCategoriesForHeader } from "@/services/categoryService";
+import {} from "@/lib/cartSlice";
+import {} from "@/lib/sanitizeProduct";
 
 export default function Header() {
   const pathname = usePathname();
@@ -23,6 +26,14 @@ export default function Header() {
   const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
   const dispatch = useDispatch();
   const signedInUser = useSelector((state: RootState) => state.user);
+  const [cartItemCount, setCartItemCount] = useState(0);
+  const cartItems = useSelector((state: RootState) => state.cart.items);
+
+  useEffect(() => {
+    setCartItemCount(
+      cartItems.reduce((total, item) => total + item.quantity, 0)
+    );
+  }, [cartItems]);
   const catalogMenuRef = useRef<HTMLDivElement>(null);
   const accountMenuRef = useRef<HTMLDivElement>(null);
 
@@ -177,7 +188,7 @@ export default function Header() {
             aria-label="Количка"
           >
             <ShoppingCartIcon className="mr-1" />
-            КОЛИЧКА
+            КОЛИЧКА ({cartItemCount})
           </Link>
           <ThemeToggle />
         </div>
@@ -217,8 +228,15 @@ export default function Header() {
               {isCatalogMenuOpen && (
                 <div
                   ref={catalogMenuRef}
-                  className="absolute top-full left-0 bg-card-bg shadow-lg rounded p-2 z-50 border border-border-color transition-colors duration-300"
+                  className="absolute top-full left-0 mt-2 w-64 bg-card-bg shadow-lg rounded-md p-2 z-50 border border-border-color"
                 >
+                  <Link
+                    href="/product-catalog/all"
+                    className="block px-4 py-2 text-text-primary hover:bg-bg-secondary rounded transition-colors duration-300 font-semibold mb-2 border-b border-border-color"
+                    onClick={() => setIsCatalogMenuOpen(false)}
+                  >
+                    Всички продукти
+                  </Link>
                   {isLoading ? (
                     <p className="text-text-secondary">Зареждане...</p>
                   ) : categories.length > 0 ? (
@@ -229,6 +247,7 @@ export default function Header() {
                           category
                         )}`}
                         className="block px-4 py-2 text-text-primary hover:bg-bg-secondary rounded transition-colors duration-300"
+                        onClick={() => setIsCatalogMenuOpen(false)}
                       >
                         {category}
                       </Link>

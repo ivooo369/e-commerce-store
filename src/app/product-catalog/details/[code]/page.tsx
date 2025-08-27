@@ -7,6 +7,7 @@ import CircularProgress from "@/ui/components/circular-progress";
 import Image from "next/image";
 import { useQuery } from "@tanstack/react-query";
 import { fetchProductByCode } from "@/services/productService";
+import { useCart } from "@/lib/useCart";
 
 export default function ProductDetailsPage({
   params,
@@ -15,6 +16,8 @@ export default function ProductDetailsPage({
 }) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const { addItemToCart } = useCart();
 
   const {
     data: product,
@@ -28,6 +31,25 @@ export default function ProductDetailsPage({
 
   const handleBackClick = () => {
     window.history.back();
+  };
+
+  const handleAddToCart = async () => {
+    if (!product) {
+      console.error("Продуктът не е наличен!");
+      return;
+    }
+
+    setIsAddingToCart(true);
+    try {
+      await addItemToCart(product, 1);
+    } catch (error) {
+      console.error(
+        "Възникна грешка при добавяне на продукта към количката:",
+        error
+      );
+    } finally {
+      setIsAddingToCart(false);
+    }
   };
 
   const showNextImage = () => {
@@ -178,10 +200,12 @@ export default function ProductDetailsPage({
           <div className="flex flex-col sm:flex-row justify-center gap-4 mt-2 sm:mt-4">
             <Button
               variant="contained"
-              className="font-bold bg-red-500 hover:bg-red-600 text-white"
+              className="font-bold text-white bg-red-500 hover:bg-red-600 disabled:bg-gray-400 disabled:text-white disabled:opacity-70 disabled:cursor-not-allowed"
               startIcon={<ShoppingCartIcon />}
+              onClick={handleAddToCart}
+              disabled={isAddingToCart}
             >
-              Добави в количката
+              {isAddingToCart ? "Добавяне..." : "Добави в количката"}
             </Button>
             <Button
               variant="contained"

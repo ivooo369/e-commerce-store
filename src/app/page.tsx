@@ -1,31 +1,31 @@
-import { PrismaClient, Category } from "@prisma/client";
+import { fetchCategories } from "@/services/categoryService";
 import CategoryCard from "@/ui/components/category-card";
-
-const prisma = new PrismaClient();
+import Link from "next/link";
 
 export default async function HomePage() {
-  let categories: Category[] = [];
-
-  try {
-    categories = await prisma.category.findMany({
-      orderBy: { code: "asc" },
-    });
-  } catch (error) {
-    console.error("Възникна грешка при извличане на категориите:", error);
-  }
+  const categories = await fetchCategories();
+  const sortedCategories = [...categories].sort((a, b) => a.code.localeCompare(b.code));
 
   return (
-    <div className="container mx-auto px-4 py-4 sm:py-6 bg-bg-primary min-h-screen">
+    <div className="container mx-auto px-4 py-4 sm:py-6 min-h-screen">
       <h1 className="text-2xl sm:text-3xl font-bold text-center mb-4 sm:mb-6 tracking-wide text-text-primary">
         Категории продукти
       </h1>
+      <div className="mb-8">
+        <Link
+          href="/product-catalog/all"
+          className="view-all-button block w-full px-6 py-5 text-center rounded-xl shadow-lg text-xl font-semibold no-underline"
+        >
+          Вижте всички продукти в магазина
+        </Link>
+      </div>
       {categories.length === 0 ? (
         <p className="text-center text-lg text-error-color">
           Няма налични категории
         </p>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-          {categories.map((category) => (
+          {sortedCategories.map((category) => (
             <CategoryCard key={category.id} category={category} />
           ))}
         </div>

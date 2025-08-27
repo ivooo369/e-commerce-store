@@ -332,7 +332,6 @@ select:-webkit-autofill:focus {
 
 .dark .MuiPopover-root .MuiMenuItem-root.Mui-selected {
   background-color: var(--accent-color) !important;
-  color: var(--bg-primary) !important;
 }
 
 .dark .MuiPopover-root .MuiMenuItem-root.Mui-selected:hover {
@@ -600,4 +599,21 @@ select:-webkit-autofill:focus {
 .dark [class*="bg-error-color"]:hover,
 .dark [class*="bg-error-color"]:hover * {
   color: white !important;
+}
+
+.view-all-button,
+.view-all-button:hover,
+.dark .view-all-button,
+.dark .view-all-button:hover {
+  background-color: var(--accent-color, #3b82f6) !important;
+  color: white !important;
+  transition: background-color 0.3s ease-in-out, opacity 0.3s ease-in-out,
+    color 0.3s ease-in-out !important;
+}
+
+.view-all-button:hover,
+.dark .view-all-button:hover {
+  background-color: var(--accent-hover, #2563eb) !important;
+  color: white !important;
+  opacity: 0.9 !important;
 }

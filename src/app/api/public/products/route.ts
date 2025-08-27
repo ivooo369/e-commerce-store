@@ -9,10 +9,31 @@ export async function GET(request: Request) {
   const categoryId = searchParams.get("categoryId");
 
   if (!categoryId) {
-    return NextResponse.json(
-      { message: "Не е избрана категория." },
-      { status: 400 }
-    );
+    try {
+      const products = await prisma.product.findMany({
+        include: {
+          subcategories: {
+            include: {
+              subcategory: {
+                include: {
+                  category: true,
+                },
+              },
+            },
+          },
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+      });
+      return NextResponse.json(products, { status: 200 });
+    } catch (error) {
+      console.error("Възникна грешка при извличане на продуктите:", error);
+      return NextResponse.json(
+        { message: "Възникна грешка при извличане на продуктите!" },
+        { status: 500 }
+      );
+    }
   }
 
   try {

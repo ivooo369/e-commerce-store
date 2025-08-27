@@ -2,11 +2,7 @@
 import { useSelector, useDispatch } from "react-redux";
 import { RootState, AppDispatch } from "@/lib/store";
 import { useEffect, useRef, useMemo } from "react";
-import {
-  loadFavorites,
-  clearFavorites,
-  clearError,
-} from "@/lib/favoritesSlice";
+import { loadFavorites, clearFavorites, clearError } from "@/lib/favoriteSlice";
 import { createSelector } from "@reduxjs/toolkit";
 import ProductCard from "@/ui/components/product-card";
 import CircularProgress from "@/ui/components/circular-progress";

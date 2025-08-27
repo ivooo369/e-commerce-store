@@ -13,14 +13,12 @@ import { RootState } from "@/lib/store";
 import {
   addFavoriteToServer,
   removeFavoriteFromServer,
-} from "@/lib/favoritesSlice";
+} from "@/lib/favoriteSlice";
 import { ProductCardProps } from "@/lib/interfaces";
 import { AppDispatch } from "@/lib/store";
+import { useCart } from "@/lib/useCart";
 
-export default function ProductCard({
-  product,
-  onAddToCart,
-}: ProductCardProps) {
+export default function ProductCard({ product }: ProductCardProps) {
   const dispatch = useDispatch<AppDispatch>();
   const { isLoggedIn, id: userId } = useSelector(
     (state: RootState) => state.user
@@ -30,14 +28,16 @@ export default function ProductCard({
   );
   const [isToggling, setIsToggling] = useState(false);
   const [isFavoriteState, setIsFavoriteState] = useState(false);
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const { addItemToCart } = useCart();
 
   useEffect(() => {
-    if (product.id) {
-      setIsFavoriteState(favorites.some((fav) => fav.id === product.id));
+    if (product.code) {
+      setIsFavoriteState(favorites.some((fav) => fav.code === product.code));
     }
-  }, [favorites, product.id]);
+  }, [favorites, product.code]);
 
-  const isFavorite = product.id && isFavoriteState;
+  const isFavorite = product.code && isFavoriteState;
 
   const onToggleFavorite = async () => {
     if (!isLoggedIn || !userId) {
@@ -47,7 +47,7 @@ export default function ProductCard({
 
     setIsFavoriteState(!isFavoriteState);
 
-    if (!product.id) {
+    if (!product.code) {
       console.error("Идентификаторът на продукта липсва!");
       return;
     }
@@ -78,11 +78,22 @@ export default function ProductCard({
     }
   };
 
-  const handleAddToCart = () => {
-    if (product.id) {
-      onAddToCart(product.id);
-    } else {
-      console.error("Идентификаторът на продукта липсва!");
+  const handleAddToCart = async () => {
+    if (!product) {
+      console.error("Липсва продукт!");
+      return;
+    }
+
+    setIsAddingToCart(true);
+    try {
+      await addItemToCart(product, 1);
+    } catch (error) {
+      console.error(
+        "Възникна грешка при добавяне на продукта в количката:",
+        error
+      );
+    } finally {
+      setIsAddingToCart(false);
     }
   };
 
@@ -149,13 +160,13 @@ export default function ProductCard({
           </Link>
           <Button
             variant="contained"
-            className="font-bold w-full bg-red-500 hover:bg-red-600 text-white"
+            className="font-bold w-full text-white bg-red-500 hover:bg-red-600 disabled:bg-gray-400 disabled:text-white disabled:opacity-70 disabled:cursor-not-allowed"
             onClick={handleAddToCart}
             startIcon={<ShoppingCartIcon />}
             fullWidth
-            disabled={!product.id}
+            disabled={!product.id || isAddingToCart}
           >
-            Добави в количката
+            {isAddingToCart ? "Добавяне..." : "Добави в количката"}
           </Button>
         </div>
       </CardContent>

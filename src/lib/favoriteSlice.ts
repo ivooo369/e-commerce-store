@@ -1,6 +1,11 @@
-import axios, { AxiosError } from "axios";
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { FavoritesState, Product } from "./interfaces";
+import { sanitizeProduct, serializeProductDates } from "@/lib/sanitizeProduct";
+import {
+  getFavorites,
+  addFavorite,
+  removeFavorite,
+} from "@/services/favoriteService";
 
 const initialState: FavoritesState = {
   products: [],
@@ -12,17 +17,14 @@ export const loadFavorites = createAsyncThunk(
   "favorites/loadFavorites",
   async (customerId: string, { rejectWithValue }) => {
     try {
-      const { data } = await axios.get(`/api/public/favorites`, {
-        params: { customerId },
-      });
-      return data;
-    } catch (err) {
-      const error = err as AxiosError<{ message?: string }>;
-      return rejectWithValue(
-        error.response?.data?.message ||
-          error.message ||
-          "Възникна грешка при зареждане на любимите продукти!"
-      );
+      const favorites = await getFavorites(customerId);
+      return favorites;
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Възникна грешка при зареждане на любимите продукти!";
+      return rejectWithValue(message);
     }
   }
 );
@@ -38,18 +40,14 @@ export const addFavoriteToServer = createAsyncThunk(
     }
 
     try {
-      await axios.post(`/api/public/favorites`, {
-        customerId,
-        productId: product.id,
-      });
-      return product;
-    } catch (err) {
-      const error = err as AxiosError<{ message?: string }>;
-      return rejectWithValue(
-        error.response?.data?.message ||
-          error.message ||
-          "Възникна грешка при добавяне на продукта в 'Любими'!"
-      );
+      await addFavorite(customerId, product.id);
+      return serializeProductDates(product);
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Възникна грешка при добавяне на продукта в 'Любими'!";
+      return rejectWithValue(message);
     }
   }
 );
@@ -57,21 +55,21 @@ export const addFavoriteToServer = createAsyncThunk(
 export const removeFavoriteFromServer = createAsyncThunk(
   "favorites/removeFavoriteFromServer",
   async (
-    { productId, customerId }: { productId: string; customerId: string },
+    { productId, customerId }: { productId?: string; customerId: string },
     { rejectWithValue }
   ) => {
+    if (!productId) {
+      return rejectWithValue("Невалиден идентификатор на продукт");
+    }
     try {
-      await axios.delete(`/api/public/favorites`, {
-        data: { customerId, productId },
-      });
+      await removeFavorite(customerId, productId);
       return productId;
-    } catch (err) {
-      const error = err as AxiosError<{ message?: string }>;
-      return rejectWithValue(
-        error.response?.data?.message ||
-          error.message ||
-          "Грешка при премахване на любим продукт"
-      );
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Възникна грешка при премахване на продукта от 'Любими'!";
+      return rejectWithValue(message);
     }
   }
 );
@@ -97,7 +95,11 @@ const favoritesSlice = createSlice({
       })
       .addCase(loadFavorites.fulfilled, (state, action) => {
         state.loading = false;
-        state.products = Array.isArray(action.payload) ? action.payload : [];
+        state.products = Array.isArray(action.payload)
+          ? action.payload.map((product) =>
+              sanitizeProduct(serializeProductDates(product))
+            )
+          : [];
       })
       .addCase(loadFavorites.rejected, (state, action) => {
         state.loading = false;
@@ -109,8 +111,13 @@ const favoritesSlice = createSlice({
       })
       .addCase(addFavoriteToServer.fulfilled, (state, action) => {
         state.loading = false;
-        if (!state.products.some((p) => p.id === action.payload.id)) {
-          state.products.push(action.payload);
+        const product = action.payload;
+        const sanitizedProduct = sanitizeProduct(
+          serializeProductDates(product)
+        );
+
+        if (!state.products.some((p) => p.id === sanitizedProduct.id)) {
+          state.products.push(sanitizedProduct);
         }
       })
       .addCase(addFavoriteToServer.rejected, (state, action) => {

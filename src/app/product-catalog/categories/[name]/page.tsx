@@ -1,48 +1,32 @@
-import { PrismaClient, Category, Subcategory } from "@prisma/client";
 import CategoryPageServerComponent from "@/ui/components/category-page";
-
-const prisma = new PrismaClient();
+import { fetchCategoryByNameWithProducts } from "@/services/categoryService";
 
 export default async function CategoryPage({
   params,
 }: {
   params: { name: string };
 }) {
-  let category: Category | null = null;
-  let subcategories: Subcategory[] = [];
-  const decodedName = decodeURIComponent(params.name);
-
   try {
-    category = await prisma.category.findUnique({
-      where: { name: decodedName },
-    });
+    const { category, subcategories, products } =
+      await fetchCategoryByNameWithProducts(params.name);
 
-    if (category) {
-      subcategories = await prisma.subcategory.findMany({
-        where: { categoryId: category.id },
-      });
-    }
-  } catch (error) {
-    console.error(
-      "Възникна грешка при извличане на категориите или подкатегориите:",
-      error
+    return (
+      <CategoryPageServerComponent
+        category={category}
+        subcategories={subcategories}
+        allProducts={products}
+      />
     );
-  }
-
-  if (!category) {
+  } catch (error) {
+    console.error("Възникна грешка при зареждане на страницата:", error);
     return (
       <div className="container mx-auto px-4 py-4 sm:py-6 bg-bg-primary min-h-screen">
         <h1 className="text-3xl font-bold text-center text-error-color tracking-wide">
-          Категорията не е намерена
+          {error instanceof Error
+            ? error.message
+            : "Възникна грешка при зареждане на категорията!"}
         </h1>
       </div>
     );
   }
-
-  return (
-    <CategoryPageServerComponent
-      category={category}
-      subcategories={subcategories}
-    />
-  );
 }
