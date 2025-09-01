@@ -129,12 +129,15 @@ export default function DashboardCategoriesPage() {
           </div>
         )}
         <ConfirmationModal
-          isOpen={isModalOpen}
-          onClose={handleCloseModal}
+          open={isModalOpen}
+          onCancel={handleCloseModal}
           onConfirm={handleDeleteCategory}
-          mainMessage="Сигурни ли сте, че искате да изтриете тази категория? Това действие ще премахне и свързаните подкатегории!"
+          message="Сигурни ли сте, че искате да изтриете тази категория? Това действие ще премахне и свързаните подкатегории!"
           deletingMessage="Изтриване на категорията..."
           isDeleting={isDeleting}
+          title="Изтриване на категория"
+          confirmText="Изтрий"
+          cancelText="Отказ"
         />
       </div>
     </>

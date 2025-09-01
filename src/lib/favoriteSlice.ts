@@ -7,6 +7,44 @@ import {
   removeFavorite,
 } from "@/services/favoriteService";
 
+type AnyObject = Record<string, unknown>;
+
+const convertDatesToISO = <T>(obj: T): T => {
+  if (obj === null || obj === undefined) return obj as T;
+  if (typeof obj !== "object") return obj as T;
+
+  if (Array.isArray(obj)) {
+    return obj.map((item) => convertDatesToISO(item)) as unknown as T;
+  }
+
+  const objRecord = obj as Record<string, unknown>;
+  const result: AnyObject = {};
+
+  for (const key in objRecord) {
+    if (Object.prototype.hasOwnProperty.call(objRecord, key)) {
+      const value = objRecord[key];
+
+      if (value instanceof Date) {
+        result[key] = value.toISOString();
+      } else if (typeof value === "object" && value !== null) {
+        result[key] = convertDatesToISO(value);
+      } else {
+        result[key] = value;
+      }
+    }
+  }
+
+  return result as T;
+};
+
+const deepSerializeProduct = <T>(product: T): T => {
+  if (!product) return product;
+
+  const productCopy = JSON.parse(JSON.stringify(product));
+
+  return convertDatesToISO(productCopy) as T;
+};
+
 const initialState: FavoritesState = {
   products: [],
   loading: true,
@@ -41,7 +79,7 @@ export const addFavoriteToServer = createAsyncThunk(
 
     try {
       await addFavorite(customerId, product.id);
-      return serializeProductDates(product);
+      return deepSerializeProduct(product);
     } catch (error) {
       const message =
         error instanceof Error
@@ -59,7 +97,7 @@ export const removeFavoriteFromServer = createAsyncThunk(
     { rejectWithValue }
   ) => {
     if (!productId) {
-      return rejectWithValue("Невалиден идентификатор на продукт");
+      return rejectWithValue("Невалиден идентификатор на продукт!");
     }
     try {
       await removeFavorite(customerId, productId);
@@ -96,9 +134,10 @@ const favoritesSlice = createSlice({
       .addCase(loadFavorites.fulfilled, (state, action) => {
         state.loading = false;
         state.products = Array.isArray(action.payload)
-          ? action.payload.map((product) =>
-              sanitizeProduct(serializeProductDates(product))
-            )
+          ? action.payload.map((product) => {
+              const serialized = deepSerializeProduct(product);
+              return sanitizeProduct(serializeProductDates(serialized));
+            })
           : [];
       })
       .addCase(loadFavorites.rejected, (state, action) => {
@@ -112,8 +151,9 @@ const favoritesSlice = createSlice({
       .addCase(addFavoriteToServer.fulfilled, (state, action) => {
         state.loading = false;
         const product = action.payload;
+        const serializedProduct = deepSerializeProduct(product);
         const sanitizedProduct = sanitizeProduct(
-          serializeProductDates(product)
+          serializeProductDates(serializedProduct)
         );
 
         if (!state.products.some((p) => p.id === sanitizedProduct.id)) {

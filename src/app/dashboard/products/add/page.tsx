@@ -139,7 +139,7 @@ export default function DashboardAddNewProductPage() {
   return (
     <>
       <DashboardNav />
-      <div className="flex flex-col justify-center container mx-auto px-4 py-4 sm:py-6 max-w-5xl min-h-[calc(100vh-137px)]">
+      <div className="flex flex-col justify-center container mx-auto px-4 py-4 sm:py-6 max-w-5xl">
         <h1 className="text-2xl sm:text-3xl font-bold text-center text-text-primary mb-4 sm:mb-6 tracking-wide">
           Добавяне на нов продукт
         </h1>
@@ -260,10 +260,8 @@ export default function DashboardAddNewProductPage() {
           )}
           <Button
             type="submit"
+            className="font-bold w-full bg-blue-500 hover:bg-blue-600 text-white"
             variant="contained"
-            className="font-bold"
-            color="primary"
-            fullWidth
             disabled={isAdding}
           >
             {isAdding ? "Добавяне..." : "Добави нов продукт"}

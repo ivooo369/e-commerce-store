@@ -8,18 +8,20 @@ import CircularProgress from "@/ui/components/circular-progress";
 import { ConfirmationModalProps } from "@/lib/interfaces";
 
 export default function ConfirmationModal({
-  isOpen,
-  onClose,
+  open,
+  onCancel,
   onConfirm,
-  mainMessage,
-  deletingMessage,
+  message,
+  title = "Внимание!",
+  confirmText = "Изтрий",
   isDeleting = false,
+  deletingMessage = "Изтриване...",
 }: ConfirmationModalProps) {
   return (
-    <Modal open={isOpen} onClose={onClose}>
+    <Modal open={open} onClose={onCancel}>
       {isDeleting ? (
         <Box className="flex flex-col shadow-2xl absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center p-8 bg-[var(--card-bg)] rounded-lg text-[var(--text-primary)]">
-          <CircularProgress message={deletingMessage || "Изтриване..."} />
+          <CircularProgress message={deletingMessage} />
         </Box>
       ) : (
         <Box className="flex flex-col justify-center items-center p-8 border-[5px] border-[var(--error-color)] shadow-2xl absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[var(--card-bg)] text-[var(--text-primary)]">
@@ -30,14 +32,14 @@ export default function ConfirmationModal({
               component="h2"
               className="font-bold text-center text-lg md:text-xl lg:text-2xl"
             >
-              Внимание!
+              {title}
             </Typography>
           </div>
           <Typography
             variant="h6"
             className="text-center mb-4 text-base font-bold md:text-lg lg:text-xl"
           >
-            {mainMessage}
+            {message}
           </Typography>
           <div className="flex justify-between w-full">
             <Button
@@ -46,11 +48,11 @@ export default function ConfirmationModal({
               onClick={onConfirm}
               className="flex flex-1 font-bold w-32 gap-1.5 bg-red-500 hover:bg-red-600"
             >
-              <FaTrash /> Изтрий
+              <FaTrash /> {confirmText}
             </Button>
             <Button
               variant="contained"
-              onClick={onClose}
+              onClick={onCancel}
               className="flex flex-1 font-bold w-32 bg-blue-500 hover:bg-blue-600 text-white ml-3"
             >
               Отказ

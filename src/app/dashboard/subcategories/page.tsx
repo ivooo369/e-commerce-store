@@ -186,12 +186,15 @@ export default function DashboardSubcategoriesPage() {
           </div>
         )}
         <ConfirmationModal
-          isOpen={isSubcategoryModalOpen}
-          onClose={handleCloseSubcategoryModal}
+          open={isSubcategoryModalOpen}
+          onCancel={handleCloseSubcategoryModal}
           onConfirm={handleDeleteSubcategory}
-          mainMessage="Сигурни ли сте, че искате да изтриете тази подкатегория?"
+          message="Сигурни ли сте, че искате да изтриете тази подкатегория? Това действие ще изтрие и свързаните продукти!"
           deletingMessage="Изтриване на подкатегорията..."
           isDeleting={isDeleting}
+          title="Изтриване на подкатегория"
+          confirmText="Изтрий"
+          cancelText="Отказ"
         />
       </div>
     </>

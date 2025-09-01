@@ -255,12 +255,15 @@ export default function DashboardProductsPage() {
           </div>
         )}
         <ConfirmationModal
-          isOpen={isModalOpen}
-          onClose={handleCloseModal}
+          open={isModalOpen}
+          onCancel={handleCloseModal}
           onConfirm={handleDeleteProduct}
-          mainMessage="Сигурни ли сте, че искате да изтриете този продукт?"
+          message="Сигурни ли сте, че искате да изтриете този продукт? Това действие е необратимо!"
           deletingMessage="Изтриване на продукта..."
           isDeleting={isDeleting}
+          title="Изтриване на продукт"
+          confirmText="Изтрий"
+          cancelText="Отказ"
         />
       </div>
     </>

@@ -15,7 +15,7 @@ export default function DashboardAddCategoriesAndSubcategoriesPage() {
   return (
     <>
       <DashboardNav />
-      <div className="flex flex-col gap-11 container mx-auto px-4 py-6 sm:py-10 max-w-5xl min-h-[calc(100vh-137px)]">
+      <div className="flex flex-col gap-11 container mx-auto px-4 py-6 sm:py-10 max-w-5xl">
         <CategoryForm refetch={refetch} />
         <SubcategoryForm categories={categories || []} refetch={refetch} />
       </div>

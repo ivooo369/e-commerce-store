@@ -19,6 +19,7 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchCategoriesForHeader } from "@/services/categoryService";
 import {} from "@/lib/cartSlice";
 import {} from "@/lib/sanitizeProduct";
+import { clearCart } from "@/lib/cartSlice";
 
 export default function Header() {
   const pathname = usePathname();
@@ -76,6 +77,8 @@ export default function Header() {
   const handleSignOut = () => {
     localStorage.removeItem("userData");
     localStorage.removeItem("userAccountData");
+
+    dispatch(clearCart(""));
     dispatch(clearUser());
   };
 

@@ -14,7 +14,7 @@ import {
   TextField,
   Alert,
 } from "@mui/material";
-import CircularSize from "@/ui/components/circular-progress";
+import CircularProgress from "@/ui/components/circular-progress";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
@@ -53,7 +53,7 @@ export default function CartPage() {
   if (!isClient) {
     return (
       <div className="container mx-auto px-4 py-10 flex justify-center items-center min-h-[50vh]">
-        <CircularSize message="Зареждане на количката..." />
+        <CircularProgress message="Зареждане на количката..." />
       </div>
     );
   }
@@ -74,7 +74,7 @@ export default function CartPage() {
   if (loading) {
     return (
       <div className="container mx-auto px-4 py-10 flex justify-center items-center min-h-[50vh]">
-        <CircularSize message="Зареждане на количката..." />
+        <CircularProgress message="Зареждане на количката..." />
       </div>
     );
   }
@@ -224,9 +224,9 @@ export default function CartPage() {
                     color="primary"
                     className="w-full font-bold text-white bg-blue-500 hover:bg-blue-600 h-11"
                     fullWidth
-                    onClick={() => router.push("/product-catalog")}
+                    onClick={() => router.push("/checkout")}
                   >
-                    Продължи пазаруването
+                    Финализирай поръчката
                   </Button>
                   <Button
                     variant="contained"

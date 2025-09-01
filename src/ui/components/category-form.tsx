@@ -135,11 +135,9 @@ export default function CategoryForm({ refetch }: { refetch: () => void }) {
       )}
       <Button
         type="submit"
+        className="font-bold w-full bg-blue-500 hover:bg-blue-600 text-white"
         variant="contained"
-        color="primary"
         disabled={createCategoryMutation.isPending}
-        className="dashboard-primary-nav font-bold"
-        fullWidth
       >
         {createCategoryMutation.isPending
           ? "Добавяне..."

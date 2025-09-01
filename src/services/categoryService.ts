@@ -90,20 +90,25 @@ export const fetchCategoryByNameWithProducts = async (name: string) => {
   if (typeof window === "undefined") {
     try {
       const decodedName = decodeURIComponent(name);
+
       const category = await prisma.category.findFirst({
         where: { name: decodedName },
+      });
+
+      if (!category) {
+        throw new Error("Категорията не е намерена!");
+      }
+
+      const subcategories = await prisma.subcategory.findMany({
+        where: { categoryId: category.id },
         include: {
-          subcategories: {
+          products: {
             include: {
-              products: {
+              product: {
                 include: {
-                  product: {
+                  subcategories: {
                     include: {
-                      subcategories: {
-                        include: {
-                          subcategory: true,
-                        },
-                      },
+                      subcategory: true,
                     },
                   },
                 },
@@ -112,7 +117,28 @@ export const fetchCategoryByNameWithProducts = async (name: string) => {
           },
         },
       });
-      return category;
+
+      const products = subcategories.flatMap((sc) =>
+        sc.products.map((p) => p.product)
+      );
+
+      return {
+        category,
+        subcategories: subcategories.map((sc) => ({
+          id: sc.id,
+          name: sc.name,
+          code: sc.code,
+          categoryId: sc.categoryId,
+          createdAt: sc.createdAt,
+          updatedAt: sc.updatedAt,
+          category: {
+            id: category.id,
+            name: category.name,
+            code: category.code,
+          },
+        })),
+        products,
+      };
     } catch (error) {
       console.error(
         "Възникна грешка при зареждане на категорията с продукти:",
@@ -128,7 +154,12 @@ export const fetchCategoryByNameWithProducts = async (name: string) => {
     const { data } = await axios.get(
       `/api/public/categories/name/${encodedName}`
     );
-    return data;
+
+    return {
+      category: data.category,
+      subcategories: data.subcategories || [],
+      products: data.products || [],
+    };
   } catch (error) {
     console.error(
       "Възникна грешка при зареждане на категорията с продукти:",

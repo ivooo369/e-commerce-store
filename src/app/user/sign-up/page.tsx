@@ -224,13 +224,13 @@ export default function SignUpPage() {
           />
         </FormControl>
         <FormControl fullWidth variant="outlined">
-          <InputLabel htmlFor="city">Град</InputLabel>
+          <InputLabel htmlFor="location">Населено място</InputLabel>
           <OutlinedInput
-            id="city"
-            name="city"
+            id="location"
+            name="location"
             value={city}
             onChange={(e) => setCity(e.target.value)}
-            label="Град"
+            label="Населено място"
             inputProps={{ maxLength: 100, autoComplete: "city" }}
           />
         </FormControl>
@@ -288,8 +288,7 @@ export default function SignUpPage() {
         </div>
         <Button
           variant="contained"
-          color="primary"
-          className="font-bold"
+          className="font-bold w-full bg-blue-500 hover:bg-blue-600 text-white"
           type="submit"
           disabled={signingUp}
           fullWidth

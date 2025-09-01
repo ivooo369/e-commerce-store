@@ -66,10 +66,6 @@ export default function FavoriteProductsPage() {
     };
   }, [dispatch, isLoggedIn, userId, authLoading]);
 
-  const handleAddToCart = (productId: string) => {
-    console.log(`Продукт с id ${productId} е добавен в кошницата.`);
-  };
-
   if (isLoading) {
     return (
       <div className="container mx-auto py-4 sm:py-6 bg-bg-primary min-h-[60vh] flex items-center justify-center">
@@ -120,11 +116,7 @@ export default function FavoriteProductsPage() {
         <>
           <div className="grid gap-5 sm:gap-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 py-4 sm:py-6 md:py-8 px-4">
             {currentItems.map((product) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                onAddToCart={handleAddToCart}
-              />
+              <ProductCard key={product.id} product={product} />
             ))}
           </div>
           <PaginationButtons

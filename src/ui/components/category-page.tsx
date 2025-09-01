@@ -243,7 +243,13 @@ export default function CategoryPageServerComponent({
                   selectedCategories.length === 0 ||
                   selectedCategories.includes(subcategory.categoryId)
               )
-              .sort((a, b) => a.code.localeCompare(b.code))
+              .sort((a, b) => {
+                const codeA = a.code || "";
+                const codeB = b.code || "";
+                return (
+                  codeA.localeCompare(codeB) || a.name.localeCompare(b.name)
+                );
+              })
               .map((subcategory) => (
                 <MenuItem key={subcategory.id} value={subcategory.id}>
                   {subcategory.code} - {subcategory.name}

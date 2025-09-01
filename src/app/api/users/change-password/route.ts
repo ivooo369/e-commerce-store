@@ -38,7 +38,7 @@ export async function POST(req: Request) {
 
     if (!currentPassword || !newPassword) {
       return NextResponse.json(
-        { message: "Моля, попълнете всички полета!" },
+        { message: "Моля, попълнете всички задължителни полета!" },
         { status: 400 }
       );
     }
@@ -62,7 +62,7 @@ export async function POST(req: Request) {
       );
     }
 
-    if (typeof user.password !== 'string') {
+    if (typeof user.password !== "string") {
       return NextResponse.json(
         { message: "Невалиден формат на паролата!" },
         { status: 500 }

@@ -331,13 +331,13 @@ export default function MyAccountPage() {
             />
           </FormControl>
           <FormControl fullWidth variant="outlined">
-            <InputLabel htmlFor="city">Град</InputLabel>
+            <InputLabel htmlFor="city">Населено място</InputLabel>
             <OutlinedInput
-              id="city"
-              name="city"
+              id="location"
+              name="location"
               value={city}
               onChange={(e) => setCity(e.target.value)}
-              label="Град"
+              label="Населено място"
               inputProps={{ maxLength: 100, autoComplete: "city" }}
             />
           </FormControl>

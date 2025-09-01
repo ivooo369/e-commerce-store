@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { setUser, clearUser } from "./userSlice";
-import { CartItem, ProductBase } from "./interfaces";
+import { CartItem, CartState, ProductBase } from "./interfaces";
 import { getStoredCart, setStoredCart, clearStoredCart } from "./storage";
 
 const prepareProductForStore = (product: ProductBase): ProductBase => {
@@ -32,12 +32,6 @@ const prepareProductForStore = (product: ProductBase): ProductBase => {
 
   return productCopy;
 };
-
-interface CartState {
-  items: CartItem[];
-  loading: boolean;
-  error: string | null;
-}
 
 const initialState: CartState = {
   items: getStoredCart(),

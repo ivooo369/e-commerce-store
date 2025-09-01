@@ -97,7 +97,25 @@ export default async function AllProductsPage() {
         ? allCategories
         : Array.from(categoryMap.values());
 
-    const subcategories = Array.from(subcategoryMap.values());
+    const subcategories = Array.from(subcategoryMap.values()).map(
+      (subcategory) => {
+        const category = categoryMap.get(subcategory.categoryId);
+        return {
+          ...subcategory,
+          category: category
+            ? {
+                id: category.id,
+                name: category.name,
+                code: category.code,
+              }
+            : {
+                id: "",
+                name: "Unknown",
+                code: "unknown",
+              },
+        };
+      }
+    );
 
     return (
       <CategoryPageServerComponent

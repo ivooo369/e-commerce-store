@@ -1,3 +1,4 @@
+import { ClearCartConfirmationModalProps } from "@/lib/interfaces";
 import {
   Dialog,
   DialogTitle,
@@ -6,18 +7,10 @@ import {
   DialogActions,
   Button,
 } from "@mui/material";
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 
-interface ConfirmationModalProps {
-  open: boolean;
-  title: string;
-  message: string;
-  confirmText?: string;
-  cancelText?: string;
-  onConfirm: () => void;
-  onCancel: () => void;
-}
-
-export default function ClearCartConfirmationModal({
+function ClearCartConfirmationModalContent({
   open,
   title,
   message,
@@ -25,7 +18,7 @@ export default function ClearCartConfirmationModal({
   cancelText = "Отказ",
   onConfirm,
   onCancel,
-}: ConfirmationModalProps) {
+}: ClearCartConfirmationModalProps) {
   return (
     <Dialog
       open={open}
@@ -44,8 +37,8 @@ export default function ClearCartConfirmationModal({
         </DialogContentText>
       </DialogContent>
       <DialogActions className="p-4 flex justify-end gap-2 [&>.MuiButton-root]:m-0">
-        <Button 
-          onClick={onCancel} 
+        <Button
+          onClick={onCancel}
           variant="contained"
           className="font-bold bg-blue-500 hover:bg-blue-600 text-white"
         >
@@ -61,5 +54,23 @@ export default function ClearCartConfirmationModal({
         </Button>
       </DialogActions>
     </Dialog>
+  );
+}
+
+export default function ClearCartConfirmationModal(
+  props: ClearCartConfirmationModalProps
+) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    return () => setMounted(false);
+  }, []);
+
+  if (!mounted) return null;
+
+  return createPortal(
+    <ClearCartConfirmationModalContent {...props} />,
+    document.body
   );
 }

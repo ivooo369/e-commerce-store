@@ -4,14 +4,16 @@ import Link from "next/link";
 
 export default async function HomePage() {
   const categories = await fetchCategories();
-  const sortedCategories = [...categories].sort((a, b) => a.code.localeCompare(b.code));
+  const sortedCategories = [...categories].sort((a, b) =>
+    a.code.localeCompare(b.code)
+  );
 
   return (
     <div className="container mx-auto px-4 py-4 sm:py-6 min-h-screen">
       <h1 className="text-2xl sm:text-3xl font-bold text-center mb-4 sm:mb-6 tracking-wide text-text-primary">
         Категории продукти
       </h1>
-      <div className="mb-8">
+      <div className="mb-6">
         <Link
           href="/product-catalog/all"
           className="view-all-button block w-full px-6 py-5 text-center rounded-xl shadow-lg text-xl font-semibold no-underline"

@@ -1,7 +1,4 @@
-import {
-  Category as CategoryPrisma,
-  Subcategory as SubcategoryPrisma,
-} from "@prisma/client";
+import { Category as CategoryPrisma } from "@prisma/client";
 import { Key } from "react";
 import { Theme } from "./themeContext";
 
@@ -39,7 +36,7 @@ export interface Customer {
   phone: string;
 }
 
-export interface Product extends Omit<ProductBase, 'id'> {
+export interface Product extends Omit<ProductBase, "id"> {
   id?: string;
   subcategoryIds?: string[];
 }
@@ -103,18 +100,34 @@ export interface CategoryPageProps {
   category: {
     id: string;
     name: string;
+    code: string;
     description?: string;
   };
-  subcategories: SubcategoryPrisma[];
+  subcategories: Array<{
+    id: string;
+    name: string;
+    code: string;
+    categoryId: string;
+    createdAt: Date;
+    updatedAt: Date;
+    category: {
+      id: string;
+      name: string;
+      code: string;
+    };
+  }>;
   allProducts?: ProductWithRelations[];
   categories?: CategoryPrisma[];
 }
 
 export interface ConfirmationModalProps {
-  isOpen: boolean;
-  onClose: () => void;
+  open: boolean;
+  onCancel: () => void;
   onConfirm: () => void;
-  mainMessage: string;
+  message: string;
+  title?: string;
+  confirmText?: string;
+  cancelText?: string;
   deletingMessage?: string;
   isDeleting?: boolean;
 }
@@ -217,4 +230,241 @@ export interface ProductWithRelations {
   }>;
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface Office {
+  id: string;
+  name: string;
+  address: {
+    full: string;
+    city: string;
+    street: string;
+    number: string;
+    quarter: string;
+    other: string;
+    workTime?: string;
+  };
+  phones: string[];
+  workTime: string;
+  isMachine: boolean;
+  latitude?: number;
+  longitude?: number;
+  location?: {
+    latitude: number;
+    longitude: number;
+  };
+  weeklySchedule: Array<{
+    day: string;
+    time: string | null;
+    isDayOff: boolean;
+  }>;
+}
+
+interface EcontOfficeAddress {
+  city?: {
+    name: string;
+  };
+  fullAddress?: string;
+  location?: {
+    latitude: number;
+    longitude: number;
+  };
+}
+
+export interface EcontOffice {
+  id: string | number;
+  name: string;
+  address?: EcontOfficeAddress;
+  normalBusinessHoursFrom: number;
+  normalBusinessHoursTo: number;
+  halfDayBusinessHoursFrom: number;
+  halfDayBusinessHoursTo: number;
+  phones?: string[];
+  emails?: string[];
+}
+
+export interface EcontOfficeResponse {
+  code: string;
+  id: string;
+  name: string;
+  address: {
+    city: {
+      name: string;
+    };
+    street: string;
+    num: string;
+    quarter: string;
+    other: string;
+    full: string;
+    fullAddress: string;
+  };
+  phones: string[];
+  isMachine: boolean;
+  location?: {
+    latitude: number;
+    longitude: number;
+  };
+  latitude?: number;
+  longitude?: number;
+}
+
+export interface SpeedyOffice {
+  id: string;
+  name: string;
+  city: string;
+  address: string;
+  phone: string;
+  workTime: string;
+  isMachine: boolean;
+  latitude?: number;
+  longitude?: number;
+}
+
+export interface SpeedyOfficeResponse {
+  id: string;
+  code: string;
+  name: string;
+  fullAddress: string;
+  address: {
+    city: {
+      name: string;
+    };
+    fullAddress: string;
+    quarter: string;
+    street: string;
+    num: string;
+    other: string;
+  };
+  phones: string[];
+  workTime: string;
+  isAPS: boolean;
+  isMachine: boolean;
+  location?: {
+    latitude: number;
+    longitude: number;
+  };
+  weeklySchedule: Array<{
+    day: string;
+    time: string;
+  }>;
+}
+
+export interface FormDataDelivery {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  deliveryMethod: "speedy" | "econt" | "address";
+  officeId: string;
+  city: string;
+  region: string;
+  municipality: string;
+  address: string;
+  notes: string;
+  agreeTerms: boolean;
+}
+
+export interface DeliveryOption {
+  id: "address" | "speedy" | "econt";
+  title: string;
+  shortTitle?: string;
+  description: string;
+  icon: React.ReactNode;
+  price: string;
+  color: string;
+}
+
+export interface ApiOffice {
+  id: string | number;
+  name: string;
+  fullAddress?: string;
+  city?: string | { name: string };
+  street?: string;
+  num?: string | number;
+  quarter?: string;
+  other?: string;
+  workTime?: string;
+  phones?: (string | number)[];
+  isMachine?: boolean;
+  isAPS?: boolean;
+  latitude?: number;
+  longitude?: number;
+  location?: {
+    latitude: number;
+    longitude: number;
+  };
+  weeklySchedule?: Array<{
+    day: string;
+    time?: string | null;
+  }>;
+  address?: {
+    fullAddress?: string;
+    city?: string | { name: string };
+    street?: string;
+    num?: string | number;
+    quarter?: string;
+    other?: string;
+  };
+}
+
+export interface OfficeMapProps {
+  cityName: string;
+  offices: Office[];
+  selectedOfficeId?: string;
+  onOfficeSelect?: (officeId: string) => void;
+  className?: string;
+  center?: [number, number];
+}
+
+export interface Settlement {
+  placeName: string;
+  postalCode: string;
+  adminName1: string;
+  adminName2: string;
+  countryCode: string;
+  lat: string;
+  lng: string;
+}
+
+export interface SettlementInputProps {
+  value: string;
+  onChange: (value: string) => void;
+  onSelect: (settlement: Settlement) => void;
+  required?: boolean;
+  className?: string;
+}
+
+export interface CartState {
+  items: CartItem[];
+  loading: boolean;
+  error: string | null;
+}
+
+export interface CartItem {
+  product: ProductBase;
+  quantity: number;
+}
+
+export interface CartItemResponse {
+  product: {
+    id: string;
+    name: string;
+    code: string;
+    price: number;
+    description?: string;
+    images?: string[];
+    createdAt?: string;
+    updatedAt?: string;
+  };
+  quantity: number;
+}
+
+export interface ClearCartConfirmationModalProps extends Omit<ConfirmationModalProps, 'title' | 'message'> {
+  open: boolean;
+  title: string;
+  message: string;
+  confirmText?: string;
+  cancelText?: string;
+  onConfirm: () => void;
+  onCancel: () => void;
 }

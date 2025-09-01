@@ -19,6 +19,8 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import AccountBenefits from "@/ui/components/account-benefits";
 import { signIn } from "@/services/userService";
+import { cartService } from "@/services/cartService";
+import { setCartItems } from "@/lib/cartSlice";
 
 export default function SignInPage() {
   const [email, setEmail] = useState("");
@@ -42,7 +44,7 @@ export default function SignInPage() {
     onMutate: () => {
       setIsSigningIn(true);
     },
-    onSuccess: (responseData) => {
+    onSuccess: async (responseData) => {
       localStorage.setItem(
         "userData",
         JSON.stringify({
@@ -62,6 +64,16 @@ export default function SignInPage() {
           isLoggedIn: responseData.isLoggedIn,
         })
       );
+
+      try {
+        const cartItems = await cartService.getCartItems(responseData.user.id);
+        dispatch(setCartItems(cartItems));
+      } catch (error) {
+        console.error(
+          "Възникна грешка при извличане на продуктите от количката:",
+          error
+        );
+      }
 
       setAlert({
         message: responseData.message,
@@ -133,8 +145,7 @@ export default function SignInPage() {
         <Button
           type="submit"
           variant="contained"
-          className="font-bold"
-          color="primary"
+          className="font-bold w-full bg-blue-500 hover:bg-blue-600 text-white"
           fullWidth
           disabled={signingIn}
         >

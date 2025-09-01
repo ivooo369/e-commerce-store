@@ -124,12 +124,14 @@ export default function DashboardMessagesPage() {
         )}
       </div>
       <ConfirmationModal
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
+        open={isModalOpen}
+        onCancel={handleCloseModal}
         onConfirm={handleDeleteMessage}
-        mainMessage="Сигурни ли сте, че искате да изтриете това съобщение?"
+        message="Сигурни ли сте, че искате да изтриете това съобщение?"
         deletingMessage="Изтриване на съобщението..."
         isDeleting={isDeleting}
+        title="Изтриване на съобщение"
+        confirmText="Изтрий"
       />
     </>
   );
