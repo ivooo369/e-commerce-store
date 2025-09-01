@@ -18,7 +18,7 @@ function mapSettlementData(item: Settlement): Settlement {
 export async function searchSettlements(query: string): Promise<Settlement[]> {
   try {
     const response = await axios.get(
-      "http://api.geonames.org/postalCodeSearchJSON",
+      "https://secure.geonames.org/postalCodeSearchJSON",
       {
         params: {
           placename_startsWith: query,
@@ -52,7 +52,7 @@ export async function getSettlementByPostalCode(
 ): Promise<Settlement | null> {
   try {
     const response = await axios.get(
-      "http://api.geonames.org/postalCodeSearchJSON",
+      "https://secure.geonames.org/postalCodeSearchJSON",
       {
         params: {
           postalcode: postalCode,

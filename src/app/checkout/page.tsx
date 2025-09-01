@@ -348,18 +348,8 @@ export default function CheckoutPage() {
         );
       }
 
-      requiredFields.forEach((field) => {
-        console.log(
-          `Field ${field.name}:`,
-          field.field ? `"${field.field}"` : "empty"
-        );
-      });
-
       const hasMissing = requiredFields.some((f) => {
         const isEmpty = !f.field || String(f.field).trim() === "";
-        if (isEmpty) {
-          console.log(`Missing required field: ${f.name}`);
-        }
         return isEmpty;
       });
 
