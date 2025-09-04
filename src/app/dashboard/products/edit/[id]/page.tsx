@@ -163,7 +163,7 @@ export default function DashboardEditProductPage() {
   if (isProductLoading || isSubcategoriesLoading) {
     return (
       <div className="flex justify-center items-center h-screen">
-        <CircularProgress message="Зареждане на данните на продукта..." />
+        <CircularProgress message="Зареждане на данните за продукта..." />
       </div>
     );
   }

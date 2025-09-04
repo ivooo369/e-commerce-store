@@ -459,7 +459,8 @@ export interface CartItemResponse {
   quantity: number;
 }
 
-export interface ClearCartConfirmationModalProps extends Omit<ConfirmationModalProps, 'title' | 'message'> {
+export interface ClearCartConfirmationModalProps
+  extends Omit<ConfirmationModalProps, "title" | "message"> {
   open: boolean;
   title: string;
   message: string;
@@ -467,4 +468,58 @@ export interface ClearCartConfirmationModalProps extends Omit<ConfirmationModalP
   cancelText?: string;
   onConfirm: () => void;
   onCancel: () => void;
+}
+
+export interface OrderItem {
+  id?: string;
+  product: Product;
+  quantity: number;
+  price?: number;
+}
+
+export interface OrderResponse {
+  id: string;
+  name: string;
+  email: string;
+  city: string;
+  address: string;
+  phone: string;
+  additionalInfo: string | null;
+  items: OrderItem[] | string;
+  status: string;
+  confirmedAt: string | null;
+  cancelledAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface OrderStatusResponse {
+  status: string;
+  name: string;
+  email: string;
+  created_at: Date;
+}
+
+export interface ConfirmOrCancelPageProps {
+  searchParams: {
+    orderId?: string;
+  };
+}
+
+export interface StatusPageProps {
+  searchParams: {
+    orderId?: string;
+    status?: string;
+  };
+}
+
+export interface OrderData {
+  customerId: string;
+  name: string;
+  email: string;
+  city: string;
+  address: string;
+  phone: string;
+  additionalInfo: string;
+  items: OrderItem[];
 }

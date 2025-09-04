@@ -25,6 +25,13 @@ import {
   FormDataDelivery,
   Office,
 } from "@/lib/interfaces";
+import { orderService } from "@/services/orderService";
+import {
+  FormControl,
+  FormControlLabel,
+  FormHelperText,
+  Checkbox,
+} from "@mui/material";
 
 const DynamicOfficeMap = dynamic<React.ComponentProps<typeof OfficeMap>>(
   () => import("@/ui/components/office-map").then((mod) => mod.default || mod),
@@ -45,6 +52,7 @@ export default function CheckoutPage() {
   const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [formErrors] = useState<{ agreeTerms?: string }>({});
   const [offices, setOffices] = useState<Office[]>([]);
   const [isLoadingOffices, setIsLoadingOffices] = useState(false);
   const { items, getCartTotal } = useCart();
@@ -300,7 +308,7 @@ export default function CheckoutPage() {
   if (!isClient) {
     return (
       <div className="container mx-auto px-4 py-10 flex justify-center items-center min-h-[50vh]">
-        <CircularProgress message="Зареждане на данните на поръчката..." />
+        <CircularProgress message="Зареждане на данните за поръчката..." />
       </div>
     );
   }
@@ -403,14 +411,50 @@ export default function CheckoutPage() {
     setError(null);
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const orderData = {
+        customerId: "",
+        name: `${formData.firstName} ${formData.lastName}`,
+        email: formData.email,
+        city: formData.city.split(",")[0].trim(),
+        address:
+          formData.deliveryMethod === "address"
+            ? formData.address
+            : (() => {
+                const office = offices.find(
+                  (office) => office.id === formData.officeId
+                );
+                if (!office) return `До офис: ${formData.officeId}`;
+                const fullAddress =
+                  office.address?.full ||
+                  [office.address?.street, office.address?.number]
+                    .filter(Boolean)
+                    .join(" ");
+                return `До офис: ${office.name}, ${fullAddress}`;
+              })(),
+        phone: formData.phone,
+        additionalInfo: formData.notes || "",
+        items: items.map((item) => ({
+          product: {
+            id: item.product.id,
+            name: item.product.name,
+            code: item.product.code,
+            price: item.product.price,
+            description: item.product.description || "",
+            images: item.product.images || [],
+          },
+          quantity: item.quantity,
+        })),
+      };
 
-      alert("Поръчката е приета успешно!");
+      const result = await orderService.createOrder(orderData);
+      window.location.href = `/order-success?orderId=${result.orderId}`;
     } catch (err) {
-      setError(
-        "Възникна грешка при обработката на поръчката. Моля, опитайте отново."
-      );
-      console.error("Order submission error:", err);
+      const errorMessage =
+        err instanceof Error
+          ? err.message
+          : "Възникна грешка при обработка на поръчката!";
+      setError(errorMessage);
+      console.error("Възникна грешка при обработка на поръчката:", err);
     } finally {
       setIsSubmitting(false);
     }
@@ -751,10 +795,6 @@ export default function CheckoutPage() {
       case 2:
         return (
           <div className="space-y-6">
-            <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-100">
-              Потвърдете вашата поръчка
-            </h3>
-
             <div className="bg-gray-50 dark:bg-gray-900/40 rounded-lg p-6 border border-transparent dark:border-gray-700">
               <h4 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">
                 Данни за доставка
@@ -820,11 +860,19 @@ export default function CheckoutPage() {
                       Офис:
                     </span>
                     <span className="ml-2 dark:text-gray-200">
-                      {
-                        offices.find(
-                          (office) => office.id === formData.officeId
-                        )?.name
-                      }
+                      {(() => {
+                        const office = offices.find(
+                          (o) => o.id === formData.officeId
+                        );
+                        const address =
+                          office?.address?.full ||
+                          [office?.address?.street, office?.address?.number]
+                            .filter(Boolean)
+                            .join(" ");
+                        return `${office?.name || formData.officeId}${
+                          address ? ", " + address : ""
+                        }`;
+                      })()}
                     </span>
                   </div>
                 )}
@@ -862,33 +910,58 @@ export default function CheckoutPage() {
               </div>
             </div>
 
-            <div className="border-t pt-6">
-              <label className="flex items-start space-x-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  name="agreeTerms"
-                  checked={formData.agreeTerms}
-                  onChange={handleInputChange}
-                  className="mt-1 w-4 h-4 text-blue-600 border-gray-300 dark:border-gray-600 rounded focus:ring-blue-500"
-                  required
-                />
-                <span className="text-sm text-gray-700 dark:text-gray-300">
-                  Съгласявам се с{" "}
-                  <a
-                    href="/terms"
-                    className="text-blue-600 dark:text-blue-400 hover:underline font-medium"
-                  >
-                    Общите условия
-                  </a>{" "}
-                  и
-                  <a
-                    href="/privacy"
-                    className="text-blue-600 dark:text-blue-400 hover:underline font-medium ml-1"
-                  >
-                    Политиката за поверителност
-                  </a>
-                </span>
-              </label>
+            <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
+              <div className="flex justify-center">
+                <FormControl
+                  component="fieldset"
+                  error={!formData.agreeTerms && !!formErrors?.agreeTerms}
+                  className="w-full max-w-2xl"
+                >
+                  <FormControlLabel
+                    className="m-0"
+                    control={
+                      <Checkbox
+                        name="agreeTerms"
+                        checked={formData.agreeTerms}
+                        onChange={handleInputChange}
+                        color="primary"
+                        required
+                        size="medium"
+                        inputProps={{
+                          "aria-label": "Съгласие с условията",
+                        }}
+                      />
+                    }
+                    label={
+                      <span className="text-base sm:text-lg text-gray-700 dark:text-gray-300">
+                        Съгласявам се с{" "}
+                        <a
+                          href="/terms"
+                          className="text-blue-600 dark:text-blue-400 hover:underline font-medium"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          Общите условия
+                        </a>{" "}
+                        и{" "}
+                        <a
+                          href="/privacy"
+                          className="text-blue-600 dark:text-blue-400 hover:underline font-medium"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          Политиката за поверителност
+                        </a>
+                      </span>
+                    }
+                  />
+                  {!formData.agreeTerms && formErrors?.agreeTerms && (
+                    <FormHelperText className="text-red-600 dark:text-red-400 ml-8 mt-1 text-sm">
+                      {formErrors.agreeTerms}
+                    </FormHelperText>
+                  )}
+                </FormControl>
+              </div>
             </div>
           </div>
         );
@@ -1013,10 +1086,14 @@ export default function CheckoutPage() {
                     Вашата количка е празна
                   </p>
                 ) : (
-                  items.map((item) => (
+                  items.map((item, index) => (
                     <div
                       key={item.product.code}
-                      className="flex justify-between items-start pb-3 border-b border-gray-100 dark:border-gray-700"
+                      className={`flex justify-between items-start ${
+                        index !== items.length - 1
+                          ? "pb-3 border-b border-gray-100 dark:border-gray-700"
+                          : ""
+                      }`}
                     >
                       <div className="flex-1">
                         <p className="font-medium text-sm text-gray-800 dark:text-gray-100">

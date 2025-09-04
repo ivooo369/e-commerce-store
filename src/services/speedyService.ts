@@ -134,14 +134,10 @@ export async function getSpeedyOfficesRest(
         );
       }
 
-      const displayName = office.name.startsWith("Офис Спиди")
-        ? office.name
-        : `Офис Спиди - ${office.name}`;
-
       return {
         id: office.id,
         code: office.id,
-        name: displayName,
+        name: office.name,
         fullAddress: office.address,
         address: {
           city: {

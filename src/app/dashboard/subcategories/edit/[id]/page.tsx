@@ -116,7 +116,7 @@ export default function DashboardEditSubcategoryPage() {
   if (isCategoriesLoading || isSubcategoryLoading) {
     return (
       <div className="flex justify-center items-center h-screen">
-        <CircularProgress message="Зареждане на данните на подкатегорията..." />
+        <CircularProgress message="Зареждане на данните за подкатегорията..." />
       </div>
     );
   }

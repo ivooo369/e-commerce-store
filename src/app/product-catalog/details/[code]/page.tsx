@@ -89,7 +89,7 @@ export default function ProductDetailsPage({
   if (isLoading) {
     return (
       <div className="container mx-auto py-4 sm:py-6 bg-bg-primary min-h-[60vh] flex items-center justify-center">
-        <CircularProgress message="Зареждане на данните на продукта..." />
+        <CircularProgress message="Зареждане на данните за продукта..." />
       </div>
     );
   }

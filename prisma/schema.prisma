@@ -89,16 +89,19 @@ model ProductSubcategory {
 }
 
 model Order {
-  id             String   @id @default(uuid())
-  customerId     String   @map("customer_id")
-  name           String   @db.VarChar(100)
-  email          String   @db.VarChar(255)
-  city           String   @db.VarChar(100)
-  address        String   @db.VarChar(255)
-  phone          String   @db.VarChar(20)
-  additionalInfo String?  @map("additional_info") @db.VarChar(500)
+  id             String    @id @default(uuid())
+  name           String    @db.VarChar(100)
+  email          String    @db.VarChar(255)
+  city           String    @db.VarChar(100)
+  address        String    @db.VarChar(255)
+  phone          String    @db.VarChar(20)
+  additionalInfo String?   @map("additional_info") @db.VarChar(500)
   items          Json
-  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  status         String    @default("pending") @db.VarChar(20)
+  confirmedAt    DateTime? @map("confirmed_at") @db.Timestamptz(6)
+  cancelledAt    DateTime? @map("cancelled_at") @db.Timestamptz(6)
+  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   @@map("orders")
 }

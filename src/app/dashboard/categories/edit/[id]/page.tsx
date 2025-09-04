@@ -115,7 +115,7 @@ export default function DashboardEditCategoryPage() {
   if (isLoading || !data) {
     return (
       <div className="flex justify-center items-center h-screen">
-        <CircularProgress message="Зареждане на данните на категорията..." />
+        <CircularProgress message="Зареждане на данните за категорията..." />
       </div>
     );
   }

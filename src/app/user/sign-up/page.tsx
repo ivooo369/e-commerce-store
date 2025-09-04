@@ -271,6 +271,8 @@ export default function SignUpPage() {
                 }}
                 color="primary"
                 required
+                size="medium"
+                className="text-black dark:text-white checked:text-black dark:checked:text-white"
                 onInvalid={(event) => {
                   const checkbox = event.target as HTMLInputElement;
                   checkbox.setCustomValidity(
@@ -280,7 +282,7 @@ export default function SignUpPage() {
               />
             }
             label={
-              <span className="text-base sm:text-lg text-gray-700">
+              <span className="text-base sm:text-lg text-gray-700 dark:text-gray-300">
                 Съгласявам се личните ми данни да бъдат обработвани
               </span>
             }

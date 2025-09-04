@@ -57,8 +57,8 @@ export async function POST(request: Request) {
     });
 
     await transporter.sendMail({
-      from: `"${name}" <lipcidesignstudio@gmail.com>`,
-      to: "lipcidesignstudio@gmail.com",
+      from: `"${name}" <${process.env.EMAIL_USER}>`,
+      to: `${process.env.EMAIL_USER}`,
       replyTo: email,
       subject: `${title}`,
       text: content,
