@@ -40,7 +40,9 @@ export const sendOrderStatusNotification = async (
     await transporter.sendMail({
       from: `"LIPCI Design Studio" <${process.env.EMAIL_USER}>`,
       to: process.env.EMAIL_USER,
-      subject: `Поръчка #${orderId.substring(0, 8)} е ${statusText}`,
+      subject: `Поръчка #${orderId
+        .substring(0, 8)
+        .toUpperCase()} е ${statusText}`,
       html: `
         <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 20px auto; border: 1px solid #e5e7eb; border-radius: 8px; max-width: 600px; overflow: hidden;">
           <header style="background-color: ${statusColor}; color: #ffffff; padding: 1rem; text-align: center;">

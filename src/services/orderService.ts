@@ -1,13 +1,10 @@
 import axios from "axios";
 import { handleError } from "@/lib/handleError";
-import { OrderData } from "@/lib/interfaces";
-
-interface OrderStatusResponse {
-  status: string;
-  orderDate: string;
-  name: string;
-  email: string;
-}
+import {
+  OrderData,
+  OrderResponse,
+  OrderStatusResponse,
+} from "@/lib/interfaces";
 
 export const orderService = {
   async createOrder(orderData: OrderData): Promise<{ orderId: string }> {
@@ -66,17 +63,38 @@ export const orderService = {
       const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "";
       const response = await axios.get(`${baseUrl}/api/orders/${orderId}`);
       const order = response.data;
+
+      // Ensure createdAt is a Date object
+      const createdAt = order.createdAt 
+        ? new Date(order.createdAt) 
+        : new Date();
+
       return {
         status: order.status,
-        orderDate: order.created_at,
+        createdAt,
         name: order.name,
-        email: order.email
+        email: order.email,
       };
     } catch (error) {
       console.error(
         "Възникна грешка при извличане на статуса на поръчката:",
         error
       );
+      throw new Error(handleError(error));
+    }
+  },
+
+  async getUserOrders(token: string): Promise<OrderResponse[]> {
+    try {
+      const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "";
+      const response = await axios.get(`${baseUrl}/api/orders`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Възникна грешка при зареждане на поръчките:", error);
       throw new Error(handleError(error));
     }
   },

@@ -104,9 +104,9 @@ export async function PUT(
       { status: 200 }
     );
   } catch (error) {
-    console.error("Грешка при редактиране на подкатегория:", error);
+    console.error("Възникна грешка при редактиране на подкатегория:", error);
     return NextResponse.json(
-      { message: "Възникна грешка! Моля, опитайте отново!" },
+      { message: "Възникна грешка при редактиране на подкатегория!" },
       { status: 500 }
     );
   }

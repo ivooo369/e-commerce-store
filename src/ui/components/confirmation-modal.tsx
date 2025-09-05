@@ -13,7 +13,6 @@ export default function ConfirmationModal({
   onConfirm,
   message,
   title = "Внимание!",
-  confirmText = "Изтрий",
   isDeleting = false,
   deletingMessage = "Изтриване...",
 }: ConfirmationModalProps) {
@@ -44,18 +43,18 @@ export default function ConfirmationModal({
           <div className="flex justify-between w-full">
             <Button
               variant="contained"
+              onClick={onCancel}
+              className="flex flex-1 font-bold w-32 bg-blue-500 hover:bg-blue-600 text-white mr-3"
+            >
+              Отказ
+            </Button>
+            <Button
+              variant="contained"
               color="error"
               onClick={onConfirm}
               className="flex flex-1 font-bold w-32 gap-1.5 bg-red-500 hover:bg-red-600"
             >
-              <FaTrash /> {confirmText}
-            </Button>
-            <Button
-              variant="contained"
-              onClick={onCancel}
-              className="flex flex-1 font-bold w-32 bg-blue-500 hover:bg-blue-600 text-white ml-3"
-            >
-              Отказ
+              <FaTrash /> Изтрий
             </Button>
           </div>
         </Box>

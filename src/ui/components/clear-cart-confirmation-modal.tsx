@@ -12,10 +12,6 @@ import { createPortal } from "react-dom";
 
 function ClearCartConfirmationModalContent({
   open,
-  title,
-  message,
-  confirmText = "Потвърди",
-  cancelText = "Отказ",
   onConfirm,
   onCancel,
 }: ClearCartConfirmationModalProps) {
@@ -29,11 +25,11 @@ function ClearCartConfirmationModalContent({
       fullWidth
     >
       <DialogTitle id="alert-dialog-title" className="font-bold">
-        {title}
+        Изчистване на количката
       </DialogTitle>
       <DialogContent>
         <DialogContentText id="alert-dialog-description">
-          {message}
+          Сигурни ли сте, че искате да изчистите всички продукти от количката?
         </DialogContentText>
       </DialogContent>
       <DialogActions className="p-4 flex justify-end gap-2 [&>.MuiButton-root]:m-0">
@@ -42,7 +38,7 @@ function ClearCartConfirmationModalContent({
           variant="contained"
           className="font-bold bg-blue-500 hover:bg-blue-600 text-white"
         >
-          {cancelText}
+          Отказ
         </Button>
         <Button
           onClick={onConfirm}
@@ -50,7 +46,7 @@ function ClearCartConfirmationModalContent({
           className="font-bold bg-red-500 hover:bg-red-600 text-white"
           autoFocus
         >
-          {confirmText}
+          Изчисти количката
         </Button>
       </DialogActions>
     </Dialog>

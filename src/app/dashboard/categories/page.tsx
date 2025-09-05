@@ -136,8 +136,6 @@ export default function DashboardCategoriesPage() {
           deletingMessage="Изтриване на категорията..."
           isDeleting={isDeleting}
           title="Изтриване на категория"
-          confirmText="Изтрий"
-          cancelText="Отказ"
         />
       </div>
     </>

@@ -131,11 +131,13 @@ function CancelContent() {
 
 export default function CancelPage() {
   return (
-    <Suspense fallback={
-      <div className="flex justify-center items-center min-h-screen">
-        <CircularProgress message="Зареждане..." />
-      </div>
-    }>
+    <Suspense
+      fallback={
+        <div className="flex justify-center items-center min-h-screen">
+          <CircularProgress message="Зареждане..." />
+        </div>
+      }
+    >
       <CancelContent />
     </Suspense>
   );

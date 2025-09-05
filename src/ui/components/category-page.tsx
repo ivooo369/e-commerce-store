@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { ProductWithRelations } from "@/lib/interfaces";
+import { ProductWithRelations, CategoryPageProps } from "@/lib/interfaces";
 import {
   FormControl,
   InputLabel,
@@ -17,7 +17,6 @@ import CircularProgress from "./circular-progress";
 import usePagination, { ITEMS_PER_PAGE } from "@/lib/usePagination";
 import PaginationButtons from "@/ui/components/pagination";
 import { useQuery } from "@tanstack/react-query";
-import { CategoryPageProps } from "@/lib/interfaces";
 import { fetchFilteredProducts } from "@/services/productService";
 import { useDispatch, useSelector } from "react-redux";
 import { loadFavorites } from "@/lib/favoriteSlice";
@@ -172,7 +171,7 @@ export default function CategoryPageServerComponent({
 
   return (
     <div className="container mx-auto py-4 sm:py-6 bg-bg-primary">
-      <h1 className="text-3xl text-center font-bold mb-0 sm:mb-2 tracking-wide text-text-primary">
+      <h1 className="text-2xl sm:text-3xl text-center font-bold mb-0 sm:mb-2 tracking-wide text-text-primary">
         {category.name}
       </h1>
       <div className="products-filter-container flex flex-col items-center max-w-screen-2xl mx-auto space-y-4 py-4 px-4">

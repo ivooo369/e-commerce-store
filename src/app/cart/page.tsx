@@ -52,7 +52,7 @@ export default function CartPage() {
 
   if (!isClient) {
     return (
-      <div className="container mx-auto px-4 py-10 flex justify-center items-center min-h-[50vh]">
+      <div className="container mx-auto px-4 py-10 flex justify-center items-center min-h-[calc(100vh-243.5px)]">
         <CircularProgress message="Зареждане на количката..." />
       </div>
     );
@@ -73,7 +73,7 @@ export default function CartPage() {
 
   if (loading) {
     return (
-      <div className="container mx-auto px-4 py-10 flex justify-center items-center min-h-[50vh]">
+      <div className="container mx-auto px-4 py-10 flex justify-center items-center min-h-[calc(100vh-243.5px)]">
         <CircularProgress message="Зареждане на количката..." />
       </div>
     );
@@ -82,7 +82,10 @@ export default function CartPage() {
   if (items.length === 0) {
     return (
       <div className="container mx-auto px-4 py-8 text-center">
-        <Typography variant="h4" className="mb-4">
+        <Typography
+          variant="h4"
+          className="mb-4 text-2xl sm:text-3xl font-bold"
+        >
           Вашата количка е празна
         </Typography>
         <Button
@@ -99,7 +102,7 @@ export default function CartPage() {
 
   return (
     <div className="container mx-auto max-w-6xl px-4 py-4 sm:py-6 bg-bg-primary">
-      <h1 className="tracking-wide text-text-primary text-2xl sm:text-3xl font-bold text-center mb-8">
+      <h1 className="tracking-wide text-text-primary text-2xl sm:text-3xl font-bold text-center mb-4 sm:mb-6">
         КОЛИЧКА
       </h1>
 
@@ -252,10 +255,6 @@ export default function CartPage() {
 
       <ClearCartConfirmationModal
         open={showClearCartModal}
-        title="Изчистване на количката"
-        message="Сигурни ли сте, че искате да изчистите всички продукти от количката?"
-        confirmText="Изчисти количката"
-        cancelText="Отказ"
         onConfirm={confirmClearCart}
         onCancel={cancelClearCart}
       />

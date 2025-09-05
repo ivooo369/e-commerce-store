@@ -49,7 +49,7 @@ function OrderSuccessContent() {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-screen bg-gray-50 dark:bg-gray-900">
+      <div className="container mx-auto px-4 py-10 flex justify-center items-center min-h-[calc(100vh-243.5px)]">
         <CircularProgress message="Зареждане на данните за поръчката..." />
       </div>
     );
@@ -305,11 +305,13 @@ function OrderSuccessContent() {
 
 export default function OrderSuccessPage() {
   return (
-    <Suspense fallback={
-      <div className="flex justify-center items-center min-h-screen">
-        <CircularProgress message="Зареждане..." />
-      </div>
-    }>
+    <Suspense
+      fallback={
+        <div className="flex justify-center items-center min-h-screen">
+          <CircularProgress message="Зареждане..." />
+        </div>
+      }
+    >
       <OrderSuccessContent />
     </Suspense>
   );

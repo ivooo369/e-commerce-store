@@ -218,8 +218,8 @@ export default function CheckoutPage() {
           setOffices(formattedOffices);
         }
       } catch (error) {
-        console.error("Грешка при зареждане на офиси:", error);
-        setError("Грешка при зареждане на офиси. Моля, опитайте отново.");
+        console.error("Възникна грешка при зареждане на офисите:", error);
+        setError("Възникна грешка при зареждане на офисите!");
         setOffices([]);
       } finally {
         setIsLoadingOffices(false);
@@ -307,7 +307,7 @@ export default function CheckoutPage() {
 
   if (!isClient) {
     return (
-      <div className="container mx-auto px-4 py-10 flex justify-center items-center min-h-[50vh]">
+      <div className="container mx-auto px-4 py-10 flex justify-center items-center min-h-[calc(100vh-243.5px)]">
         <CircularProgress message="Зареждане на данните за поръчката..." />
       </div>
     );
@@ -411,8 +411,21 @@ export default function CheckoutPage() {
     setError(null);
 
     try {
+      let customerId = "";
+      if (typeof window !== "undefined") {
+        const userData = localStorage.getItem("userData");
+        if (userData) {
+          try {
+            const parsedUserData = JSON.parse(userData);
+            customerId = parsedUserData.id || "";
+          } catch (e) {
+            console.error("Възникна грешка:", e);
+          }
+        }
+      }
+
       const orderData = {
-        customerId: "",
+        customerId: customerId,
         name: `${formData.firstName} ${formData.lastName}`,
         email: formData.email,
         city: formData.city.split(",")[0].trim(),

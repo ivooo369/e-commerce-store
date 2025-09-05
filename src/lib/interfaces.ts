@@ -462,10 +462,6 @@ export interface CartItemResponse {
 export interface ClearCartConfirmationModalProps
   extends Omit<ConfirmationModalProps, "title" | "message"> {
   open: boolean;
-  title: string;
-  message: string;
-  confirmText?: string;
-  cancelText?: string;
   onConfirm: () => void;
   onCancel: () => void;
 }
@@ -485,19 +481,20 @@ export interface OrderResponse {
   address: string;
   phone: string;
   additionalInfo: string | null;
-  items: OrderItem[] | string;
+  items: OrderItem[];
   status: string;
-  confirmedAt: string | null;
-  cancelledAt: string | null;
   createdAt: string;
   updatedAt: string;
+  total: number;
+  productsTotal: number;
+  shippingCost: number;
 }
 
 export interface OrderStatusResponse {
   status: string;
   name: string;
   email: string;
-  created_at: Date;
+  createdAt: Date;
 }
 
 export interface ConfirmOrCancelPageProps {

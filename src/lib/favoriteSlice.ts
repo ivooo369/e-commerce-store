@@ -7,8 +7,6 @@ import {
   removeFavorite,
 } from "@/services/favoriteService";
 
-type AnyObject = Record<string, unknown>;
-
 const convertDatesToISO = <T>(obj: T): T => {
   if (obj === null || obj === undefined) return obj as T;
   if (typeof obj !== "object") return obj as T;
@@ -18,7 +16,7 @@ const convertDatesToISO = <T>(obj: T): T => {
   }
 
   const objRecord = obj as Record<string, unknown>;
-  const result: AnyObject = {};
+  const result: Record<string, unknown> = {};
 
   for (const key in objRecord) {
     if (Object.prototype.hasOwnProperty.call(objRecord, key)) {

@@ -77,7 +77,7 @@ export default function FavoriteProductsPage() {
   if (!isLoggedIn) {
     return (
       <div className="container mx-auto py-4 sm:py-6 bg-bg-primary">
-        <h1 className="text-3xl text-center font-bold mb-4 sm:mb-6 tracking-wide text-text-primary">
+        <h1 className="text-2xl sm:text-3xl font-bold text-center mb-4 sm:mb-6 tracking-wide text-text-primary">
           Любими продукти
         </h1>
         <div className="flex justify-center items-center">
@@ -91,7 +91,7 @@ export default function FavoriteProductsPage() {
 
   return (
     <div className="container mx-auto py-4 sm:py-6 bg-bg-primary">
-      <h1 className="text-3xl text-center font-bold mb-4 sm:mb-6 tracking-wide text-text-primary">
+      <h1 className="text-2xl sm:text-3xl font-bold text-center mb-4 sm:mb-6 tracking-wide text-text-primary">
         Любими продукти
       </h1>
 

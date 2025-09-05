@@ -19,7 +19,7 @@ export async function GET(
     }
 
     const [order] = (await prisma.$queryRaw`
-      SELECT * FROM "public"."orders"
+      SELECT *, created_at as "createdAt" FROM "public"."orders"
       WHERE id::text = ${id}
     `) as OrderResponse[];
 
@@ -60,7 +60,7 @@ export async function GET(
     const total = items.reduce((sum, item) => {
       const price = item.price || 0;
       const quantity = item.quantity || 1;
-      return sum + (price * quantity);
+      return sum + price * quantity;
     }, 0);
 
     const response = {

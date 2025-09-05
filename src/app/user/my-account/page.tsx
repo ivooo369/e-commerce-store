@@ -234,7 +234,7 @@ export default function MyAccountPage() {
                         message:
                           error instanceof Error
                             ? error.message
-                            : "Грешка при изпращане на имейл за верификация",
+                            : "Възникна грешка при изпращане на имейл за верификация!",
                         severity: "error",
                       });
                     } finally {

@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
+import { Order, PrismaClient } from "@prisma/client";
 import nodemailer from "nodemailer";
-
 import { getDeliveryMethod, calculateShippingCost } from "@/lib/delivery";
 import { OrderItem } from "@/lib/interfaces";
 
@@ -15,10 +14,94 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+export async function GET(request: Request) {
+  try {
+    const authHeader = request.headers.get("authorization");
+    const token = authHeader?.split(" ")[1];
+
+    if (!token) {
+      return NextResponse.json(
+        { message: "Не сте влезли в акаунта си!" },
+        { status: 401 }
+      );
+    }
+
+    let userId: string;
+    try {
+      const payload = JSON.parse(
+        Buffer.from(token.split(".")[1], "base64").toString()
+      );
+      userId = payload.userId;
+    } catch {
+      return NextResponse.json(
+        { message: "Невалиден токен!" },
+        { status: 401 }
+      );
+    }
+
+    const orders = await prisma.$queryRaw<Order[]>`
+      SELECT 
+        id,
+        created_at as "createdAt",
+        status,
+        items,
+        address
+      FROM orders
+      WHERE customer_id = ${userId}
+      ORDER BY created_at DESC
+    `;
+
+    const processedOrders = orders.map((order: Order) => {
+      const items = order.items as unknown as OrderItem[] | null;
+      const productsTotal =
+        items?.reduce((sum, item) => {
+          const price = typeof item.price === "number" ? item.price : 0;
+          const quantity =
+            typeof item.quantity === "number" ? item.quantity : 1;
+          return sum + price * quantity;
+        }, 0) || 0;
+
+      const deliveryMethod = getDeliveryMethod(order.address || "");
+      const shippingCost = calculateShippingCost(deliveryMethod);
+      const total = productsTotal + shippingCost;
+
+      const createdAt = order.createdAt
+        ? new Date(order.createdAt).toISOString()
+        : new Date().toISOString();
+
+      return {
+        ...order,
+        items: items || [],
+        productsTotal,
+        shippingCost,
+        total,
+        createdAt,
+      };
+    });
+
+    return NextResponse.json(processedOrders);
+  } catch (error) {
+    console.error("Възникна грешка при зареждане на поръчките:", error);
+    return NextResponse.json(
+      { message: "Възникна грешка при зареждане на поръчките!" },
+      { status: 500 }
+    );
+  }
+}
+
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { name, email, city, address, phone, additionalInfo, items } = body;
+    const {
+      name,
+      email,
+      city,
+      address,
+      phone,
+      additionalInfo,
+      items,
+      customerId,
+    } = body;
 
     if (
       !name ||
@@ -96,6 +179,7 @@ export async function POST(request: Request) {
         "additional_info",
         "items",
         "status",
+        "customer_id",
         "created_at",
         "updated_at"
       ) VALUES (
@@ -108,6 +192,7 @@ export async function POST(request: Request) {
         ${additionalInfo || null},
         ${JSON.stringify(orderItems)}::jsonb,
         'pending',
+        ${customerId || null},
         NOW(),
         NOW()
       )
@@ -170,7 +255,7 @@ export async function POST(request: Request) {
         from: `"LIPCI Design Studio" <${process.env.EMAIL_USER}>`,
         to: process.env.EMAIL_USER,
         replyTo: email,
-        subject: `Нова поръчка #${orderId.substring(0, 8)}`,
+        subject: `Нова поръчка #${orderId.substring(0, 8).toUpperCase()}`,
         html: `
           <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 20px auto; border: 1px solid #e5e7eb; border-radius: 8px; max-width: 800px; overflow: hidden;">
             <header style="background-color: #1E3A8A; color: #ffffff; padding: 1rem; text-align: center;">
@@ -254,7 +339,9 @@ export async function POST(request: Request) {
       transporter.sendMail({
         from: `"LIPCI Design Studio" <${process.env.EMAIL_USER}>`,
         to: email,
-        subject: `Потвърждение на поръчка #${orderId.substring(0, 8)}`,
+        subject: `Потвърждение на поръчка #${orderId
+          .substring(0, 8)
+          .toUpperCase()}`,
         html: `
           <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 20px auto; border: 1px solid #e5e7eb; border-radius: 8px; max-width: 800px; overflow: hidden;">
             <header style="background-color: #0a5c3a; color: #ffffff; padding: 1rem; text-align: center;">

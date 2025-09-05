@@ -262,8 +262,6 @@ export default function DashboardProductsPage() {
           deletingMessage="Изтриване на продукта..."
           isDeleting={isDeleting}
           title="Изтриване на продукт"
-          confirmText="Изтрий"
-          cancelText="Отказ"
         />
       </div>
     </>

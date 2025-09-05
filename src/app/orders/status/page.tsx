@@ -13,16 +13,26 @@ export default async function StatusPage({ searchParams }: StatusPageProps) {
     const orderData = await orderService.getOrderStatus(orderId);
     const status = statusParam || orderData.status;
 
-    const orderDate = new Date(orderData.orderDate).toLocaleDateString(
-      "bg-BG",
-      {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
+    const formatOrderDate = (dateString: string | Date) => {
+      try {
+        const date = dateString instanceof Date ? dateString : new Date(dateString);
+        if (isNaN(date.getTime())) {
+          return "Датата не е налична";
+        }
+        return date.toLocaleString("bg-BG", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+      } catch (error) {
+        console.error("Възникна грешка при форматиране на датата:", error);
+        return "Датата не е налична";
       }
-    );
+    };
+
+    const orderDate = formatOrderDate(orderData.createdAt);
 
     switch (status) {
       case "confirmed":
@@ -71,7 +81,7 @@ function renderSuccessPage(orderId: string, orderDate: string) {
           <p className="text-gray-600 dark:text-gray-300 mb-1">
             Номер на поръчка:{" "}
             <span className="font-medium dark:text-white">
-              #{orderId.substring(0, 8)}
+              #{orderId.substring(0, 8).toUpperCase()}
             </span>
           </p>
           <p className="text-gray-600 dark:text-gray-300 mb-6">
@@ -159,7 +169,7 @@ function renderCancelledPage(orderId: string, orderDate: string) {
           <p className="text-gray-600 dark:text-gray-300 mb-1">
             Номер на поръчка:{" "}
             <span className="font-medium dark:text-white">
-              #{orderId.substring(0, 8)}
+              #{orderId.substring(0, 8).toUpperCase()}
             </span>
           </p>
           <p className="text-gray-600 dark:text-gray-300 mb-6">
@@ -246,7 +256,7 @@ function renderPendingPage(orderId: string, orderDate: string) {
           <p className="text-gray-600 dark:text-gray-300 mb-1">
             Номер на поръчка:{" "}
             <span className="font-medium dark:text-white">
-              #{orderId.substring(0, 8)}
+              #{orderId.substring(0, 8).toUpperCase()}
             </span>
           </p>
           <p className="text-gray-600 dark:text-gray-300 mb-6">

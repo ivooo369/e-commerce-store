@@ -33,6 +33,7 @@ model Customer {
   updatedAt         DateTime?  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
   favorites         Favorite[]
   cart              Cart[]
+  orders            Order[]
 
   @@map("customers")
 }
@@ -98,10 +99,11 @@ model Order {
   additionalInfo String?   @map("additional_info") @db.VarChar(500)
   items          Json
   status         String    @default("pending") @db.VarChar(20)
-  confirmedAt    DateTime? @map("confirmed_at") @db.Timestamptz(6)
-  cancelledAt    DateTime? @map("cancelled_at") @db.Timestamptz(6)
+  isCompleted    Boolean   @default(false) @map("is_completed")
   createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt      DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+  customerId     String?   @map("customer_id")
+  customer       Customer? @relation(fields: [customerId], references: [id], onDelete: SetNull)
 
   @@map("orders")
 }

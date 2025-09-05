@@ -26,7 +26,7 @@ const ensureDateString = (value: unknown): string | undefined => {
       return date.toISOString();
     }
   } catch (e) {
-    console.warn("Грешка при парсване на дата:", value, e);
+    console.error("Възникна грешка при парсване на данните:", value, e);
   }
 
   return undefined;

@@ -128,11 +128,13 @@ function ConfirmContent() {
 
 export default function ConfirmPage() {
   return (
-    <Suspense fallback={
-      <div className="flex justify-center items-center min-h-screen">
-        <CircularProgress message="Зареждане..." />
-      </div>
-    }>
+    <Suspense
+      fallback={
+        <div className="flex justify-center items-center min-h-screen">
+          <CircularProgress message="Зареждане..." />
+        </div>
+      }
+    >
       <ConfirmContent />
     </Suspense>
   );

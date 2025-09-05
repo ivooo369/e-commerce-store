@@ -193,8 +193,6 @@ export default function DashboardSubcategoriesPage() {
           deletingMessage="Изтриване на подкатегорията..."
           isDeleting={isDeleting}
           title="Изтриване на подкатегория"
-          confirmText="Изтрий"
-          cancelText="Отказ"
         />
       </div>
     </>

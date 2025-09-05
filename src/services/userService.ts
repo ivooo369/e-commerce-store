@@ -1,6 +1,5 @@
 import axios from "axios";
-import { UserData } from "@/lib/interfaces";
-import { Customer } from "@/lib/interfaces";
+import { UserData, Customer } from "@/lib/interfaces";
 import { handleError } from "@/lib/handleError";
 import jwt from "jsonwebtoken";
 

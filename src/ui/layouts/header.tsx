@@ -135,7 +135,7 @@ export default function Header() {
                       href="/user/order-history"
                       className="block px-4 py-2 text-text-primary hover:bg-bg-secondary rounded transition-colors duration-300"
                     >
-                      Поръчки
+                      Моите поръчки
                     </Link>
                     <Link
                       href="/user/change-password"

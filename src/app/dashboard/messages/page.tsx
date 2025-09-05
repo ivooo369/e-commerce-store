@@ -131,7 +131,6 @@ export default function DashboardMessagesPage() {
         deletingMessage="Изтриване на съобщението..."
         isDeleting={isDeleting}
         title="Изтриване на съобщение"
-        confirmText="Изтрий"
       />
     </>
   );
