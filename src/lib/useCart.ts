@@ -8,9 +8,10 @@ import {
   setCartItems,
 } from "@/lib/cartSlice";
 import { useCallback, useEffect, useRef } from "react";
-import { ProductBase } from "@/lib/interfaces";
+import { ProductBase, CartItem } from "@/lib/interfaces";
 import { sanitizeProduct } from "@/lib/sanitizeProduct";
 import { cartService } from "@/services/cartService";
+import { fetchProductByCode } from "@/services/productService";
 
 const prepareProduct = (product: ProductBase): ProductBase => {
   if (!product) return product;
@@ -32,9 +33,60 @@ export const useCart = () => {
   const { id: userId } = useSelector((state: RootState) => state.user);
   const localMutationAtRef = useRef<number>(0);
 
-  useEffect(() => {
-    if (typeof window === "undefined") return;
+  const validateCartItems = useCallback(async (cartItems: CartItem[]) => {
+    if (!cartItems || !cartItems.length) return [];
+
+    try {
+      const validatedItems = [];
+
+      for (const item of cartItems) {
+        try {
+          if (!item?.product?.code) continue;
+
+          await fetchProductByCode(item.product.code);
+          validatedItems.push(item);
+        } catch (error) {
+          console.error(
+            "Възникна грешка при валидиране на продукта:",
+            item.product?.code,
+            error
+          );
+        }
+      }
+
+      return validatedItems;
+    } catch (error) {
+      console.error(
+        "Възникна грешка при валидиране на продуктите в количката:",
+        error
+      );
+      return [];
+    }
   }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined" || isLoggedIn) return;
+
+    const loadAndValidateCart = async () => {
+      try {
+        const storedCart = localStorage.getItem("cart");
+        if (!storedCart) return;
+
+        const parsedCart = JSON.parse(storedCart);
+        if (!Array.isArray(parsedCart)) return;
+
+        const validItems = await validateCartItems(parsedCart);
+
+        if (validItems.length !== parsedCart.length) {
+          dispatch(setCartItems(validItems));
+        }
+      } catch (error) {
+        console.error("Възникна грешка при валидиране на количката:", error);
+      }
+    };
+
+    loadAndValidateCart();
+  }, [isLoggedIn, dispatch, validateCartItems]);
 
   useEffect(() => {
     const hydrateFromServer = async () => {

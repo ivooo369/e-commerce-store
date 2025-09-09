@@ -27,11 +27,6 @@ export const sendOrderStatusNotification = async (
   customerName: string,
   customerEmail: string
 ) => {
-  if (!process.env.EMAIL_USER) {
-    console.error("EMAIL_USER is not set");
-    return;
-  }
-
   const statusText = status === "confirmed" ? "потвърдена" : "отказана";
   const statusColor = status === "confirmed" ? "#0a5c3a;" : "#d32f2f;";
   const statusIcon = status === "confirmed" ? "✓" : "✗";

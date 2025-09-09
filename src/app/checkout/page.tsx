@@ -786,6 +786,22 @@ export default function CheckoutPage() {
                     </div>
                   </div>
                 )}
+
+                {formData.deliveryMethod === "speedy" && (
+                  <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/30 rounded-lg border border-blue-200 dark:border-blue-800">
+                    <h3 className="text-md font-medium text-blue-800 dark:text-blue-200 mb-2">
+                      Не намирате желания офис на Спиди?
+                    </h3>
+                    <div className="text-blue-700 dark:text-blue-200 text-sm">
+                      <p>
+                        Ако не намирате желания офис на Спиди в списъка с
+                        резултати, моля посочете го в полето „Бележки към
+                        поръчката“, и ние ще се погрижим поръчката Ви да бъде
+                        доставена до посочения офис.
+                      </p>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 

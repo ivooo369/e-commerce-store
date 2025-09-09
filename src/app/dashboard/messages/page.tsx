@@ -9,6 +9,7 @@ import { Message as MessagePrisma } from "@prisma/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { deleteMessage, fetchMessages } from "@/services/messageService";
+import DashboardSecondaryNav from "@/ui/dashboard/dashboard-secondary-nav";
 
 export default function DashboardMessagesPage() {
   const queryClient = useQueryClient();
@@ -92,6 +93,7 @@ export default function DashboardMessagesPage() {
   return (
     <>
       <DashboardNav />
+      <DashboardSecondaryNav />
       <div className="container mx-auto px-4 py-4 sm:py-6 max-w-5xl">
         <h1 className="text-2xl sm:text-3xl font-bold text-center text-text-primary mb-4 sm:mb-6 tracking-wide">
           Съобщения

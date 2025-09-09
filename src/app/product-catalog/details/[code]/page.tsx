@@ -29,10 +29,6 @@ export default function ProductDetailsPage({
     retry: 1,
   });
 
-  const handleBackClick = () => {
-    window.history.back();
-  };
-
   const handleAddToCart = async () => {
     if (!product) {
       console.error("Продуктът не е наличен!");
@@ -98,13 +94,6 @@ export default function ProductDetailsPage({
     return (
       <div className="container mx-auto mt-4 font-bold text-center text-2xl p-16 bg-card-bg rounded-md text-text-secondary flex flex-col items-center border border-card-border transition-colors duration-300">
         <p>{error.message}</p>
-        <Button
-          variant="contained"
-          className="mt-2 font-bold"
-          onClick={handleBackClick}
-        >
-          Назад
-        </Button>
       </div>
     );
   }
@@ -115,13 +104,6 @@ export default function ProductDetailsPage({
         <p className="text-center text-2xl p-16 bg-card-bg rounded-md text-text-secondary border border-card-border transition-colors duration-300">
           Продуктът не е намерен
         </p>
-        <Button
-          variant="contained"
-          className="mt-2 font-bold"
-          onClick={handleBackClick}
-        >
-          Назад
-        </Button>
       </div>
     );
   }
@@ -197,7 +179,7 @@ export default function ProductDetailsPage({
           <p className="text-sm md:text-lg text-center text-gray-700 mt-2 sm:mt-4 break-words">
             Описание: {product.description || "Няма описание за този продукт."}
           </p>
-          <div className="flex flex-col sm:flex-row justify-center gap-4 mt-2 sm:mt-4">
+          <div className="flex justify-center mt-2 sm:mt-4">
             <Button
               variant="contained"
               className="font-bold text-white bg-red-500 hover:bg-red-600 disabled:bg-gray-400 disabled:text-white disabled:opacity-70 disabled:cursor-not-allowed"
@@ -206,13 +188,6 @@ export default function ProductDetailsPage({
               disabled={isAddingToCart}
             >
               {isAddingToCart ? "Добавяне..." : "Добави в количката"}
-            </Button>
-            <Button
-              variant="contained"
-              className="font-bold bg-blue-500 hover:bg-blue-600 text-white"
-              onClick={handleBackClick}
-            >
-              Назад
             </Button>
           </div>
         </div>

@@ -1,5 +1,6 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
@@ -11,9 +12,30 @@ import {
   FaSignOutAlt,
 } from "react-icons/fa";
 import ThemeToggle from "../components/theme-toggle";
+import { getProductCount } from "@/services/productService";
 
 export default function DashboardNav() {
   const pathname = usePathname();
+
+  const {
+    data: productCount,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["productCount"],
+    queryFn: getProductCount,
+    staleTime: 1000 * 60 * 5,
+    refetchOnWindowFocus: true,
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+  });
+
+  if (error) {
+    console.error(
+      "Възникна грешка при извличане на броя на продуктите:",
+      error
+    );
+  }
 
   return (
     <nav className="dashboard-primary-nav w-full p-4 bg-bg-tertiary border-b border-border-color transition-colors duration-300">
@@ -47,8 +69,13 @@ export default function DashboardNav() {
               : "bg-accent-color hover:bg-accent-hover"
           }`}
         >
-          <FaBox className="mr-2" />
-          Инвентар
+          <span className="flex items-center text-white hover:text-white transition-colors duration-300">
+            <FaBox className="mr-2" />
+            Инвентар{" "}
+            {isLoading
+              ? "(...)"
+              : productCount !== undefined && `(${productCount})`}
+          </span>
         </Link>
         <Link
           href="/dashboard/products/add"

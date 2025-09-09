@@ -17,6 +17,7 @@ import CircularProgress from "@/ui/components/circular-progress";
 import AlertMessage from "@/ui/components/alert-message";
 import { editProduct, fetchProduct } from "@/services/productService";
 import { fetchSubcategories } from "@/services/subcategoryService";
+import DashboardSecondaryNav from "@/ui/dashboard/dashboard-secondary-nav";
 
 export default function DashboardEditProductPage() {
   const router = useRouter();
@@ -171,6 +172,7 @@ export default function DashboardEditProductPage() {
   return (
     <>
       <DashboardNav />
+      <DashboardSecondaryNav />
       <div className="flex flex-col justify-center container mx-auto px-4 py-4 sm:py-6 max-w-5xl bg-bg-primary">
         <h1 className="text-2xl sm:text-3xl font-bold text-center text-text-primary mb-4 sm:mb-6 tracking-wide">
           Редактиране на продукт

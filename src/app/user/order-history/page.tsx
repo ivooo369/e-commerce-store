@@ -9,7 +9,6 @@ import Image from "next/image";
 import {
   CheckCircle,
   Clock,
-  Truck,
   XCircle,
   ChevronUp,
   ChevronDown,
@@ -58,7 +57,6 @@ export default function OrderHistoryPage() {
 
   const getStatusDisplay = (status: string) => {
     switch (status.toLowerCase()) {
-      case "completed":
       case "confirmed":
         return {
           text: "Потвърдена",
@@ -79,13 +77,6 @@ export default function OrderHistoryPage() {
           icon: <XCircle className="w-5 h-5 text-red-500" />,
           bg: "bg-red-500/10 dark:bg-red-500/20",
           textColor: "text-red-600 dark:text-red-400",
-        };
-      case "shipped":
-        return {
-          text: "Изпратена",
-          icon: <Truck className="w-5 h-5 text-blue-500" />,
-          bg: "bg-blue-500/10 dark:bg-blue-500/20",
-          textColor: "text-blue-600 dark:text-blue-400",
         };
       default:
         return {

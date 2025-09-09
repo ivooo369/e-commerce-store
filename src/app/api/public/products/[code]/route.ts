@@ -23,7 +23,7 @@ export async function GET(
 
     if (!product) {
       return NextResponse.json(
-        { message: "Продуктът не е намерен!" },
+        { message: "Продуктът не е намерен! Възможно е да не е в наличност." },
         { status: 404 }
       );
     }

@@ -17,7 +17,6 @@ function OrderSuccessContent() {
   const [error, setError] = useState<string | null>(null);
   const [currentTime, setCurrentTime] = useState(new Date());
 
-  // Update time every minute
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(new Date());
@@ -93,7 +92,6 @@ function OrderSuccessContent() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-200">
       <div className="max-w-4xl mx-auto">
-        {/* Order Confirmation Card */}
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden mb-8 border border-gray-200 dark:border-gray-700">
           <div className="px-6 py-8 sm:px-10 text-center">
             <div className="w-20 h-20 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -115,7 +113,6 @@ function OrderSuccessContent() {
             )}
           </div>
 
-          {/* Order Details */}
           <div className="border-t border-gray-200 dark:border-gray-700">
             <div className="px-6 py-5 sm:px-8">
               <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
@@ -242,7 +239,6 @@ function OrderSuccessContent() {
           </div>
         </div>
 
-        {/* Next Steps Card */}
         <div className="bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-400 dark:border-blue-500 rounded-xl shadow-lg overflow-hidden">
           <div className="p-6 sm:p-8">
             <div className="flex items-start">

@@ -466,11 +466,20 @@ export interface ClearCartConfirmationModalProps
   onCancel: () => void;
 }
 
+export interface OrderStatusModalProps {
+  open: boolean;
+  onConfirm: () => void;
+  onCancel: () => void;
+  isCompleted: boolean;
+  orderId?: string;
+}
+
 export interface OrderItem {
   id?: string;
   product: Product;
   quantity: number;
   price?: number;
+  image?: string;
 }
 
 export interface OrderResponse {
@@ -488,6 +497,7 @@ export interface OrderResponse {
   total: number;
   productsTotal: number;
   shippingCost: number;
+  isCompleted: boolean;
 }
 
 export interface OrderStatusResponse {
@@ -510,6 +520,14 @@ export interface StatusPageProps {
   };
 }
 
+export interface PaginatedOrdersResponse {
+  orders: OrderResponse[];
+  total: number;
+  page: number;
+  totalPages: number;
+  limit: number;
+}
+
 export interface OrderData {
   customerId: string;
   name: string;
@@ -519,4 +537,11 @@ export interface OrderData {
   phone: string;
   additionalInfo: string;
   items: OrderItem[];
+}
+
+export interface OrderStatus {
+  text: string;
+  icon: JSX.Element;
+  bg: string;
+  textColor: string;
 }

@@ -5,7 +5,7 @@ import { handleError } from "@/lib/handleError";
 
 export const sendMessage = async (formData: Message) => {
   try {
-    const response = await axios.post("/api/dashboard/messages", formData);
+    const response = await axios.post("/api/public/messages", formData);
     return response.data;
   } catch (error) {
     throw new Error(handleError(error));

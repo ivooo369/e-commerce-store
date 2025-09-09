@@ -113,8 +113,11 @@ export default function DashboardProductsPage() {
       );
 
       try {
-        await deleteProduct(productToDelete);
+        const result = await deleteProduct(productToDelete);
         queryClient.invalidateQueries({ queryKey: ["products"] });
+        if (result.newCount !== undefined) {
+          queryClient.setQueryData(["productCount"], result.newCount);
+        }
       } catch (error) {
         console.error("Възникна грешка при изтриване на продукта:", error);
         setFilteredProducts((prevProducts) => [

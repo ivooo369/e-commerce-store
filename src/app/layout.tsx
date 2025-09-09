@@ -2,6 +2,11 @@ import { Inter } from "next/font/google";
 import MainLayout from "@/ui/layouts/main-layout";
 import { Metadata } from "next";
 import "./globals.css";
+import dynamic from "next/dynamic";
+
+const ScrollToTop = dynamic(() => import("@/ui/components/scroll-to-top"), {
+  ssr: false,
+});
 
 const inter = Inter({
   subsets: ["latin"],
@@ -53,6 +58,7 @@ export default function RootLayout({
         className={`${inter.className} min-h-screen bg-bg-primary text-text-primary`}
       >
         <MainLayout>{children}</MainLayout>
+        <ScrollToTop />
       </body>
     </html>
   );

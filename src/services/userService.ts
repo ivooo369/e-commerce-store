@@ -5,7 +5,7 @@ import jwt from "jsonwebtoken";
 
 export const fetchUserData = async (token: string) => {
   try {
-    const { data } = await axios.get("/api/users/update-account", {
+    const { data } = await axios.get("/api/public/users/update-account", {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -24,12 +24,16 @@ export const updateUserData = async ({
   userData: UserData;
 }) => {
   try {
-    const { data } = await axios.put("/api/users/update-account", userData, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    });
+    const { data } = await axios.put(
+      "/api/public/users/update-account",
+      userData,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
     return data;
   } catch (error) {
     throw new Error(handleError(error));
@@ -45,12 +49,16 @@ export const changePassword = async (formData: {
     const parsedUserData = userData ? JSON.parse(userData) : null;
     const token = parsedUserData?.token || "";
 
-    const { data } = await axios.post("/api/users/change-password", formData, {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const { data } = await axios.post(
+      "/api/public/users/change-password",
+      formData,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
     return data;
   } catch (error) {
     throw new Error(handleError(error));
@@ -59,7 +67,7 @@ export const changePassword = async (formData: {
 
 export const deleteAccount = async (userId: string) => {
   try {
-    await axios.delete(`/api/users/delete-account/${userId}`);
+    await axios.delete(`/api/public/users/delete-account/${userId}`);
     return userId;
   } catch (error) {
     throw new Error(handleError(error));
@@ -68,7 +76,7 @@ export const deleteAccount = async (userId: string) => {
 
 export const signUp = async (formData: Customer) => {
   try {
-    const { data } = await axios.post("/api/users/sign-up", formData, {
+    const { data } = await axios.post("/api/public/users/sign-up", formData, {
       headers: {
         "Content-Type": "application/json",
       },
@@ -81,7 +89,7 @@ export const signUp = async (formData: Customer) => {
 
 export const signIn = async (formData: { email: string; password: string }) => {
   try {
-    const { data } = await axios.post("/api/users/sign-in", formData, {
+    const { data } = await axios.post("/api/public/users/sign-in", formData, {
       headers: { "Content-Type": "application/json" },
     });
     return data;
@@ -92,7 +100,9 @@ export const signIn = async (formData: { email: string; password: string }) => {
 
 export const verifyEmail = async (token: string) => {
   try {
-    const { data } = await axios.get(`/api/users/verify-email?token=${token}`);
+    const { data } = await axios.get(
+      `/api/public/users/verify-email?token=${token}`
+    );
     return data;
   } catch (error) {
     throw new Error(handleError(error));
@@ -107,7 +117,7 @@ export const resendVerificationEmail = async (token: string) => {
     }
 
     const { data } = await axios.post(
-      "/api/users/resend-verification",
+      "/api/public/users/resend-verification",
       { email: decoded.email },
       {
         headers: {

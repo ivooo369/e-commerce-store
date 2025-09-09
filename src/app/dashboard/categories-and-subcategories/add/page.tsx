@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchCategories } from "@/services/categoryService";
 import CategoryForm from "@/ui/components/category-form";
 import SubcategoryForm from "@/ui/components/subcategory-form";
+import DashboardSecondaryNav from "@/ui/dashboard/dashboard-secondary-nav";
 
 export default function DashboardAddCategoriesAndSubcategoriesPage() {
   const { data: categories, refetch } = useQuery({
@@ -15,6 +16,7 @@ export default function DashboardAddCategoriesAndSubcategoriesPage() {
   return (
     <>
       <DashboardNav />
+      <DashboardSecondaryNav />
       <div className="flex flex-col gap-11 container mx-auto px-4 py-6 sm:py-10 max-w-5xl">
         <CategoryForm refetch={refetch} />
         <SubcategoryForm categories={categories || []} refetch={refetch} />

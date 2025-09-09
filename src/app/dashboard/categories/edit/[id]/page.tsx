@@ -13,6 +13,7 @@ import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
 import { useState, useRef, useEffect } from "react";
 import { editCategory, fetchCategory } from "@/services/categoryService";
+import DashboardSecondaryNav from "@/ui/dashboard/dashboard-secondary-nav";
 
 export default function DashboardEditCategoryPage() {
   const router = useRouter();
@@ -131,6 +132,7 @@ export default function DashboardEditCategoryPage() {
   return (
     <>
       <DashboardNav />
+      <DashboardSecondaryNav />
       <div className="flex flex-col justify-center container mx-auto px-4 py-4 sm:py-6 max-w-5xl bg-bg-primary">
         <h1 className="text-3xl font-bold text-center text-text-primary mb-8 tracking-wide">
           Редактиране на категория

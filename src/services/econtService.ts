@@ -6,7 +6,7 @@ export async function getEcontOfficesRest(
   cityName: string
 ): Promise<EcontOffice[]> {
   try {
-    const response = await axios.get(`/api/econt-offices`, {
+    const response = await axios.get(`/api/public/econt-offices`, {
       params: { city: cityName },
     });
     return response.data;

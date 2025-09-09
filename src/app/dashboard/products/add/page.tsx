@@ -12,10 +12,11 @@ import Box from "@mui/material/Box";
 import Image from "next/image";
 import AlertMessage from "@/ui/components/alert-message";
 import { FaTrash } from "react-icons/fa";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Subcategory as SubcategoryPrisma } from "@prisma/client";
 import { createProduct } from "@/services/productService";
 import { fetchSubcategories } from "@/services/subcategoryService";
+import DashboardSecondaryNav from "@/ui/dashboard/dashboard-secondary-nav";
 
 export default function DashboardAddNewProductPage() {
   const [productName, setProductName] = useState("");
@@ -31,6 +32,7 @@ export default function DashboardAddNewProductPage() {
     severity: "success" | "error";
   } | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const queryClient = useQueryClient();
 
   const { data: subcategories = [] } = useQuery<SubcategoryPrisma[]>({
     queryKey: ["subcategories"],
@@ -44,6 +46,9 @@ export default function DashboardAddNewProductPage() {
       setAlert(null);
     },
     onSuccess: (data) => {
+      if (data.newCount !== undefined) {
+        queryClient.setQueryData(["productCount"], data.newCount);
+      }
       setAlert({
         message: data.message,
         severity: "success",
@@ -139,6 +144,7 @@ export default function DashboardAddNewProductPage() {
   return (
     <>
       <DashboardNav />
+      <DashboardSecondaryNav />
       <div className="flex flex-col justify-center container mx-auto px-4 py-4 sm:py-6 max-w-5xl">
         <h1 className="text-2xl sm:text-3xl font-bold text-center text-text-primary mb-4 sm:mb-6 tracking-wide">
           Добавяне на нов продукт

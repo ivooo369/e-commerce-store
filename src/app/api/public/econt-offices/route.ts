@@ -100,7 +100,7 @@ export async function GET(req: NextRequest) {
   } catch (error) {
     console.error("Възникна грешка при извличане на офисите на Econt!", error);
     return NextResponse.json(
-      { message: "Възникна грешка при извличане на офисите на Econt" },
+      { message: "Възникна грешка при извличане на офисите на Econt!" },
       { status: 500 }
     );
   }

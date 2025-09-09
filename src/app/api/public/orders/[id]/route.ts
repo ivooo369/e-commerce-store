@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 import { OrderItem, OrderResponse } from "@/lib/interfaces";
+import { getDeliveryMethod, SHIPPING_COSTS } from "@/lib/delivery";
 
 const prisma = new PrismaClient();
 
@@ -19,7 +20,8 @@ export async function GET(
     }
 
     const [order] = (await prisma.$queryRaw`
-      SELECT *, created_at as "createdAt" FROM "public"."orders"
+      SELECT *, created_at as "createdAt", additional_info as "additionalInfo", is_completed as "isCompleted" 
+      FROM "public"."orders"
       WHERE id::text = ${id}
     `) as OrderResponse[];
 
@@ -63,18 +65,25 @@ export async function GET(
       return sum + price * quantity;
     }, 0);
 
+    const deliveryMethod = order.address
+      ? getDeliveryMethod(order.address)
+      : "ADDRESS";
+    const shippingCost =
+      SHIPPING_COSTS[deliveryMethod as keyof typeof SHIPPING_COSTS] || 0;
+
     const response = {
       id: order.id,
-      customerName: order.name,
+      name: order.name,
       email: order.email,
       phone: order.phone,
       city: order.city,
       address: order.address,
       status: order.status || "processing",
       total: total,
+      shippingCost: shippingCost,
       deliveryMethod: "econt",
-      trackingNumber: null as string | null,
-      additionalInfo: order.additionalInfo,
+      additionalInfo: order.additionalInfo || null,
+      isCompleted: order.isCompleted || false,
       createdAt: order.createdAt,
       items: items.map((item) => ({
         quantity: item.quantity,

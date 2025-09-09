@@ -130,7 +130,11 @@ export const fetchRecommendations = async (searchTerm: string) => {
 export const createProduct = async (productData: Product) => {
   try {
     const response = await axios.post("/api/dashboard/products", productData);
-    return response.data;
+    const countResponse = await axios.get("/api/dashboard/products?count=true");
+    return {
+      ...response.data,
+      newCount: countResponse.data.count,
+    };
   } catch (error) {
     throw new Error(handleError(error));
   }
@@ -138,7 +142,12 @@ export const createProduct = async (productData: Product) => {
 
 export const deleteProduct = async (id: string) => {
   try {
-    await axios.delete(`/api/dashboard/products/${id}`);
+    const response = await axios.delete(`/api/dashboard/products/${id}`);
+    const countResponse = await axios.get("/api/dashboard/products?count=true");
+    return {
+      ...response.data,
+      newCount: countResponse.data.count,
+    };
   } catch (error) {
     throw new Error(handleError(error));
   }
@@ -161,6 +170,19 @@ export const editProduct = async (id: string, updatedProduct: PrismaSchema) => {
     );
     return response.data;
   } catch (error) {
+    throw new Error(handleError(error));
+  }
+};
+
+export const getProductCount = async (): Promise<number> => {
+  try {
+    const response = await axios.get("/api/dashboard/products?count=true");
+    return response.data.count;
+  } catch (error) {
+    console.error(
+      "Възникна грешка при извличане на броя на продуктите:",
+      error
+    );
     throw new Error(handleError(error));
   }
 };

@@ -7,7 +7,7 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const customerId = searchParams.get("customerId");
   const sessionId =
-    customerId || `anon-${Math.random().toString(36).substr(2, 9)}`;
+    customerId || `anon-${Math.random().toString(36).slice(2, 11)}`;
 
   try {
     const cartItems = await prisma.cart.findMany({
@@ -57,14 +57,14 @@ export async function POST(request: Request) {
     }
 
     const sessionId =
-      customerId || `anon-${Math.random().toString(36).substr(2, 9)}`;
+      customerId || `anon-${Math.random().toString(36).slice(2, 11)}`;
     const product = await prisma.product.findUnique({
       where: { code: productCode },
     });
 
     if (!product) {
       return NextResponse.json(
-        { message: "Продуктът не е намерен!" },
+        { message: "Продуктът не е намерен! Възможно е да не е в наличност." },
         { status: 404 }
       );
     }
@@ -136,7 +136,7 @@ export async function PUT(request: Request) {
 
     if (!product) {
       return NextResponse.json(
-        { message: "Продуктът не е намерен!" },
+        { message: "Продуктът не е намерен! Възможно е да не е в наличност." },
         { status: 404 }
       );
     }
@@ -215,7 +215,9 @@ export async function DELETE(request: Request) {
 
       if (!product) {
         return NextResponse.json(
-          { message: "Продуктът не е намерен!" },
+          {
+            message: "Продуктът не е намерен! Възможно е да не е в наличност.",
+          },
           { status: 404 }
         );
       }

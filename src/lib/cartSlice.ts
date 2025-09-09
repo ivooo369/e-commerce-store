@@ -48,10 +48,15 @@ const cartSlice = createSlice({
   initialState,
   reducers: {
     setCartItems: (state, action: PayloadAction<CartItem[]>) => {
-      state.items = action.payload.map((item) => ({
+      const validItems = action.payload.filter(
+        (item) => item?.product?.code && item?.product?.name
+      );
+
+      state.items = validItems.map((item) => ({
         ...item,
         product: prepareProductForStore(item.product),
       }));
+
       saveCart(
         state.items.map((item) => ({
           ...item,

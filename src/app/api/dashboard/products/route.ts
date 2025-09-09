@@ -1,10 +1,28 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 import cloudinary from "@/lib/cloudinary.config";
 
 const prisma = new PrismaClient();
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const { searchParams } = new URL(request.url);
+
+  if (searchParams.get("count") === "true") {
+    try {
+      const count = await prisma.product.count();
+      return NextResponse.json({ count }, { status: 200 });
+    } catch (error) {
+      console.error(
+        "Възникна грешка при извличане на броя на продуктите:",
+        error
+      );
+      return NextResponse.json(
+        { error: "Възникна грешка при извличане на броя на продуктите!" },
+        { status: 500 }
+      );
+    }
+  }
+
   try {
     const products = await prisma.product.findMany({
       include: {

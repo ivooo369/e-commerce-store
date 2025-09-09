@@ -6,7 +6,7 @@ import { handleError } from "@/lib/handleError";
 export const cartService = {
   async getCartItems(customerId: string): Promise<CartItem[]> {
     try {
-      const { data } = await axios.get("/api/cart", {
+      const { data } = await axios.get("/api/public/carts", {
         params: { customerId },
         headers: { "Cache-Control": "no-cache" },
       });
@@ -41,7 +41,7 @@ export const cartService = {
     quantity: number
   ): Promise<void> {
     try {
-      await axios.post("/api/cart", {
+      await axios.post("/api/public/carts", {
         customerId,
         productCode,
         quantity,
@@ -61,7 +61,7 @@ export const cartService = {
     quantity: number
   ): Promise<void> {
     try {
-      await axios.put("/api/cart", {
+      await axios.put("/api/public/carts", {
         customerId,
         productIdentifier: productCode,
         quantity,
@@ -77,7 +77,7 @@ export const cartService = {
 
   async removeFromCart(customerId: string, productCode: string): Promise<void> {
     try {
-      await axios.delete("/api/cart", {
+      await axios.delete("/api/public/carts", {
         data: {
           customerId,
           productIdentifier: productCode,
@@ -94,7 +94,7 @@ export const cartService = {
 
   async clearCart(customerId: string): Promise<void> {
     try {
-      await axios.delete("/api/cart", {
+      await axios.delete("/api/public/carts", {
         data: {
           customerId,
           clearAll: true,
