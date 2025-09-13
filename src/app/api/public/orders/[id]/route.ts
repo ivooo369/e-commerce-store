@@ -1,9 +1,7 @@
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
+import prisma from "@/lib/prisma";
 import { OrderItem, OrderResponse } from "@/lib/interfaces";
 import { getDeliveryMethod, SHIPPING_COSTS } from "@/lib/delivery";
-
-const prisma = new PrismaClient();
 
 export async function GET(
   request: Request,

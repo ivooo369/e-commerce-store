@@ -1,7 +1,5 @@
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import prisma from "@/lib/prisma";
 
 export async function GET() {
   try {
@@ -23,7 +21,9 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { name, code, categoryId } = body;
+    const { categoryId } = body;
+    const name = body.name?.trim();
+    const code = body.code?.trim();
 
     if (!name || !code || !categoryId) {
       return NextResponse.json(
@@ -32,8 +32,23 @@ export async function POST(request: Request) {
       );
     }
 
-    const existingSubcategoryName = await prisma.subcategory.findUnique({
-      where: { name },
+    const category = await prisma.category.findUnique({
+      where: { id: categoryId },
+    });
+    if (!category) {
+      return NextResponse.json(
+        { message: "Избраната категория не съществува!" },
+        { status: 400 }
+      );
+    }
+
+    const existingSubcategoryName = await prisma.subcategory.findFirst({
+      where: {
+        name: {
+          equals: name,
+          mode: "insensitive",
+        },
+      },
     });
 
     if (existingSubcategoryName) {
@@ -43,8 +58,13 @@ export async function POST(request: Request) {
       );
     }
 
-    const existingSubcategory = await prisma.subcategory.findUnique({
-      where: { code },
+    const existingSubcategory = await prisma.subcategory.findFirst({
+      where: {
+        code: {
+          equals: code,
+          mode: "insensitive",
+        },
+      },
     });
 
     if (existingSubcategory) {

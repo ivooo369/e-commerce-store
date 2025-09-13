@@ -1,19 +1,26 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcrypt";
-import { PrismaClient } from "@prisma/client";
+import prisma from "@/lib/prisma";
 import jwt, { JwtPayload } from "jsonwebtoken";
 
-const prisma = new PrismaClient();
 const JWT_SECRET = process.env.JWT_SECRET;
 
 export async function POST(req: Request) {
   try {
-    const token = req.headers.get("Authorization")?.split(" ")[1];
+    const token = req.headers.get("Authorization")?.split(" ")[1]?.trim();
+    const { currentPassword, newPassword } = await req.json();
 
     if (!token) {
       return NextResponse.json(
         { message: "Токенът за оторизация липсва!" },
         { status: 401 }
+      );
+    }
+
+    if (currentPassword.trim() === "" || newPassword.trim() === "") {
+      return NextResponse.json(
+        { message: "Паролата не може да бъде празна!" },
+        { status: 400 }
       );
     }
 
@@ -33,8 +40,6 @@ export async function POST(req: Request) {
         { status: 401 }
       );
     }
-
-    const { currentPassword, newPassword } = await req.json();
 
     if (!currentPassword || !newPassword) {
       return NextResponse.json(

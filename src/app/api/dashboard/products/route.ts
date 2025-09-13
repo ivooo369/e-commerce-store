@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
+import prisma from "@/lib/prisma";
 import cloudinary from "@/lib/cloudinary.config";
-
-const prisma = new PrismaClient();
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -49,13 +47,16 @@ export async function GET(request: NextRequest) {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { name, code, price, description, images, subcategoryIds } = body;
+    const { price, images, subcategoryIds } = body;
+    let { name, code, description } = body;
+
+    name = name?.trim();
+    code = code?.trim();
+    description = description?.trim();
 
     if (!name || !code || !price || !subcategoryIds) {
       return NextResponse.json(
-        {
-          error: "Всички полета са задължителни!",
-        },
+        { error: "Всички полета са задължителни!" },
         { status: 400 }
       );
     }
@@ -75,9 +76,7 @@ export async function POST(request: Request) {
     }
 
     const existingProduct = await prisma.product.findUnique({
-      where: {
-        code: code,
-      },
+      where: { code: code },
     });
 
     if (existingProduct) {
@@ -87,10 +86,20 @@ export async function POST(request: Request) {
       );
     }
 
+    const validSubcategories = await prisma.subcategory.findMany({
+      where: { id: { in: subcategoryIds } },
+      select: { id: true },
+    });
+
+    if (validSubcategories.length !== subcategoryIds.length) {
+      return NextResponse.json(
+        { message: "Една или повече подкатегории не съществуват!" },
+        { status: 400 }
+      );
+    }
+
     const imageUploadPromises = images.map((imageUrl: string) =>
-      cloudinary.uploader.upload(imageUrl, {
-        folder: "LIPCI/products",
-      })
+      cloudinary.uploader.upload(imageUrl, { folder: "LIPCI/products" })
     );
 
     const uploadedImages = await Promise.all(imageUploadPromises);
@@ -117,5 +126,9 @@ export async function POST(request: Request) {
     );
   } catch (error) {
     console.error("Възникна грешка при добавяне на продукта:", error);
+    return NextResponse.json(
+      { message: "Възникна грешка при добавяне на продукта!" },
+      { status: 500 }
+    );
   }
 }

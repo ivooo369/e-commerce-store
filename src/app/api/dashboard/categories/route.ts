@@ -1,8 +1,6 @@
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
+import prisma from "@/lib/prisma";
 import cloudinary from "@/lib/cloudinary.config";
-
-const prisma = new PrismaClient();
 
 export async function GET() {
   try {
@@ -20,7 +18,10 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { name, code, imageUrl } = body;
+    const { imageUrl } = body;
+
+    const name = body.name?.trim();
+    const code = body.code?.trim();
 
     if (!name || !code) {
       return NextResponse.json(
@@ -36,8 +37,13 @@ export async function POST(request: Request) {
       );
     }
 
-    const existingCategoryName = await prisma.category.findUnique({
-      where: { name },
+    const existingCategoryName = await prisma.category.findFirst({
+      where: {
+        name: {
+          equals: name,
+          mode: "insensitive",
+        },
+      },
     });
 
     if (existingCategoryName) {
@@ -47,8 +53,13 @@ export async function POST(request: Request) {
       );
     }
 
-    const existingCategoryCode = await prisma.category.findUnique({
-      where: { code },
+    const existingCategoryCode = await prisma.category.findFirst({
+      where: {
+        code: {
+          equals: code,
+          mode: "insensitive",
+        },
+      },
     });
 
     if (existingCategoryCode) {

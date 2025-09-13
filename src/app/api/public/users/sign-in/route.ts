@@ -1,10 +1,8 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcrypt";
-import { PrismaClient } from "@prisma/client";
 import jwt from "jsonwebtoken";
 import { DecodedToken } from "@/lib/interfaces";
-
-const prisma = new PrismaClient();
+import prisma from "@/lib/prisma";
 const JWT_SECRET = process.env.JWT_SECRET;
 
 export async function GET(req: Request) {
@@ -66,7 +64,25 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   try {
-    const { email, password } = await req.json();
+    let { email, password } = await req.json();
+
+    email = email?.trim();
+    password = password?.trim();
+
+    if (!email || !password) {
+      return NextResponse.json(
+        { message: "Имейлът и паролата са задължителни!" },
+        { status: 400 }
+      );
+    }
+
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!emailRegex.test(email)) {
+      return NextResponse.json(
+        { message: "Невалиден формат на имейл адреса!" },
+        { status: 400 }
+      );
+    }
 
     const existingUser = await prisma.customer.findUnique({
       where: { email },
@@ -79,22 +95,15 @@ export async function POST(req: Request) {
       },
     });
 
-    if (!existingUser) {
+    if (!existingUser || typeof existingUser.password !== "string") {
       return NextResponse.json(
         { message: "Невалиден имейл или парола!" },
         { status: 400 }
       );
     }
 
-    if (typeof existingUser.password !== "string") {
-      return NextResponse.json(
-        { message: "Невалиден формат на паролата!" },
-        { status: 500 }
-      );
-    }
-
     const isPasswordValid = await bcrypt.compare(
-      password.trim(),
+      password,
       existingUser.password
     );
 

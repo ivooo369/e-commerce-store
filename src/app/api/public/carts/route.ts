@@ -1,7 +1,5 @@
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import prisma from "@/lib/prisma";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -43,7 +41,11 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { customerId, productCode, quantity = 1 } = body;
+    const { quantity = 1 } = body;
+    let { customerId, productCode } = body;
+
+    customerId = customerId?.trim();
+    productCode = productCode?.trim();
 
     if (!productCode) {
       console.error("Липсва код на продукта:", { productCode });
@@ -52,6 +54,13 @@ export async function POST(request: Request) {
           message: "Липсва код на продукта!",
           details: { productCode: !!productCode },
         },
+        { status: 400 }
+      );
+    }
+
+    if (isNaN(quantity) || quantity <= 0) {
+      return NextResponse.json(
+        { message: "Количеството трябва да бъде положително число!" },
         { status: 400 }
       );
     }
@@ -91,6 +100,7 @@ export async function POST(request: Request) {
         },
       });
     }
+
     return NextResponse.json({ ...cartItem, sessionId }, { status: 201 });
   } catch (error) {
     console.error(

@@ -1,13 +1,13 @@
 import { NextResponse } from "next/server";
 import crypto from "crypto";
-import { PrismaClient } from "@prisma/client";
+import prisma from "@/lib/prisma";
 import { sendVerificationEmail } from "@/lib/email";
-
-const prisma = new PrismaClient();
 
 export async function POST(req: Request) {
   try {
-    const { email } = await req.json();
+    let { email } = await req.json();
+
+    email = email?.trim();
 
     if (!email) {
       return NextResponse.json(
@@ -30,6 +30,14 @@ export async function POST(req: Request) {
     if (user.isVerified) {
       return NextResponse.json(
         { message: "Този акаунт вече е верифициран!" },
+        { status: 400 }
+      );
+    }
+
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!emailRegex.test(email)) {
+      return NextResponse.json(
+        { message: "Невалиден формат на имейл адреса!" },
         { status: 400 }
       );
     }

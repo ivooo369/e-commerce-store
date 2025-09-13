@@ -308,16 +308,16 @@ export default function OrderDetailsPage() {
                     <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                       <thead className="bg-gray-50 dark:bg-gray-700">
                         <tr>
-                          <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                          <th className="px-3 sm:px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                             Продукт
                           </th>
-                          <th className="px-2 sm:px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                            К-во
+                          <th className="px-2 sm:px-4 py-3 text-center text-sm font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                            Количество
                           </th>
-                          <th className="px-2 sm:px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">
-                            Ед. цена
+                          <th className="px-2 sm:px-4 py-3 text-right text-sm font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">
+                            Единична цена
                           </th>
-                          <th className="px-3 sm:px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                          <th className="px-3 sm:px-6 py-3 text-right text-sm font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                             Общо
                           </th>
                         </tr>
@@ -379,7 +379,7 @@ export default function OrderDetailsPage() {
                                         {item.product.name}
                                       </div>
                                       {item.product.code && (
-                                        <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                                        <div className="text-sm text-gray-500 dark:text-gray-400 truncate">
                                           Код: {item.product.code}
                                         </div>
                                       )}
@@ -390,7 +390,7 @@ export default function OrderDetailsPage() {
                                   <span className="inline-flex items-center justify-center h-7 w-7 sm:h-8 sm:w-8 border border-gray-200 dark:border-gray-600 rounded-md">
                                     {item.quantity}
                                   </span>
-                                  <span className="ml-0.5 sm:ml-1 text-xs sm:text-sm">
+                                  <span className="ml-0.5 sm:ml-1 text-sm">
                                     бр.
                                   </span>
                                 </td>

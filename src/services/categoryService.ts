@@ -1,10 +1,8 @@
 import axios from "axios";
-import { PrismaClient } from "@prisma/client";
 import { Category as CategoryPrisma } from "@prisma/client";
 import { Category } from "@/lib/interfaces";
 import { handleError } from "@/lib/handleError";
-
-const prisma = new PrismaClient();
+import prisma from "@/lib/prisma";
 
 export const fetchCategories = async (): Promise<CategoryPrisma[]> => {
   if (typeof window === "undefined") {

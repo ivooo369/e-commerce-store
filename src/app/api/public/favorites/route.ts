@@ -1,8 +1,6 @@
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
+import prisma from "@/lib/prisma";
 import { handleError } from "@/lib/handleError";
-
-const prisma = new PrismaClient();
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -54,12 +52,28 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { customerId, productId } = body;
+    let { customerId, productId } = body;
+
+    customerId =
+      typeof customerId === "string" ? customerId.trim() : customerId;
+    productId = typeof productId === "string" ? productId.trim() : productId;
 
     if (!customerId || !productId) {
       return NextResponse.json(
         { message: "Липсват задължителни данни!" },
         { status: 400 }
+      );
+    }
+
+    const product = await prisma.product.findUnique({
+      where: { id: productId },
+      select: { id: true },
+    });
+
+    if (!product) {
+      return NextResponse.json(
+        { message: "Продуктът не съществува!" },
+        { status: 404 }
       );
     }
 

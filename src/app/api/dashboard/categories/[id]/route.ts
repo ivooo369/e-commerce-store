@@ -1,8 +1,6 @@
 import cloudinary from "@/lib/cloudinary.config";
-import { PrismaClient } from "@prisma/client";
+import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
-
-const prisma = new PrismaClient();
 
 export async function GET(
   request: Request,
@@ -53,7 +51,9 @@ export async function PUT(
 
   try {
     const body = await request.json();
-    const { name, code, imageUrl } = body;
+    const { imageUrl } = body;
+    const name = body.name?.trim();
+    const code = body.code?.trim();
 
     if (!name || !code) {
       return NextResponse.json(

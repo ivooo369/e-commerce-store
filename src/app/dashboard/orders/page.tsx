@@ -320,7 +320,7 @@ export default function DashboardOrdersPage() {
                   <tr className="divide-x divide-gray-200 dark:divide-gray-700">
                     <th
                       scope="col"
-                      className="px-3 sm:px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer"
+                      className="px-3 sm:px-6 py-3 text-center text-sm font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer"
                       onClick={() => handleSort("createdAt")}
                     >
                       <div className="flex items-center justify-center">
@@ -345,7 +345,7 @@ export default function DashboardOrdersPage() {
                     </th>
                     <th
                       scope="col"
-                      className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer"
+                      className="px-3 sm:px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer"
                       onClick={() => handleSort("id")}
                     >
                       <div className="flex items-center justify-center">
@@ -370,7 +370,7 @@ export default function DashboardOrdersPage() {
                     </th>
                     <th
                       scope="col"
-                      className="hidden sm:table-cell px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer"
+                      className="hidden sm:table-cell px-6 py-3 text-center text-sm font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer"
                       onClick={() => handleSort("customer")}
                     >
                       <div className="flex items-center justify-center">
@@ -395,7 +395,7 @@ export default function DashboardOrdersPage() {
                     </th>
                     <th
                       scope="col"
-                      className="px-3 sm:px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer"
+                      className="px-3 sm:px-6 py-3 text-center text-sm font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer"
                       onClick={() => handleSort("status")}
                     >
                       <div className="flex items-center justify-center">
@@ -420,7 +420,7 @@ export default function DashboardOrdersPage() {
                     </th>
                     <th
                       scope="col"
-                      className="hidden sm:table-cell px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer"
+                      className="hidden sm:table-cell px-6 py-3 text-center text-sm font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer"
                       onClick={() => handleSort("total")}
                     >
                       <div className="flex items-center justify-center">
@@ -445,7 +445,7 @@ export default function DashboardOrdersPage() {
                     </th>
                     <th
                       scope="col"
-                      className="px-3 sm:px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer"
+                      className="px-3 sm:px-6 py-3 text-center text-sm font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer"
                       onClick={() => handleSort("isCompleted")}
                     >
                       <div className="flex items-center justify-center">
@@ -481,22 +481,22 @@ export default function DashboardOrdersPage() {
                           router.push(`/dashboard/orders/${order.id}`)
                         }
                       >
-                        <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500 dark:text-gray-300 text-center">
+                        <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm sm:text-sm text-gray-500 dark:text-gray-300 text-center">
                           <div className="flex flex-col">
-                            <span className="sm:hidden text-xs text-gray-400 mb-1">
+                            <span className="sm:hidden text-sm text-gray-400 mb-1">
                               Дата
                             </span>
                             <span>
                               {formatDate(order.createdAt).split(",")[0]}
                             </span>
-                            <span className="text-xs text-gray-400">
+                            <span className="text-sm text-gray-400">
                               {formatDate(order.createdAt).split(",")[1].trim()}{" "}
                               ч.
                             </span>
                           </div>
                         </td>
                         <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white text-center">
-                          <span className="sm:hidden text-xs text-gray-400 block mb-1">
+                          <span className="sm:hidden text-sm text-gray-400 block mb-1">
                             Поръчка №
                           </span>
                           #{order.id.substring(0, 8).toUpperCase()}
@@ -505,14 +505,14 @@ export default function DashboardOrdersPage() {
                           <div className="text-sm text-gray-900 dark:text-white text-center">
                             {order.name || "Анонимен клиент"}
                           </div>
-                          <div className="text-xs text-gray-500 dark:text-gray-400 text-center truncate max-w-[200px] mx-auto">
+                          <div className="text-sm text-gray-500 dark:text-gray-400 text-center truncate max-w-[200px] mx-auto">
                             {order.email || "Без имейл"}
                           </div>
                         </td>
                         <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
                           <div className="flex justify-center">
                             <span
-                              className={`inline-flex items-center px-2 py-0.5 sm:px-2.5 sm:py-0.5 rounded-full text-xs font-medium ${status.bg} ${status.textColor}`}
+                              className={`inline-flex items-center px-2 py-0.5 sm:px-2.5 sm:py-0.5 rounded-full text-sm font-medium ${status.bg} ${status.textColor}`}
                             >
                               <span className="hidden sm:inline-block">
                                 {status.icon}

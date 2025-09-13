@@ -1,22 +1,48 @@
 import { NextResponse } from "next/server";
 import crypto from "crypto";
-import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { sendVerificationEmail } from "@/lib/email";
+import prisma from "@/lib/prisma";
 
-const prisma = new PrismaClient();
 const JWT_SECRET = process.env.JWT_SECRET;
 
 export async function POST(req: Request) {
   try {
-    const { firstName, lastName, email, city, address, phone, password } =
+    let { firstName, lastName, email, city, address, phone, password } =
       await req.json();
 
-    const existingUser = await prisma.customer.findUnique({
-      where: { email },
-    });
+    firstName = firstName?.trim();
+    lastName = lastName?.trim();
+    email = email?.trim();
+    password = password?.trim();
+    city = city?.trim();
+    address = address?.trim();
+    phone = phone?.trim();
 
+    if (!firstName || !lastName || !email || !password) {
+      return NextResponse.json(
+        { message: "Всички задължителни полета трябва да бъдат попълнени!" },
+        { status: 400 }
+      );
+    }
+
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!emailRegex.test(email)) {
+      return NextResponse.json(
+        { message: "Невалиден формат на имейл адреса!" },
+        { status: 400 }
+      );
+    }
+
+    if (password.length < 8) {
+      return NextResponse.json(
+        { message: "Паролата трябва да бъде поне 8 символа!" },
+        { status: 400 }
+      );
+    }
+
+    const existingUser = await prisma.customer.findUnique({ where: { email } });
     if (existingUser) {
       return NextResponse.json(
         { message: "Потребител с този имейл вече съществува!" },
@@ -25,9 +51,7 @@ export async function POST(req: Request) {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-
     const verificationToken = crypto.randomBytes(32).toString("hex");
-
     const tokenExpiration = new Date();
     tokenExpiration.setHours(tokenExpiration.getHours() + 1);
 
@@ -58,7 +82,6 @@ export async function POST(req: Request) {
       JWT_SECRET,
       { expiresIn: "24h" }
     );
-
     await sendVerificationEmail(email, verificationToken);
 
     return NextResponse.json(

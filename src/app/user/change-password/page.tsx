@@ -89,7 +89,7 @@ export default function ChangePasswordPage() {
   const handleChangePassword = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (newPassword !== confirmPassword) {
+    if (newPassword.trim() !== confirmPassword.trim()) {
       setAlert({
         message: "Новата парола и паролата за потвърждение не съвпадат!",
         severity: "error",
@@ -98,7 +98,11 @@ export default function ChangePasswordPage() {
       return;
     }
 
-    const formData = { currentPassword, newPassword };
+    const formData = {
+      currentPassword: currentPassword.trim(),
+      newPassword: newPassword.trim(),
+    };
+
     mutation.mutate(formData);
   };
 

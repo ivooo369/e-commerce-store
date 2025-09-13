@@ -1,9 +1,8 @@
 import { NextResponse } from "next/server";
-import { Prisma, PrismaClient } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import { OrderItem } from "@/lib/interfaces";
 import { calculateShippingCost, getDeliveryMethod } from "@/lib/delivery";
-
-const prisma = new PrismaClient();
+import prisma from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 

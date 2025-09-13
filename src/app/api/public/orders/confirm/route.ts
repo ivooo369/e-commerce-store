@@ -1,12 +1,18 @@
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
+import prisma from "@/lib/prisma";
 import { sendOrderStatusNotification } from "@/lib/email";
-
-const prisma = new PrismaClient();
 
 export async function POST(request: Request) {
   try {
-    const { orderId } = await request.json();
+    let { orderId } = await request.json();
+    orderId = orderId?.trim();
+
+    if (!orderId) {
+      return NextResponse.json(
+        { error: "Невалиден ID на поръчката!" },
+        { status: 400 }
+      );
+    }
 
     const currentOrder = await prisma.$queryRaw<
       { status: string; name: string; email: string }[]

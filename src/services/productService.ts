@@ -1,10 +1,9 @@
 import axios from "axios";
-import { PrismaClient } from "@prisma/client";
 import { Product, ProductWithSubcategories } from "@/lib/interfaces";
 import { Product as PrismaSchema, Subcategory } from "@prisma/client";
 import { handleError } from "@/lib/handleError";
+import prisma from "@/lib/prisma";
 
-const prisma = new PrismaClient();
 const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
 export const fetchAllPublicProducts = async (): Promise<

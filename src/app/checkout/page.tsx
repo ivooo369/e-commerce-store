@@ -611,7 +611,7 @@ export default function CheckoutPage() {
                               {option.shortTitle || option.title}
                             </span>
                           </h4>
-                          <p className="text-xs text-gray-500 dark:text-gray-400 truncate hidden sm:block">
+                          <p className="text-sm text-gray-500 dark:text-gray-400 truncate hidden sm:block">
                             {option.description}
                           </p>
                         </div>
@@ -629,7 +629,7 @@ export default function CheckoutPage() {
 
             {formData.deliveryMethod === "address" ? (
               <div className="mt-6">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+                <label className="block text-base font-medium text-gray-700 dark:text-gray-200 mb-2">
                   Пълен адрес за доставка{" "}
                   <span className="text-red-500">*</span>
                 </label>
@@ -697,10 +697,10 @@ export default function CheckoutPage() {
                                   {office.weeklySchedule &&
                                     office.weeklySchedule.length > 0 && (
                                       <div>
-                                        <div className="text-xs text-gray-500 dark:text-gray-400 font-medium mb-1">
+                                        <div className="text-base text-gray-500 dark:text-gray-400 font-medium mb-1">
                                           Работно време по дни:
                                         </div>
-                                        <table className="w-full text-xs text-left mb-2">
+                                        <table className="w-full text-sm text-left mb-2">
                                           <tbody>
                                             {office.weeklySchedule.map(
                                               (d: {
@@ -806,7 +806,7 @@ export default function CheckoutPage() {
             )}
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+              <label className="block text-base font-medium text-gray-700 dark:text-gray-200 mb-2">
                 Бележки към поръчката
               </label>
               <textarea
@@ -824,11 +824,11 @@ export default function CheckoutPage() {
       case 2:
         return (
           <div className="space-y-6">
-            <div className="bg-gray-50 dark:bg-gray-900/40 rounded-lg p-6 border border-transparent dark:border-gray-700">
+            <div className="bg-gray-50 dark:bg-gray-900/40 rounded-lg p-6 border border-transparent dark:border-gray-700 break-words overflow-hidden">
               <h4 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">
                 Данни за доставка
               </h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-base">
                 <div>
                   <span className="font-medium text-gray-700 dark:text-gray-300">
                     Име:
@@ -1061,11 +1061,11 @@ export default function CheckoutPage() {
 
               {renderStepContent()}
 
-              <div className="flex justify-between mt-6">
+              <div className="flex flex-col sm:flex-row justify-between mt-6 gap-3">
                 {currentStep > 0 && (
                   <button
                     onClick={() => setCurrentStep((prev) => prev - 1)}
-                    className="flex items-center px-6 py-3 border-2 border-blue-600 text-blue-600 dark:text-blue-400 rounded-lg font-medium hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+                    className="order-2 sm:order-1 flex items-center justify-center px-6 py-3 border-2 border-blue-600 text-blue-600 dark:text-blue-400 rounded-lg font-medium hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 w-full sm:w-auto"
                   >
                     <ChevronLeft className="w-5 h-5 mr-2" />
                     Назад
@@ -1075,7 +1075,7 @@ export default function CheckoutPage() {
                 {currentStep < steps.length - 1 ? (
                   <button
                     onClick={handleNextStep}
-                    className="flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200 shadow-md hover:shadow-lg ml-auto focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+                    className="order-1 sm:order-2 flex items-center justify-center font-medium px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 w-full sm:w-auto"
                   >
                     Напред
                     <ChevronRight className="w-5 h-5 ml-2" />
@@ -1084,7 +1084,7 @@ export default function CheckoutPage() {
                   <button
                     onClick={handleSubmit}
                     disabled={isSubmitting}
-                    className="flex items-center justify-center w-full sm:w-auto px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all duration-200 shadow-lg hover:shadow-xl font-semibold text-lg ml-auto disabled:opacity-70 disabled:cursor-not-allowed disabled:shadow-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50"
+                    className="order-1 sm:order-2 flex items-center justify-center px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all duration-200 shadow-lg hover:shadow-xl font-semibold text-lg disabled:opacity-70 disabled:cursor-not-allowed disabled:shadow-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 w-full sm:w-auto"
                   >
                     {isSubmitting ? (
                       <>

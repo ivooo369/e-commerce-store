@@ -1,10 +1,9 @@
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
+import prisma from "@/lib/prisma";
 import jwt from "jsonwebtoken";
 import { DecodedToken, UpdateUser } from "@/lib/interfaces";
 
 export const dynamic = "force-dynamic";
-const prisma = new PrismaClient();
 const JWT_SECRET = process.env.JWT_SECRET;
 
 export async function GET(req: Request) {
@@ -116,12 +115,12 @@ export async function PUT(req: Request) {
 
     const updatedData: UpdateUser = {};
 
-    if (firstName) updatedData.firstName = firstName.trim();
-    if (lastName) updatedData.lastName = lastName.trim();
-    if (email) updatedData.email = email.trim();
-    if (city) updatedData.city = city.trim();
-    if (address) updatedData.address = address.trim();
-    if (phone) updatedData.phone = phone.trim();
+    if (firstName?.trim()) updatedData.firstName = firstName.trim();
+    if (lastName?.trim()) updatedData.lastName = lastName.trim();
+    if (email?.trim()) updatedData.email = email.trim();
+    if (city?.trim()) updatedData.city = city.trim();
+    if (address?.trim()) updatedData.address = address.trim();
+    if (phone?.trim()) updatedData.phone = phone.trim();
 
     const updatedUser = await prisma.customer.update({
       where: { id: decoded.userId },

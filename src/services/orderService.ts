@@ -126,11 +126,9 @@ const orderService = {
   async getOrderById(orderId: string) {
     try {
       const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "";
-      console.log(`Fetching order ${orderId} from: ${baseUrl}/api/public/orders/${orderId}`);
       const response = await axios.get(
         `${baseUrl}/api/public/orders/${orderId}`
       );
-      console.log('Order data from API:', JSON.stringify(response.data, null, 2));
       return response.data;
     } catch (error) {
       console.error("Възникна грешка при извличане на поръчката:", error);

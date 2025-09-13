@@ -1,7 +1,5 @@
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import prisma from "@/lib/prisma";
 
 export async function PATCH(
   request: Request,
@@ -10,6 +8,13 @@ export async function PATCH(
   try {
     const { id } = params;
     const { isCompleted } = await request.json();
+
+    if (typeof isCompleted !== "boolean") {
+      return NextResponse.json(
+        { error: "isCompleted трябва да бъде булева стойност!" },
+        { status: 400 }
+      );
+    }
 
     const updatedOrder = await prisma.order.update({
       where: { id },

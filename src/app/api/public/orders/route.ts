@@ -1,10 +1,9 @@
 import { NextResponse } from "next/server";
-import { Order, PrismaClient } from "@prisma/client";
+import { Order } from "@prisma/client";
 import nodemailer from "nodemailer";
 import { getDeliveryMethod, calculateShippingCost } from "@/lib/delivery";
 import { OrderItem } from "@/lib/interfaces";
-
-const prisma = new PrismaClient();
+import prisma from "@/lib/prisma";
 
 const transporter = nodemailer.createTransport({
   service: "Gmail",
@@ -92,16 +91,15 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const {
-      name,
-      email,
-      city,
-      address,
-      phone,
-      additionalInfo,
-      items,
-      customerId,
-    } = body;
+    let { name, email, city, address, phone, additionalInfo } = body;
+    const { items, customerId } = body;
+
+    name = name?.trim();
+    email = email?.trim();
+    city = city?.trim();
+    address = address?.trim();
+    phone = phone?.trim();
+    additionalInfo = additionalInfo?.trim();
 
     if (
       !name ||
@@ -115,6 +113,14 @@ export async function POST(request: Request) {
     ) {
       return NextResponse.json(
         { message: "Моля, попълнете всички задължителни полета!" },
+        { status: 400 }
+      );
+    }
+
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!emailRegex.test(email)) {
+      return NextResponse.json(
+        { message: "Невалиден формат на имейл адреса!" },
         { status: 400 }
       );
     }
@@ -357,20 +363,30 @@ export async function POST(request: Request) {
               <p style="margin: 0 0 1rem 0;">Благодарим ви, че пазарувахте при нас! Моля, потвърдете поръчката си, за да започнем обработката!</p>
               
               <div style="width: 100%; text-align: center; margin: 2rem 0;">
-                <div style="display: inline-flex; margin: 0 auto 1rem auto;">
-                  <a href="${
-                    process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
-                  }/orders/confirm?orderId=${orderId}" 
-                     style="display: inline-block; background-color: #0a5c3a; color: white; text-decoration: none; padding: 12px 24px; border-radius: 4px; font-weight: 500; font-size: 1rem; white-space: nowrap; margin-right: 2rem;">
-                    Потвърди поръчката
-                  </a>
-                  <a href="${
-                    process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
-                  }/orders/cancel?orderId=${orderId}" 
-                     style="display: inline-block; background-color: #d32f2f; color: white; text-decoration: none; padding: 12px 24px; border-radius: 4px; font-weight: 500; font-size: 1rem; white-space: nowrap;">
-                    Откажи поръчката
-                  </a>
-                </div>
+                <table cellpadding="0" cellspacing="0" border="0" width="100%" style="max-width: 500px; margin: 0 auto 1rem auto;">
+                  <tr>
+                    <td align="center" style="padding: 8px 0;">
+                      <a href="${
+                        process.env.NEXT_PUBLIC_APP_URL ||
+                        "http://localhost:3000"
+                      }/orders/confirm?orderId=${orderId}" 
+                         style="display: inline-block; background-color: #0a5c3a; color: white; text-decoration: none; padding: 12px 24px; border-radius: 4px; font-weight: 500; font-size: 1rem; white-space: nowrap; width: 100%; max-width: 250px; text-align: center; box-sizing: border-box; mso-padding-alt: 12px 24px;">
+                        Потвърди поръчката
+                      </a>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td align="center" style="padding: 8px 0;">
+                      <a href="${
+                        process.env.NEXT_PUBLIC_APP_URL ||
+                        "http://localhost:3000"
+                      }/orders/cancel?orderId=${orderId}" 
+                         style="display: inline-block; background-color: #d32f2f; color: white; text-decoration: none; padding: 12px 24px; border-radius: 4px; font-weight: 500; font-size: 1rem; white-space: nowrap; width: 100%; max-width: 250px; text-align: center; box-sizing: border-box; mso-padding-alt: 12px 24px;">
+                        Откажи поръчката
+                      </a>
+                    </td>
+                  </tr>
+                </table>
                 <p style="font-size: 0.85rem; color: #6b7280; margin-bottom: 0;">
                   Моля, изберете дали искате да потвърдите или откажете поръчката си!
                 </p>

@@ -94,7 +94,10 @@ export default function SignInPage() {
 
   const handleSignIn = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const formData = { email, password };
+    const formData = {
+      email: email.trim(),
+      password: password.trim(),
+    };
     mutation.mutate(formData);
   };
 
