@@ -5,6 +5,7 @@ import Button from "@mui/material/Button";
 import { FaTrash } from "react-icons/fa";
 import Link from "next/link";
 import { DashboardProductCardProps } from "@/lib/interfaces";
+import { formatPrice } from "@/lib/currencyUtils";
 
 export default function ProductCard({
   product,
@@ -31,7 +32,7 @@ export default function ProductCard({
         </p>
         <p className="text-sm text-text-muted font-bold">Код: {product.code}</p>
         <p className="text-base font-bold text-text-primary">
-          Цена: {product.price} лв.
+          Цена: {formatPrice(product.price, 'BGN')} / {formatPrice(product.price, 'EUR')}
         </p>
         <div className="mt-4 flex justify-center gap-2 dashboard-primary-nav">
           <Link

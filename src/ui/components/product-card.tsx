@@ -17,6 +17,7 @@ import {
 import { ProductCardProps } from "@/lib/interfaces";
 import { AppDispatch } from "@/lib/store";
 import { useCart } from "@/lib/useCart";
+import { formatPrice } from "@/lib/currencyUtils";
 
 export default function ProductCard({ product }: ProductCardProps) {
   const dispatch = useDispatch<AppDispatch>();
@@ -143,7 +144,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         </div>
         <p className="text-sm text-text-muted font-bold">Код: {product.code}</p>
         <p className="text-base font-bold text-text-primary">
-          Цена: {product.price} лв.
+          Цена: {formatPrice(product.price, 'BGN')} / {formatPrice(product.price, 'EUR')}
         </p>
         <div className="mt-4 flex flex-col gap-3 w-full">
           <Link

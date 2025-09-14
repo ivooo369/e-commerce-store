@@ -3,7 +3,7 @@
 import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { CheckCircle2, Clock, Home, Mail, Phone } from "lucide-react";
+import { CheckCircle2, Home, Mail, Phone } from "lucide-react";
 import CircularProgress from "@/ui/components/circular-progress";
 import { getDeliveryMethod } from "@/lib/delivery";
 import { Order } from "@prisma/client";
@@ -120,22 +120,6 @@ function OrderSuccessContent() {
               </h2>
 
               <div className="space-y-4">
-                <div className="flex items-start">
-                  <div className="flex-shrink-0 h-5 w-5 text-gray-400">
-                    <Clock className="h-5 w-5" />
-                  </div>
-                  <div className="ml-3">
-                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                      Статус
-                    </p>
-                    <p className="text-sm font-medium text-gray-900 dark:text-white flex items-center">
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
-                        <Clock className="w-3.5 h-3.5 mr-1.5" />В обработка
-                      </span>
-                    </p>
-                  </div>
-                </div>
-
                 <div className="flex items-start">
                   <div className="flex-shrink-0 h-5 w-5 text-gray-400">
                     <svg

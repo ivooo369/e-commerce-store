@@ -21,6 +21,7 @@ import { fetchFilteredProducts } from "@/services/productService";
 import { useDispatch, useSelector } from "react-redux";
 import { loadFavorites } from "@/lib/favoriteSlice";
 import { RootState, AppDispatch } from "@/lib/store";
+import { formatPrice } from "@/lib/currencyUtils";
 
 export default function CategoryPageServerComponent({
   category,
@@ -266,9 +267,15 @@ export default function CategoryPageServerComponent({
             min={0}
             max={500}
           />
-          <div className="flex justify-between text-base">
-            <span>{priceRange[0]} лв.</span>
-            <span>{priceRange[1]} лв.</span>
+          <div className="flex flex-col gap-1 mt-2">
+            <div className="flex justify-between text-base">
+              <span>{formatPrice(priceRange[0], "BGN")}</span>
+              <span>{formatPrice(priceRange[1], "BGN")}</span>
+            </div>
+            <div className="flex justify-between text-sm text-gray-600">
+              <span>{formatPrice(priceRange[0], "EUR")}</span>
+              <span>{formatPrice(priceRange[1], "EUR")}</span>
+            </div>
           </div>
         </Box>
       </div>

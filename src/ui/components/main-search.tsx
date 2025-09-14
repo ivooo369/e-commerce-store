@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { fetchRecommendations } from "@/services/productService";
+import { formatPrice } from "@/lib/currencyUtils";
 
 export default function MainSearch() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -117,7 +118,7 @@ export default function MainSearch() {
                         Код: {product.code}
                       </p>
                       <p className="text-sm font-bold text-accent-color">
-                        {product.price} лв.
+                        {product.price} лв. <span className="text-xs text-gray-400 ml-1">({formatPrice(product.price, 'EUR')})</span>
                       </p>
                     </div>
                   </li>

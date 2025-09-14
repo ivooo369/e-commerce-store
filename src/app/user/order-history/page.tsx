@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import CircularProgress from "@/ui/components/circular-progress";
 import { OrderItem, OrderResponse } from "@/lib/interfaces";
+import { formatPrice } from "@/lib/currencyUtils";
 
 export default function OrderHistoryPage() {
   const [orders, setOrders] = useState<OrderResponse[]>([]);
@@ -234,10 +235,10 @@ export default function OrderHistoryPage() {
                   <div className="flex flex-col sm:flex-row sm:items-center gap-2">
                     <div>
                       <span className="text-sm text-gray-500 dark:text-gray-400">
-                        Поръчка #
+                        Поръчка
                       </span>
                       <span className="font-medium ml-1 text-gray-900 dark:text-white">
-                        {order.id.substring(0, 8).toUpperCase()}
+                        #{order.id.substring(0, 8).toUpperCase()}
                       </span>
                     </div>
                     <span className="hidden sm:inline text-gray-300 dark:text-gray-600">
@@ -290,10 +291,24 @@ export default function OrderHistoryPage() {
                           <p className="text-sm text-gray-500 dark:text-gray-400">
                             {item.quantity} x{" "}
                             {item.price ? item.price.toFixed(2) : "0.00"} лв.
+                            <span className="text-xs text-gray-400 ml-1">
+                              ({formatPrice(item.price || 0, "EUR")})
+                            </span>
                           </p>
                         </div>
                         <div className="font-medium text-gray-900 dark:text-white">
-                          {((item.price || 0) * item.quantity).toFixed(2)} лв.
+                          <div className="text-right">
+                            <div>
+                              {((item.price || 0) * item.quantity).toFixed(2)}{" "}
+                              лв.
+                            </div>
+                            <div className="text-xs text-gray-500">
+                              {formatPrice(
+                                (item.price || 0) * item.quantity,
+                                "EUR"
+                              )}
+                            </div>
+                          </div>
                         </div>
                       </div>
                     ))}
@@ -306,7 +321,12 @@ export default function OrderHistoryPage() {
                           Стойност на продуктите:
                         </span>
                         <span className="text-sm text-gray-900 dark:text-gray-200">
-                          {order.productsTotal.toFixed(2)} лв.
+                          <div className="text-right">
+                            <div>{order.productsTotal.toFixed(2)} лв.</div>
+                            <div className="text-xs text-gray-500">
+                              {formatPrice(order.productsTotal, "EUR")}
+                            </div>
+                          </div>
                         </span>
                       </div>
                       <div className="flex justify-between w-64">
@@ -314,7 +334,12 @@ export default function OrderHistoryPage() {
                           Доставка:
                         </span>
                         <span className="text-sm text-gray-900 dark:text-gray-200">
-                          {order.shippingCost.toFixed(2)} лв.
+                          <div className="text-right">
+                            <div>{order.shippingCost.toFixed(2)} лв.</div>
+                            <div className="text-xs text-gray-500">
+                              {formatPrice(order.shippingCost, "EUR")}
+                            </div>
+                          </div>
                         </span>
                       </div>
                       <div className="flex justify-between w-64 pt-2 border-t border-gray-200 dark:border-gray-600 mt-2">
@@ -322,7 +347,14 @@ export default function OrderHistoryPage() {
                           Общо:
                         </span>
                         <span className="font-bold text-lg text-gray-900 dark:text-white">
-                          {order.total.toFixed(2)} лв.
+                          <div className="text-right">
+                            <div className="font-bold">
+                              {order.total.toFixed(2)} лв.
+                            </div>
+                            <div className="text-sm font-medium text-gray-500">
+                              {formatPrice(order.total, "EUR")}
+                            </div>
+                          </div>
                         </span>
                       </div>
                     </div>

@@ -12,9 +12,13 @@ export async function GET(
       where: { code },
       include: {
         subcategories: {
-          select: {
-            subcategoryId: true,
-          },
+          include: {
+            subcategory: {
+              include: {
+                category: true
+              }
+            }
+          }
         },
       },
     });
@@ -26,18 +30,29 @@ export async function GET(
       );
     }
 
-    const subcategoryIds = product.subcategories.map(
-      (sub) => sub.subcategoryId
-    );
-
     return NextResponse.json(
       {
+        id: product.id,
         name: product.name,
         code: product.code,
         price: product.price,
         description: product.description,
         images: product.images,
-        subcategoryIds,
+        subcategories: product.subcategories.map(sub => ({
+          id: sub.subcategoryId,
+          subcategory: {
+            id: sub.subcategory.id,
+            name: sub.subcategory.name,
+            code: sub.subcategory.code,
+            category: {
+              id: sub.subcategory.category.id,
+              name: sub.subcategory.category.name,
+              code: sub.subcategory.category.code
+            }
+          }
+        })),
+        createdAt: product.createdAt,
+        updatedAt: product.updatedAt
       },
       { status: 200 }
     );

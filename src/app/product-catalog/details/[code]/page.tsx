@@ -1,19 +1,40 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Button from "@mui/material/Button";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
+import StarBorderIcon from "@mui/icons-material/StarBorder";
+import StarIcon from "@mui/icons-material/Star";
 import CircularProgress from "@/ui/components/circular-progress";
 import Image from "next/image";
 import { useQuery } from "@tanstack/react-query";
 import { fetchProductByCode } from "@/services/productService";
 import { useCart } from "@/lib/useCart";
+import { formatPrice } from "@/lib/currencyUtils";
+import { Tooltip, IconButton } from "@mui/material";
+import { useSelector, useDispatch } from "react-redux";
+import { RootState, AppDispatch } from "@/lib/store";
+import {
+  addFavoriteToServer,
+  removeFavoriteFromServer,
+  loadFavorites,
+} from "@/lib/favoriteSlice";
+import { Product } from "@/lib/interfaces";
 
 export default function ProductDetailsPage({
   params,
 }: {
   params: { code: string };
 }) {
+  const dispatch = useDispatch<AppDispatch>();
+  const { isLoggedIn, id: userId } = useSelector(
+    (state: RootState) => state.user
+  );
+  const { products: favorites, loading: favoritesLoading } = useSelector(
+    (state: RootState) => state.favorites
+  );
+  const [isToggling, setIsToggling] = useState(false);
+  const [isFavorite, setIsFavorite] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
@@ -28,6 +49,57 @@ export default function ProductDetailsPage({
     queryFn: () => fetchProductByCode(params.code),
     retry: 1,
   });
+
+  useEffect(() => {
+    if (isLoggedIn && userId) {
+      dispatch(loadFavorites(userId));
+    }
+  }, [dispatch, isLoggedIn, userId]);
+
+  useEffect(() => {
+    if (product?.code && !favoritesLoading) {
+      const favorite = favorites.some(
+        (fav: Product) => fav.code === product.code
+      );
+      setIsFavorite(favorite);
+    }
+  }, [favorites, product, favoritesLoading]);
+
+  const onToggleFavorite = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!isLoggedIn || !userId) {
+      alert("Трябва да влезете в акаунта си, за да добавяте към любими!");
+      return;
+    }
+
+    if (!product) return;
+
+    const newFavoriteState = !isFavorite;
+    setIsFavorite(newFavoriteState);
+    setIsToggling(true);
+
+    try {
+      if (newFavoriteState) {
+        await dispatch(
+          addFavoriteToServer({ customerId: userId, product })
+        ).unwrap();
+      } else {
+        await dispatch(
+          removeFavoriteFromServer({
+            customerId: userId,
+            productId: product.id,
+          })
+        ).unwrap();
+      }
+    } catch (error) {
+      console.error("Грешка при обновяване на любими:", error);
+      setIsFavorite(!newFavoriteState);
+    } finally {
+      setIsToggling(false);
+    }
+  };
 
   const handleAddToCart = async () => {
     if (!product) {
@@ -127,25 +199,34 @@ export default function ProductDetailsPage({
           </div>
         </div>
         <div className="flex justify-center mt-4 relative">
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 max-h-[150px] overflow-hidden">
             {product.images.map((image, index) => (
               <div
                 key={index}
-                className="w-28 h-28 sm:w-32 sm:h-32 flex justify-center items-center"
+                className="w-28 h-28 sm:w-32 sm:h-32 flex justify-center items-center overflow-hidden"
               >
-                <Image
-                  src={image}
-                  alt={`product image ${index + 1}`}
-                  width={120}
-                  height={120}
-                  loading="lazy"
-                  className={`object-cover rounded-lg cursor-pointer transition-all duration-200 ${
-                    index === currentImageIndex
-                      ? "border-2 border-blue-500"
-                      : ""
-                  }`}
-                  onClick={() => selectImage(index)}
-                />
+                <div
+                  className="w-full h-full flex items-center justify-center"
+                  style={{ maxHeight: "150px" }}
+                >
+                  <Image
+                    src={image}
+                    alt={`product image ${index + 1}`}
+                    width={150}
+                    height={150}
+                    loading="lazy"
+                    className={`object-cover w-full h-full rounded-lg cursor-pointer transition-all duration-200 ${
+                      index === currentImageIndex
+                        ? "border-2 border-blue-500"
+                        : ""
+                    }`}
+                    onClick={() => selectImage(index)}
+                    style={{
+                      maxHeight: "150px",
+                      objectFit: "cover",
+                    }}
+                  />
+                </div>
               </div>
             ))}
           </div>
@@ -167,14 +248,55 @@ export default function ProductDetailsPage({
           )}
         </div>
         <div className="mt-4">
-          <h2 className="text-2xl md:text-3xl font-bold text-center break-words">
-            {product.name}
-          </h2>
+          <div className="flex items-center justify-center gap-2">
+            <h2 className="text-2xl md:text-3xl font-bold text-center break-words">
+              {product.name}
+            </h2>
+            {isLoggedIn && (
+              <Tooltip
+                title={
+                  isToggling
+                    ? "Моля изчакайте..."
+                    : isFavorite
+                    ? "Премахни от любими"
+                    : "Добави в любими"
+                }
+                arrow
+              >
+                <span>
+                  <IconButton
+                    onClick={onToggleFavorite}
+                    disabled={isToggling}
+                    size="small"
+                    className="p-1 -mr-2"
+                    aria-label={
+                      isFavorite ? "Премахни от любими" : "Добави в любими"
+                    }
+                  >
+                    {isFavorite ? (
+                      <StarIcon
+                        className={`text-yellow-400 text-[1.8rem] ${
+                          isToggling ? "opacity-50" : ""
+                        }`}
+                      />
+                    ) : (
+                      <StarBorderIcon
+                        className={`text-yellow-400 text-[1.8rem] ${
+                          isToggling ? "opacity-50" : ""
+                        }`}
+                      />
+                    )}
+                  </IconButton>
+                </span>
+              </Tooltip>
+            )}
+          </div>
           <p className="text-sm md:text-lg text-center text-gray-500 break-words">
             Код на продукта: {product.code}
           </p>
-          <p className="text-lg md:text-xl text-center text-black mt-2 sm:mt-4 break-words">
-            Цена: {product.price} лв.
+          <p className="text-lg md:text-xl text-center text-black mt-2 sm:mt-4">
+            Цена: {formatPrice(product.price, "BGN")} /{" "}
+            {formatPrice(product.price, "EUR")}
           </p>
           <p className="text-sm md:text-lg text-center text-gray-700 mt-2 sm:mt-4 break-words">
             Описание: {product.description || "Няма описание за този продукт."}

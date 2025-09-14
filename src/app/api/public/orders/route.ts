@@ -4,6 +4,7 @@ import nodemailer from "nodemailer";
 import { getDeliveryMethod, calculateShippingCost } from "@/lib/delivery";
 import { OrderItem } from "@/lib/interfaces";
 import prisma from "@/lib/prisma";
+import { formatPrice } from "@/lib/currencyUtils";
 
 const transporter = nodemailer.createTransport({
   service: "Gmail",
@@ -239,9 +240,9 @@ export async function POST(request: Request) {
                 Количество: ${item.quantity} бр.
               </p>
               <p style="margin: 3px 0; font-size: 14px; color: #1f2937; font-weight: 500;">
-                ${(item.product.price * item.quantity).toFixed(2)} лв.
+                ${(item.product.price * item.quantity).toFixed(2)} лв. / ${formatPrice(item.product.price * item.quantity, 'EUR')}
                 <span style="font-size: 12px; color: #6b7280; font-weight: normal; margin-left: 5px;">
-                  (${item.product.price.toFixed(2)} лв. × ${item.quantity} бр.)
+                  (${item.product.price.toFixed(2)} лв. / ${formatPrice(item.product.price, 'EUR')} × ${item.quantity} бр.)
                 </span>
               </p>
             </div>
@@ -316,17 +317,17 @@ export async function POST(request: Request) {
                 <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid #e5e7eb; text-align: right;">
                   <div style="margin-bottom: 0.5rem;">
                     <span style="margin-right: 1rem;">Стойност на продуктите:</span>
-                    <span>${(orderTotal - shippingCost).toFixed(2)} лв.</span>
+                    <span>${(orderTotal - shippingCost).toFixed(2)} лв. / ${formatPrice(orderTotal - shippingCost, 'EUR')}</span>
                   </div>
                   <div style="margin-bottom: 0.5rem;">
                     <span style="margin-right: 1rem;">Цена на доставка:</span>
-                    <span>${shippingCost.toFixed(2)} лв.</span>
+                    <span>${shippingCost.toFixed(2)} лв. / ${formatPrice(shippingCost, 'EUR')}</span>
                   </div>
                   <div style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid #e5e7eb;">
                     <span style="font-weight: 600; margin-right: 1rem;">Обща сума:</span>
-                    <span style="font-size: 1.1rem; font-weight: 600; color: #1f2937;">${orderTotal.toFixed(
-                      2
-                    )} лв.</span>
+                    <span style="font-size: 1.1rem; font-weight: 600; color: #1f2937;">
+                      ${orderTotal.toFixed(2)} лв. / ${formatPrice(orderTotal, 'EUR')}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -435,17 +436,17 @@ export async function POST(request: Request) {
                 <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid #e5e7eb; text-align: right;">
                   <div style="margin-bottom: 0.5rem;">
                     <span style="margin-right: 1rem;">Стойност на продуктите:</span>
-                    <span>${(orderTotal - shippingCost).toFixed(2)} лв.</span>
+                    <span>${(orderTotal - shippingCost).toFixed(2)} лв. / ${formatPrice(orderTotal - shippingCost, 'EUR')}</span>
                   </div>
                   <div style="margin-bottom: 0.5rem;">
                     <span style="margin-right: 1rem;">Цена на доставка:</span>
-                    <span>${shippingCost.toFixed(2)} лв.</span>
+                    <span>${shippingCost.toFixed(2)} лв. / ${formatPrice(shippingCost, 'EUR')}</span>
                   </div>
                   <div style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid #e5e7eb;">
                     <span style="font-weight: 600; margin-right: 1rem;">Обща сума:</span>
-                    <span style="font-size: 1.1rem; font-weight: 600; color: #1f2937;">${orderTotal.toFixed(
-                      2
-                    )} лв.</span>
+                    <span style="font-size: 1.1rem; font-weight: 600; color: #1f2937;">
+                      ${orderTotal.toFixed(2)} лв. / ${formatPrice(orderTotal, 'EUR')}
+                    </span>
                   </div>
                 </div>
               </div>

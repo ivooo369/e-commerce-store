@@ -2,10 +2,11 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useSelector } from "react-redux";
-import { RootState } from "@/lib/store";
+import { useSelector, useDispatch } from "react-redux";
+import { RootState, AppDispatch } from "@/lib/store";
 import { useCart } from "@/lib/useCart";
-import {} from "@mui/material";
+import { formatPrice } from "@/lib/currencyUtils";
+import { Tooltip } from "@mui/material";
 import {
   Button,
   Typography,
@@ -18,15 +19,38 @@ import CircularProgress from "@/ui/components/circular-progress";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
+import StarBorderIcon from "@mui/icons-material/StarBorder";
+import StarIcon from "@mui/icons-material/Star";
 import Image from "next/image";
 import ClearCartConfirmationModal from "@/ui/components/clear-cart-confirmation-modal";
 import Link from "next/link";
+import {
+  addFavoriteToServer,
+  removeFavoriteFromServer,
+  loadFavorites,
+} from "@/lib/favoriteSlice";
+import { Product } from "@/lib/interfaces";
 
 export default function CartPage() {
   const [isClient, setIsClient] = useState(false);
   const [showClearCartModal, setShowClearCartModal] = useState(false);
+  const [togglingFavorites, setTogglingFavorites] = useState<
+    Record<string, boolean>
+  >({});
   const router = useRouter();
-  const {} = useSelector((state: RootState) => state.user);
+  const dispatch = useDispatch<AppDispatch>();
+  const { isLoggedIn, id: userId } = useSelector(
+    (state: RootState) => state.user
+  );
+  const { products: favorites, loading: favoritesLoading } = useSelector(
+    (state: RootState) => state.favorites
+  );
+
+  useEffect(() => {
+    if (isLoggedIn && userId) {
+      dispatch(loadFavorites(userId));
+    }
+  }, [dispatch, isLoggedIn, userId]);
 
   const {
     items,
@@ -71,7 +95,51 @@ export default function CartPage() {
     setShowClearCartModal(false);
   };
 
-  if (loading) {
+  const handleToggleFavorite = async (e: React.MouseEvent, product: Product) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!isLoggedIn || !userId) {
+      alert("Трябва да влезете в акаунта си, за да добавяте към 'Любими'!");
+      return;
+    }
+
+    if (!product?.id || !product?.code) return;
+
+    setTogglingFavorites((prev) => ({ ...prev, [product.code]: true }));
+
+    try {
+      const isCurrentlyFavorite = favorites.some(
+        (fav) => fav.code === product.code
+      );
+
+      if (isCurrentlyFavorite) {
+        await dispatch(
+          removeFavoriteFromServer({
+            customerId: userId,
+            productId: product.id,
+          })
+        ).unwrap();
+      } else {
+        await dispatch(
+          addFavoriteToServer({
+            customerId: userId,
+            product: product,
+          })
+        ).unwrap();
+      }
+
+      if (userId) {
+        await dispatch(loadFavorites(userId));
+      }
+    } catch (error) {
+      console.error("Възникна грешка при обновяване на 'Любими':", error);
+    } finally {
+      setTogglingFavorites((prev) => ({ ...prev, [product.code]: false }));
+    }
+  };
+
+  if (loading || (isLoggedIn && favoritesLoading)) {
     return (
       <div className="container mx-auto px-4 py-10 flex justify-center items-center min-h-[calc(100vh-243.5px)]">
         <CircularProgress message="Зареждане на количката..." />
@@ -148,9 +216,11 @@ export default function CartPage() {
                   </Typography>
                   <Typography variant="body2" color="textSecondary">
                     {item.product?.price
-                      ? item.product.price.toFixed(2)
-                      : "0.00"}{" "}
-                    лв.
+                      ? `${formatPrice(
+                          item.product.price,
+                          "BGN"
+                        )} / ${formatPrice(item.product.price, "EUR")}`
+                      : `${formatPrice(0, "BGN")} / ${formatPrice(0, "EUR")}`}
                   </Typography>
                   <div className="flex items-center mt-2">
                     <IconButton
@@ -188,20 +258,70 @@ export default function CartPage() {
                     >
                       <AddIcon fontSize="small" />
                     </IconButton>
-                    <div className="ml-2 w-8 h-8 flex items-center justify-center rounded-full hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors">
-                      <IconButton
-                        size="small"
-                        onClick={() => handleRemoveItem(item.product.code)}
-                        className="w-full h-full"
-                        aria-label="Remove item"
-                      >
-                        <DeleteIcon className="text-red-600 dark:text-red-500" />
-                      </IconButton>
+                    <div className="flex items-center ml-2">
+                      <div className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors">
+                        <IconButton
+                          size="small"
+                          onClick={() => handleRemoveItem(item.product.code)}
+                          className="w-full h-full"
+                          aria-label="Remove item"
+                        >
+                          <DeleteIcon className="text-red-600 dark:text-red-500" />
+                        </IconButton>
+                      </div>
+                      {isLoggedIn && item.product?.code && (
+                        <Tooltip
+                          title={
+                            favorites?.some(
+                              (fav) => fav.code === item.product.code
+                            )
+                              ? "Премахни от любими"
+                              : "Добави в любими"
+                          }
+                          arrow
+                        >
+                          <span>
+                            <IconButton
+                              size="small"
+                              onClick={(e) =>
+                                handleToggleFavorite(e, item.product)
+                              }
+                              disabled={
+                                togglingFavorites[item.product.code] ||
+                                favoritesLoading
+                              }
+                              className="ml-1"
+                              aria-label={
+                                favorites?.some(
+                                  (fav) => fav.code === item.product.code
+                                )
+                                  ? "Премахни от любими"
+                                  : "Добави в любими"
+                              }
+                            >
+                              {favorites?.some(
+                                (fav) => fav.code === item.product.code
+                              ) ? (
+                                <StarIcon className="text-yellow-400" />
+                              ) : (
+                                <StarBorderIcon className="text-yellow-400" />
+                              )}
+                            </IconButton>
+                          </span>
+                        </Tooltip>
+                      )}
                     </div>
                   </div>
                 </div>
                 <Typography variant="subtitle1" className="font-bold">
-                  {(item.product.price * item.quantity).toFixed(2)} лв.
+                  <div className="flex flex-col items-end">
+                    <span>
+                      {formatPrice(item.product.price * item.quantity, "BGN")}
+                    </span>
+                    <span className="text-sm text-gray-500">
+                      {formatPrice(item.product.price * item.quantity, "EUR")}
+                    </span>
+                  </div>
                 </Typography>
               </div>
             </div>
@@ -218,7 +338,10 @@ export default function CartPage() {
               <div className="space-y-4">
                 <div className="flex justify-between items-center">
                   <Typography variant="h6" className="font-bold">
-                    Общо: {getCartTotal().toFixed(2)} лв.
+                    <span>
+                      Общо: {formatPrice(getCartTotal(), "BGN")} /{" "}
+                      {formatPrice(getCartTotal(), "EUR")}
+                    </span>
                   </Typography>
                 </div>
                 <div className="grid grid-cols-1 gap-3">

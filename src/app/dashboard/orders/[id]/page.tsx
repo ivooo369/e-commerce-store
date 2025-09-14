@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import { orderService } from "@/services/orderService";
 import { OrderResponse, OrderItem } from "@/lib/interfaces";
+import { formatPrice } from "@/lib/currencyUtils";
 import { getDeliveryMethod, SHIPPING_COSTS } from "@/lib/delivery";
 import DashboardNav from "@/ui/dashboard/dashboard-primary-nav";
 import DashboardSecondaryNav from "@/ui/dashboard/dashboard-secondary-nav";
@@ -229,8 +230,9 @@ export default function OrderDetailsPage() {
                                 <p className="font-medium text-gray-900 dark:text-white">
                                   До адрес
                                 </p>
-                                <p className="text-sm text-gray-500 dark:text-gray-400">
-                                  {SHIPPING_COSTS.ADDRESS.toFixed(2)} лв.
+                                <p className="text-sm text-gray-500">
+                                  {SHIPPING_COSTS.ADDRESS.toFixed(2)} лв. /{" "}
+                                  {formatPrice(SHIPPING_COSTS.ADDRESS, "EUR")}
                                 </p>
                               </div>
                             </div>
@@ -242,8 +244,9 @@ export default function OrderDetailsPage() {
                                 <p className="font-medium text-gray-900 dark:text-white">
                                   До офис на Спиди
                                 </p>
-                                <p className="text-sm text-gray-500 dark:text-gray-400">
-                                  {SHIPPING_COSTS.SPEEDY.toFixed(2)} лв.
+                                <p className="text-sm text-gray-500">
+                                  {SHIPPING_COSTS.SPEEDY.toFixed(2)} лв. /{" "}
+                                  {formatPrice(SHIPPING_COSTS.SPEEDY, "EUR")}
                                 </p>
                               </div>
                             </div>
@@ -255,8 +258,9 @@ export default function OrderDetailsPage() {
                                 <p className="font-medium text-gray-900 dark:text-white">
                                   До офис на Еконт
                                 </p>
-                                <p className="text-sm text-gray-500 dark:text-gray-400">
-                                  {SHIPPING_COSTS.ECONT.toFixed(2)} лв.
+                                <p className="text-sm text-gray-500">
+                                  {SHIPPING_COSTS.ECONT.toFixed(2)} лв. /{" "}
+                                  {formatPrice(SHIPPING_COSTS.ECONT, "EUR")}
                                 </p>
                               </div>
                             </div>
@@ -395,13 +399,31 @@ export default function OrderDetailsPage() {
                                   </span>
                                 </td>
                                 <td className="px-2 sm:px-4 py-3 sm:py-4 whitespace-nowrap text-right text-sm text-gray-500 dark:text-gray-300">
-                                  {item.price?.toFixed(2)} лв.
+                                  <div className="flex flex-col items-end">
+                                    <span className="font-medium">
+                                      {item.price?.toFixed(2)} лв.
+                                    </span>
+                                    <span className="text-xs text-gray-500">
+                                      {formatPrice(item.price || 0, "EUR")}
+                                    </span>
+                                  </div>
                                 </td>
                                 <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-right text-sm font-medium text-gray-900 dark:text-white">
-                                  {(
-                                    (item.price || 0) * (item.quantity || 1)
-                                  ).toFixed(2)}{" "}
-                                  лв.
+                                  <div className="flex flex-col items-end">
+                                    <span>
+                                      {(
+                                        (item.price || 0) * (item.quantity || 1)
+                                      ).toFixed(2)}{" "}
+                                      лв.
+                                    </span>
+                                    <span className="text-xs text-gray-500">
+                                      {formatPrice(
+                                        (item.price || 0) *
+                                          (item.quantity || 1),
+                                        "EUR"
+                                      )}
+                                    </span>
+                                  </div>
                                 </td>
                               </tr>
                             );
@@ -417,7 +439,14 @@ export default function OrderDetailsPage() {
                             Продукти:
                           </td>
                           <td className="px-3 sm:px-6 py-2 text-right text-sm text-gray-900 dark:text-white whitespace-nowrap">
-                            {order.total?.toFixed(2)} лв.
+                            <div className="flex flex-col items-end">
+                              <span className="font-medium">
+                                {order.total?.toFixed(2)} лв.
+                              </span>
+                              <span className="text-xs text-gray-500">
+                                {formatPrice(order.total || 0, "EUR")}
+                              </span>
+                            </div>
                           </td>
                         </tr>
                         {order.shippingCost && order.shippingCost > 0 && (
@@ -429,7 +458,14 @@ export default function OrderDetailsPage() {
                               Доставка:
                             </td>
                             <td className="px-3 sm:px-6 py-2 text-right text-sm text-gray-900 dark:text-white whitespace-nowrap">
-                              {order.shippingCost.toFixed(2)} лв.
+                              <div className="flex flex-col items-end">
+                                <span className="font-medium">
+                                  {order.shippingCost.toFixed(2)} лв.
+                                </span>
+                                <span className="text-xs text-gray-500">
+                                  {formatPrice(order.shippingCost, "EUR")}
+                                </span>
+                              </div>
                             </td>
                           </tr>
                         )}
@@ -443,10 +479,16 @@ export default function OrderDetailsPage() {
                             </span>
                           </td>
                           <td className="px-3 sm:px-6 py-3 sm:py-4 text-right text-sm sm:text-base font-bold text-primary whitespace-nowrap">
-                            {(
-                              (order.total || 0) + (order.shippingCost || 0)
-                            ).toFixed(2)}{" "}
-                            лв.
+                            <div className="whitespace-nowrap">
+                              {(
+                                (order.total || 0) + (order.shippingCost || 0)
+                              ).toFixed(2)}{" "}
+                              лв. /{" "}
+                              {formatPrice(
+                                (order.total || 0) + (order.shippingCost || 0),
+                                "EUR"
+                              )}
+                            </div>
                           </td>
                         </tr>
                       </tfoot>

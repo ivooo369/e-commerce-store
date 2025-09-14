@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { formatPrice } from "@/lib/currencyUtils";
 import Image from "next/image";
 import {
   Truck,
@@ -274,7 +275,7 @@ export default function CheckoutPage() {
       icon: (
         <MapPin className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 dark:text-blue-400" />
       ),
-      price: "9.90 лв.",
+      price: "9.90 лв. / 5.06 €",
       color: "blue",
     },
     {
@@ -285,7 +286,7 @@ export default function CheckoutPage() {
       icon: (
         <Truck className="w-5 h-5 sm:w-6 sm:h-6 text-red-600 dark:text-red-400" />
       ),
-      price: "5.20 лв.",
+      price: "5.20 лв. / 2.66 €",
       color: "red",
     },
     {
@@ -296,7 +297,7 @@ export default function CheckoutPage() {
       icon: (
         <Package className="w-5 h-5 sm:w-6 sm:h-6 text-orange-500 dark:text-orange-400" />
       ),
-      price: "6.90 лв.",
+      price: "6.90 лв. / 3.53 €",
       color: "orange",
     },
   ];
@@ -1147,7 +1148,8 @@ export default function CheckoutPage() {
                         )}
                       </div>
                       <p className="font-medium text-sm ml-2 text-gray-800 dark:text-gray-100">
-                        {(item.product.price * item.quantity).toFixed(2)} лв.
+                        {(item.product.price * item.quantity).toFixed(2)} лв. /{" "}
+                        {formatPrice(item.product.price * item.quantity, "EUR")}
                       </p>
                     </div>
                   ))
@@ -1155,8 +1157,11 @@ export default function CheckoutPage() {
 
                 <div className="border-t border-gray-200 dark:border-gray-700 pt-4 space-y-2">
                   <div className="flex justify-between text-sm text-gray-600 dark:text-gray-300">
-                    <span>Стойност на продукти:</span>
-                    <span>{getCartTotal().toFixed(2)} лв.</span>
+                    <span>Продукти:</span>
+                    <span>
+                      {getCartTotal().toFixed(2)} лв. /{" "}
+                      {formatPrice(getCartTotal(), "EUR")}
+                    </span>
                   </div>
 
                   <div className="flex justify-between text-sm text-gray-600 dark:text-gray-300">
@@ -1172,19 +1177,37 @@ export default function CheckoutPage() {
                   <div className="border-t border-gray-200 dark:border-gray-700 pt-2 flex justify-between font-bold text-lg text-gray-800 dark:text-gray-100">
                     <span>Общо:</span>
                     <span>
-                      {formData.deliveryMethod
-                        ? (
+                      {formData.deliveryMethod ? (
+                        <>
+                          {(
                             getCartTotal() +
                             parseFloat(
                               deliveryOptions
                                 .find(
                                   (opt) => opt.id === formData.deliveryMethod
                                 )
-                                ?.price.replace(" лв.", "") || "0"
+                                ?.price.split(" ")[0] || "0"
                             )
-                          ).toFixed(2)
-                        : getCartTotal().toFixed(2)}{" "}
-                      лв.
+                          ).toFixed(2)}{" "}
+                          лв. /{" "}
+                          {formatPrice(
+                            getCartTotal() +
+                              parseFloat(
+                                deliveryOptions
+                                  .find(
+                                    (opt) => opt.id === formData.deliveryMethod
+                                  )
+                                  ?.price.split(" ")[0] || "0"
+                              ),
+                            "EUR"
+                          )}
+                        </>
+                      ) : (
+                        <>
+                          {getCartTotal().toFixed(2)} лв. /{" "}
+                          {formatPrice(getCartTotal(), "EUR")}
+                        </>
+                      )}
                     </span>
                   </div>
                 </div>

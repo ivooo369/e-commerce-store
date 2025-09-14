@@ -13,6 +13,7 @@ import {
   CheckCircle,
 } from "lucide-react";
 import { OrderResponse, OrderStatus } from "@/lib/interfaces";
+import { formatPrice } from "@/lib/currencyUtils";
 import OrderStatusModal from "@/ui/components/order-status-modal";
 import DashboardNav from "@/ui/dashboard/dashboard-primary-nav";
 import DashboardSecondaryNav from "@/ui/dashboard/dashboard-secondary-nav";
@@ -524,7 +525,12 @@ export default function DashboardOrdersPage() {
                           </div>
                         </td>
                         <td className="hidden sm:table-cell px-6 py-4 whitespace-nowrap text-center text-sm font-medium text-gray-900 dark:text-white">
-                          {order.total?.toFixed(2)} лв.
+                          <div className="flex flex-col items-end">
+                            <span>{order.total?.toFixed(2)} лв.</span>
+                            <span className="text-xs text-gray-500">
+                              {formatPrice(order.total || 0, 'EUR')}
+                            </span>
+                          </div>
                         </td>
                         <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
                           <div className="flex justify-center">
