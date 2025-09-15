@@ -23,7 +23,7 @@ import { loadFavorites } from "@/lib/favoriteSlice";
 import { RootState, AppDispatch } from "@/lib/store";
 import { formatPrice } from "@/lib/currencyUtils";
 
-export default function CategoryPageServerComponent({
+export default function CategoryPage({
   category,
   subcategories,
   allProducts,

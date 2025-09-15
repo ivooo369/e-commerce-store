@@ -19,8 +19,8 @@ import CircularProgress from "@/ui/components/circular-progress";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
-import StarBorderIcon from "@mui/icons-material/StarBorder";
-import StarIcon from "@mui/icons-material/Star";
+import Favorite from "@mui/icons-material/Favorite";
+import FavoriteBorder from "@mui/icons-material/FavoriteBorder";
 import Image from "next/image";
 import ClearCartConfirmationModal from "@/ui/components/clear-cart-confirmation-modal";
 import Link from "next/link";
@@ -95,7 +95,10 @@ export default function CartPage() {
     setShowClearCartModal(false);
   };
 
-  const handleToggleFavorite = async (e: React.MouseEvent, product: Product) => {
+  const handleToggleFavorite = async (
+    e: React.MouseEvent,
+    product: Product
+  ) => {
     e.preventDefault();
     e.stopPropagation();
 
@@ -106,13 +109,23 @@ export default function CartPage() {
 
     if (!product?.id || !product?.code) return;
 
+    const isCurrentlyFavorite = favorites.some((fav) => fav.id === product.id);
+    const updatedFavorites = isCurrentlyFavorite
+      ? favorites.filter((fav) => fav.id !== product.id)
+      : [...favorites, product];
+
+    dispatch({
+      type: "favorites/setFavorites",
+      payload: {
+        products: updatedFavorites,
+        loading: false,
+        error: null,
+      },
+    });
+
     setTogglingFavorites((prev) => ({ ...prev, [product.code]: true }));
 
     try {
-      const isCurrentlyFavorite = favorites.some(
-        (fav) => fav.code === product.code
-      );
-
       if (isCurrentlyFavorite) {
         await dispatch(
           removeFavoriteFromServer({
@@ -128,18 +141,24 @@ export default function CartPage() {
           })
         ).unwrap();
       }
-
-      if (userId) {
-        await dispatch(loadFavorites(userId));
-      }
     } catch (error) {
       console.error("Възникна грешка при обновяване на 'Любими':", error);
+      dispatch({
+        type: "favorites/setFavorites",
+        payload: {
+          products: isCurrentlyFavorite
+            ? [...favorites]
+            : favorites.filter((fav) => fav.id !== product.id),
+          loading: false,
+          error: null,
+        },
+      });
     } finally {
       setTogglingFavorites((prev) => ({ ...prev, [product.code]: false }));
     }
   };
 
-  if (loading || (isLoggedIn && favoritesLoading)) {
+  if (loading) {
     return (
       <div className="container mx-auto px-4 py-10 flex justify-center items-center min-h-[calc(100vh-243.5px)]">
         <CircularProgress message="Зареждане на количката..." />
@@ -177,13 +196,10 @@ export default function CartPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 bg-card-bg p-4 sm:p-6 rounded-lg border border-card-border transition-colors duration-300">
           {items.map((item, index) => (
-            <div
+            <Link
               key={item.product.code}
-              className={
-                index < items.length - 1
-                  ? "mb-6 pb-6 border-b border-gray-200"
-                  : ""
-              }
+              href={`/product-catalog/details/${item.product.code}`}
+              className={`block w-full ${index < items.length - 1 ? 'mb-6 pb-6 border-b border-gray-200' : ''} hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors rounded-lg p-3`}
             >
               <div className="flex flex-col sm:flex-row">
                 <div className="w-full sm:w-32 h-32 bg-gray-100 rounded-lg overflow-hidden mb-4 sm:mb-0 sm:mr-6">
@@ -203,18 +219,16 @@ export default function CartPage() {
                   )}
                 </div>
                 <div className="flex-1">
-                  <Typography variant="subtitle1">
-                    <Link
-                      href={
-                        item.product
-                          ? `/product-catalog/details/${item.product.code}`
-                          : "#"
-                      }
-                    >
+                  <Typography variant="subtitle1" component="div">
+                    <span className="font-bold hover:underline text-gray-900 dark:text-white">
                       {item.product?.name}
-                    </Link>
+                    </span>
                   </Typography>
-                  <Typography variant="body2" color="textSecondary">
+                  <Typography
+                    variant="body2"
+                    color="textSecondary"
+                    className="font-bold"
+                  >
                     {item.product?.price
                       ? `${formatPrice(
                           item.product.price,
@@ -302,9 +316,9 @@ export default function CartPage() {
                               {favorites?.some(
                                 (fav) => fav.code === item.product.code
                               ) ? (
-                                <StarIcon className="text-yellow-400" />
+                                <Favorite className="text-red-500" />
                               ) : (
-                                <StarBorderIcon className="text-yellow-400" />
+                                <FavoriteBorder className="text-red-500" />
                               )}
                             </IconButton>
                           </span>
@@ -324,7 +338,7 @@ export default function CartPage() {
                   </div>
                 </Typography>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
 

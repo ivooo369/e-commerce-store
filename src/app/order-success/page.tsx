@@ -8,6 +8,7 @@ import CircularProgress from "@/ui/components/circular-progress";
 import { getDeliveryMethod } from "@/lib/delivery";
 import { Order } from "@prisma/client";
 import { orderService } from "@/services/orderService";
+import { useCart } from "@/lib/useCart";
 
 function OrderSuccessContent() {
   const searchParams = useSearchParams();
@@ -16,6 +17,11 @@ function OrderSuccessContent() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentTime, setCurrentTime] = useState(new Date());
+  const { clearUserCart } = useCart();
+
+  useEffect(() => {
+    clearUserCart();
+  }, [clearUserCart]);
 
   useEffect(() => {
     const timer = setInterval(() => {

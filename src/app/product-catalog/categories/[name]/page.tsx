@@ -1,7 +1,7 @@
-import CategoryPageServerComponent from "@/ui/components/category-page";
+import CategoryPage from "@/ui/components/category-page";
 import { fetchCategoryByNameWithProducts } from "@/services/categoryService";
 
-export default async function CategoryPage({
+export default async function CategoryPageServerComponent({
   params,
 }: {
   params: { name: string };
@@ -11,7 +11,7 @@ export default async function CategoryPage({
       await fetchCategoryByNameWithProducts(params.name);
 
     return (
-      <CategoryPageServerComponent
+      <CategoryPage
         category={category}
         subcategories={subcategories}
         allProducts={products}

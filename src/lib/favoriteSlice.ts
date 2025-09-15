@@ -122,6 +122,11 @@ const favoritesSlice = createSlice({
     clearError: (state) => {
       state.error = null;
     },
+    setFavorites: (state, action) => {
+      state.products = action.payload.products;
+      state.loading = action.payload.loading;
+      state.error = action.payload.error;
+    },
   },
   extraReducers: (builder) => {
     builder

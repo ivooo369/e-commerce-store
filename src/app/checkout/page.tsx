@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { formatPrice } from "@/lib/currencyUtils";
 import Image from "next/image";
+import Link from "next/link";
 import {
   Truck,
   Package,
@@ -461,7 +462,8 @@ export default function CheckoutPage() {
       };
 
       const result = await orderService.createOrder(orderData);
-      window.location.href = `/order-success?orderId=${result.orderId}`;
+      window.location.replace(`/order-success?orderId=${result.orderId}`);
+      return;
     } catch (err) {
       const errorMessage =
         err instanceof Error
@@ -1117,16 +1119,17 @@ export default function CheckoutPage() {
                   </p>
                 ) : (
                   items.map((item, index) => (
-                    <div
+                    <Link
                       key={item.product.code}
-                      className={`flex justify-between items-start ${
+                      href={`/product-catalog/details/${item.product.code}`}
+                      className={`flex justify-between items-start w-full ${
                         index !== items.length - 1
                           ? "pb-3 border-b border-gray-100 dark:border-gray-700"
                           : ""
-                      }`}
+                      } hover:bg-gray-50 dark:hover:bg-gray-700/50 p-2 rounded-lg transition-colors`}
                     >
                       <div className="flex-1">
-                        <p className="font-medium text-sm text-gray-800 dark:text-gray-100">
+                        <p className="font-medium text-sm text-gray-800 dark:text-gray-100 hover:underline">
                           {item.product.name}
                         </p>
                         <p className="text-xs text-gray-500 dark:text-gray-300 mt-1">
@@ -1136,7 +1139,7 @@ export default function CheckoutPage() {
                           Брой: {item.quantity}
                         </p>
                         {item.product.images?.[0] && (
-                          <div className="mt-2 w-16 h-16 relative border rounded-md overflow-hidden dark:border-gray-700">
+                          <div className="block mt-2 w-16 h-16 relative border rounded-md overflow-hidden dark:border-gray-700 hover:opacity-90 transition-opacity">
                             <Image
                               src={item.product.images[0]}
                               alt={item.product.name}
@@ -1151,7 +1154,7 @@ export default function CheckoutPage() {
                         {(item.product.price * item.quantity).toFixed(2)} лв. /{" "}
                         {formatPrice(item.product.price * item.quantity, "EUR")}
                       </p>
-                    </div>
+                    </Link>
                   ))
                 )}
 

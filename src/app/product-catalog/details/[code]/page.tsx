@@ -3,8 +3,8 @@
 import { useState, useEffect } from "react";
 import Button from "@mui/material/Button";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
-import StarBorderIcon from "@mui/icons-material/StarBorder";
-import StarIcon from "@mui/icons-material/Star";
+import Favorite from "@mui/icons-material/Favorite";
+import FavoriteBorder from "@mui/icons-material/FavoriteBorder";
 import CircularProgress from "@/ui/components/circular-progress";
 import Image from "next/image";
 import { useQuery } from "@tanstack/react-query";
@@ -274,16 +274,10 @@ export default function ProductDetailsPage({
                     }
                   >
                     {isFavorite ? (
-                      <StarIcon
-                        className={`text-yellow-400 text-[1.8rem] ${
-                          isToggling ? "opacity-50" : ""
-                        }`}
-                      />
+                      <Favorite className={"text-red-500 text-[1.8rem]"} />
                     ) : (
-                      <StarBorderIcon
-                        className={`text-yellow-400 text-[1.8rem] ${
-                          isToggling ? "opacity-50" : ""
-                        }`}
+                      <FavoriteBorder
+                        className={"text-red-500 text-[1.8rem]"}
                       />
                     )}
                   </IconButton>

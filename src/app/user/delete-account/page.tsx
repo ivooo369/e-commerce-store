@@ -90,6 +90,12 @@ export default function DeleteAccountPage() {
           <li className="flex items-center gap-4">
             <FiX className="text-error-color flex-shrink-0" size={35} />
             <span className="leading-6">
+              Да запазвате продукти, които са Ви харесали в &quot;Любими&quot;
+            </span>
+          </li>
+          <li className="flex items-center gap-4">
+            <FiX className="text-error-color flex-shrink-0" size={35} />
+            <span className="leading-6">
               Да преглеждате историята на поръчките, които сте направили
             </span>
           </li>
@@ -97,12 +103,6 @@ export default function DeleteAccountPage() {
             <FiX className="text-error-color flex-shrink-0" size={35} />
             <span className="leading-6">
               Да се възползвате от специални промоции
-            </span>
-          </li>
-          <li className="flex items-center gap-4">
-            <FiX className="text-error-color flex-shrink-0" size={35} />
-            <span className="leading-6">
-              Да запазвате продукти, които са Ви харесали в &quot;Любими&quot;
             </span>
           </li>
         </ul>

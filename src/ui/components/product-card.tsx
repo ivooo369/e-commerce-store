@@ -3,11 +3,11 @@ import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import CardMedia from "@mui/material/CardMedia";
 import Button from "@mui/material/Button";
-import IconButton from "@mui/material/IconButton";
+import { IconButton, Tooltip } from "@mui/material";
 import Link from "next/link";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
-import StarBorderIcon from "@mui/icons-material/StarBorder";
-import StarIcon from "@mui/icons-material/Star";
+import Favorite from "@mui/icons-material/Favorite";
+import FavoriteBorder from "@mui/icons-material/FavoriteBorder";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/lib/store";
 import {
@@ -118,33 +118,47 @@ export default function ProductCard({ product }: ProductCardProps) {
             {product.name}
           </p>
           {isLoggedIn && (
-            <IconButton
-              onClick={onToggleFavorite}
-              disabled={isToggling || favoritesLoading || !product.id}
-              aria-label={
-                isFavorite ? "Remove from Favorites" : "Add to Favorites"
-              }
-              className="absolute right-0"
-            >
-              {isFavorite ? (
-                <StarIcon
-                  className={`text-yellow-400 text-[1.8rem] ${
-                    isToggling ? "opacity-50" : ""
-                  }`}
-                />
-              ) : (
-                <StarBorderIcon
-                  className={`text-yellow-400 text-[1.8rem] ${
-                    isToggling ? "opacity-50" : ""
-                  }`}
-                />
-              )}
-            </IconButton>
+            <div className="absolute right-0">
+              <Tooltip
+                title={
+                  isToggling
+                    ? "Моля изчакайте..."
+                    : isFavorite
+                    ? "Премахни от любими"
+                    : "Добави в любими"
+                }
+                arrow
+              >
+                <IconButton
+                  onClick={onToggleFavorite}
+                  disabled={isToggling || favoritesLoading || !product.id}
+                  aria-label={
+                    isFavorite ? "Премахни от любими" : "Добави в любими"
+                  }
+                  className="p-0"
+                >
+                  {isFavorite ? (
+                    <Favorite
+                      className={`text-red-500 text-[1.8rem] ${
+                        isToggling ? "opacity-50" : ""
+                      }`}
+                    />
+                  ) : (
+                    <FavoriteBorder
+                      className={`text-red-500 text-[1.8rem] ${
+                        isToggling ? "opacity-50" : ""
+                      }`}
+                    />
+                  )}
+                </IconButton>
+              </Tooltip>
+            </div>
           )}
         </div>
         <p className="text-sm text-text-muted font-bold">Код: {product.code}</p>
         <p className="text-base font-bold text-text-primary">
-          Цена: {formatPrice(product.price, 'BGN')} / {formatPrice(product.price, 'EUR')}
+          Цена: {formatPrice(product.price, "BGN")} /{" "}
+          {formatPrice(product.price, "EUR")}
         </p>
         <div className="mt-4 flex flex-col gap-3 w-full">
           <Link
