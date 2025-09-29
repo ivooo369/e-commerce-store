@@ -14,11 +14,14 @@ import { ProductCardProps } from "@/lib/types/interfaces";
 import { useCart } from "@/lib/hooks/useCart";
 import { formatPrice } from "@/lib/utils/currency";
 import { useFavorites } from "@/lib/hooks/useFavorites";
+import { useSelector } from "react-redux";
+import { RootState } from "@/lib/store/store";
 
 export default function ProductCard({ product }: ProductCardProps) {
   const { addItemToCart } = useCart();
   const { isFavorite, toggleFavorite, isToggling } = useFavorites();
   const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const { isLoggedIn } = useSelector((state: RootState) => state.user);
 
   if (!product.id) {
     throw new Error("Идентификаторът на продукта липсва!");
@@ -54,7 +57,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           <p className="text-xl font-bold truncate whitespace-nowrap text-text-primary">
             {product.name}
           </p>
-          {favorite !== undefined && (
+          {isLoggedIn && favorite !== undefined && (
             <div className="absolute right-0">
               <Tooltip
                 title={

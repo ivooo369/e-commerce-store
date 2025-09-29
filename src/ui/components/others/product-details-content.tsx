@@ -15,6 +15,8 @@ import { Tooltip, IconButton } from "@mui/material";
 import { useFavorites } from "@/lib/hooks/useFavorites";
 import { Product } from "@/lib/types/interfaces";
 import Box from "@mui/material/Box";
+import { useSelector } from "react-redux";
+import { RootState } from "@/lib/store/store";
 
 export default function ProductDetailsContent({
   product,
@@ -27,6 +29,7 @@ export default function ProductDetailsContent({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
   const { addItemToCart } = useCart();
+  const { isLoggedIn } = useSelector((state: RootState) => state.user);
 
   const { data: fetchedProduct, isLoading } = useQuery({
     queryKey: ["product", code],
@@ -167,30 +170,32 @@ export default function ProductDetailsContent({
             <h2 className="text-2xl md:text-3xl font-bold text-center break-words">
               {fetchedProduct.name}
             </h2>
-            <Tooltip
-              title={
-                isToggling(fetchedProduct.code)
-                  ? "Моля изчакайте..."
-                  : isFavorite(fetchedProduct.id)
-                  ? "Премахни от любими"
-                  : "Добави в любими"
-              }
-              arrow
-            >
-              <span>
-                <IconButton
-                  onClick={handleToggleFavorite}
-                  disabled={isToggling(fetchedProduct.code)}
-                  size="small"
-                >
-                  {isFavorite(fetchedProduct.id) ? (
-                    <Favorite className="text-red-500 text-[1.8rem]" />
-                  ) : (
-                    <FavoriteBorder className="text-red-500 text-[1.8rem]" />
-                  )}
-                </IconButton>
-              </span>
-            </Tooltip>
+            {isLoggedIn && (
+              <Tooltip
+                title={
+                  isToggling(fetchedProduct.code)
+                    ? "Моля изчакайте..."
+                    : isFavorite(fetchedProduct.id)
+                    ? "Премахни от любими"
+                    : "Добави в любими"
+                }
+                arrow
+              >
+                <span>
+                  <IconButton
+                    onClick={handleToggleFavorite}
+                    disabled={isToggling(fetchedProduct.code)}
+                    size="small"
+                  >
+                    {isFavorite(fetchedProduct.id) ? (
+                      <Favorite className="text-red-500 text-[1.8rem]" />
+                    ) : (
+                      <FavoriteBorder className="text-red-500 text-[1.8rem]" />
+                    )}
+                  </IconButton>
+                </span>
+              </Tooltip>
+            )}
           </div>
 
           <p className="text-sm md:text-lg text-center text-gray-500">
