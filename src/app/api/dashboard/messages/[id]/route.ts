@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
+import prisma from "@/lib/services/prisma";
 
 export async function DELETE(
   request: Request,
@@ -16,8 +16,7 @@ export async function DELETE(
       { message: "Съобщението е изтрито успешно!" },
       { status: 200 }
     );
-  } catch (error) {
-    console.error("Възникна грешка при изтриване на съобщението:", error);
+  } catch {
     return NextResponse.json(
       { message: "Възникна грешка при изтриване на съобщението!" },
       { status: 500 }

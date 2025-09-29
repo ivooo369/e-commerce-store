@@ -1,64 +1,58 @@
 "use client";
-import { useSelector, useDispatch } from "react-redux";
-import { RootState, AppDispatch } from "@/lib/store";
-import { useState, useEffect, useMemo } from "react";
-import { loadFavorites, clearFavorites, clearError } from "@/lib/favoriteSlice";
-import ProductCard from "@/ui/components/product-card";
-import CircularProgress from "@/ui/components/circular-progress";
-import PaginationButtons from "@/ui/components/pagination";
-import usePagination, { ITEMS_PER_PAGE } from "@/lib/usePagination";
+
+import { useState, useEffect, useMemo, useCallback } from "react";
+import useProtectedRoute from "@/lib/hooks/useProtectedRoute";
+import ProductCard from "@/ui/components/cards/product-card";
+import CircularProgress from "@/ui/components/feedback/circular-progress";
+import PaginationButtons from "@/ui/components/navigation/pagination";
+import { ITEMS_PER_PAGE } from "@/lib/hooks/usePagination";
+import { useFavorites } from "@/lib/hooks/useFavorites";
+import Box from "@mui/material/Box";
 
 export default function FavoriteProductsPage() {
-  const dispatch = useDispatch<AppDispatch>();
-  const { id: userId, isLoggedIn } = useSelector((state: RootState) => ({
-    id: state.user.id,
-    isLoggedIn: state.user.isLoggedIn,
-  }));
+  useProtectedRoute();
 
-  const { products: favoriteProducts, loading: favoritesLoading } = useSelector(
-    (state: RootState) => state.favorites
-  );
-  const [initialLoad, setInitialLoad] = useState(true);
+  const { favorites, isLoading } = useFavorites();
+  const [currentPage, setCurrentPage] = useState(1);
 
-  const memoizedProducts = useMemo(() => favoriteProducts, [favoriteProducts]);
+  const memoizedProducts = useMemo(() => favorites || [], [favorites]);
 
   useEffect(() => {
-    if (isLoggedIn && userId) {
-      if (initialLoad) {
-        dispatch(loadFavorites(userId));
-        setInitialLoad(false);
-      }
-    } else if (!isLoggedIn) {
-      dispatch(clearFavorites());
+    const totalPages = Math.ceil(memoizedProducts.length / ITEMS_PER_PAGE) || 1;
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages);
     }
+  }, [memoizedProducts, currentPage]);
 
-    return () => {
-      if (initialLoad) {
-        dispatch(clearError());
-      }
-    };
-  }, [dispatch, isLoggedIn, userId, initialLoad]);
+  const indexOfLastItem = currentPage * ITEMS_PER_PAGE;
+  const indexOfFirstItem = indexOfLastItem - ITEMS_PER_PAGE;
+  const currentItems = memoizedProducts.slice(
+    indexOfFirstItem,
+    indexOfLastItem
+  );
 
-  const { currentPage, currentItems, paginate } =
-    usePagination(memoizedProducts);
+  const handlePageChange = useCallback((pageNumber: number) => {
+    setCurrentPage(pageNumber);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
 
-  if (favoritesLoading) {
+  if (isLoading) {
     return (
-      <div className="container mx-auto py-4 sm:py-6 bg-bg-primary min-h-[60vh] flex items-center justify-center">
+      <Box className="container mx-auto py-4 sm:py-6 bg-bg-primary min-h-[60vh] flex items-center justify-center">
         <CircularProgress message="Зареждане на любимите продукти..." />
-      </div>
+      </Box>
     );
   }
 
-  if (!isLoggedIn) {
+  if (!favorites || favorites.length === 0) {
     return (
       <div className="container mx-auto py-4 sm:py-6 bg-bg-primary">
         <h1 className="text-2xl sm:text-3xl font-bold text-center mb-4 sm:mb-6 tracking-wide text-text-primary">
           Любими продукти
         </h1>
-        <div className="flex justify-center items-center">
-          <p className="text-center text-text-secondary text-2xl p-16 bg-card-bg rounded-md border border-card-border font-bold transition-colors duration-300">
-            Трябва да влезете в акаунта си, за да видите любимите си продукти.
+        <div className="container mx-auto px-4 mt-4 font-bold">
+          <p className="text-center text-2xl p-16 bg-card-bg rounded-md text-text-secondary border border-card-border transition-colors duration-300">
+            Нямате добавени любими продукти.
           </p>
         </div>
       </div>
@@ -71,35 +65,25 @@ export default function FavoriteProductsPage() {
         Любими продукти
       </h1>
 
-      {memoizedProducts.length > 0 ? (
-        <>
-          <PaginationButtons
-            itemsPerPage={ITEMS_PER_PAGE}
-            totalItems={memoizedProducts.length}
-            paginate={paginate}
-            currentPage={currentPage}
-          />
+      <PaginationButtons
+        itemsPerPage={ITEMS_PER_PAGE}
+        totalItems={memoizedProducts.length}
+        paginate={handlePageChange}
+        currentPage={currentPage}
+      />
 
-          <div className="grid gap-5 sm:gap-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 py-4 sm:py-6 md:py-8 px-4">
-            {currentItems.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
+      <div className="grid gap-5 sm:gap-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 py-4 sm:py-6 md:py-8 px-4">
+        {currentItems.map((product) => (
+          <ProductCard key={product.id} product={product} />
+        ))}
+      </div>
 
-          <PaginationButtons
-            itemsPerPage={ITEMS_PER_PAGE}
-            totalItems={memoizedProducts.length}
-            paginate={paginate}
-            currentPage={currentPage}
-          />
-        </>
-      ) : (
-        <div className="container mx-auto px-4 font-bold">
-          <p className="text-center text-2xl p-16 bg-card-bg rounded-md text-text-secondary border border-card-border transition-colors duration-300">
-            Нямате добавени любими продукти.
-          </p>
-        </div>
-      )}
+      <PaginationButtons
+        itemsPerPage={ITEMS_PER_PAGE}
+        totalItems={memoizedProducts.length}
+        paginate={handlePageChange}
+        currentPage={currentPage}
+      />
     </div>
   );
 }

@@ -1,39 +1,28 @@
 "use client";
 
-import { clearUser } from "@/lib/userSlice";
-import AlertMessage from "@/ui/components/alert-message";
+import { clearUser } from "@/lib/store/slices/userSlice";
+import AlertMessage from "@/ui/components/feedback/alert-message";
+import { useAutoDismissAlert } from "@/lib/hooks/useAutoDismissAlert";
 import { Button } from "@mui/material";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { FiX } from "react-icons/fi";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useMutation } from "@tanstack/react-query";
 import { deleteAccount } from "@/services/userService";
+import useProtectedRoute from "@/lib/hooks/useProtectedRoute";
+import { RootState } from "@/lib/store/store";
 
 export default function DeleteAccountPage() {
-  const [alert, setAlert] = useState<{
-    message: string;
-    severity: "success" | "error";
-  } | null>(null);
-  const [userData, setUserData] = useState<string | null>(null);
-  const [isDeleting, setIsDeleting] = useState(false);
   const router = useRouter();
   const dispatch = useDispatch();
+  const { id: userId } = useSelector((state: RootState) => state.user);
 
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const storedUserData = localStorage.getItem("userData");
-      setUserData(storedUserData);
-    }
-  }, []);
+  useProtectedRoute();
 
-  let userId: string | undefined;
-
-  if (userData) {
-    const parsedUserData = JSON.parse(userData);
-    userId = parsedUserData.id;
-  }
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [alert, setAlert] = useAutoDismissAlert(5000);
 
   const mutation = useMutation({
     mutationFn: deleteAccount,
@@ -70,10 +59,8 @@ export default function DeleteAccountPage() {
 
   const handleDeleteAccount = () => {
     if (!userId) {
-      console.error("Потребителят не е намерен!");
-      return;
+      throw new Error("Потребителят не е намерен!");
     }
-
     mutation.mutate(userId);
   };
 

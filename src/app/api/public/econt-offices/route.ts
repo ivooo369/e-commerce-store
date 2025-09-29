@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import axios from "axios";
-import { EcontOffice } from "@/lib/interfaces";
+import { EcontOffice } from "@/lib/types/interfaces";
 
 export const dynamic = "force-dynamic";
 
@@ -97,8 +97,7 @@ export async function GET(req: NextRequest) {
     });
 
     return NextResponse.json(mappedOffices, { status: 200 });
-  } catch (error) {
-    console.error("Възникна грешка при извличане на офисите на Econt!", error);
+  } catch {
     return NextResponse.json(
       { message: "Възникна грешка при извличане на офисите на Econt!" },
       { status: 500 }

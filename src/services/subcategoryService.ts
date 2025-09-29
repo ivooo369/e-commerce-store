@@ -1,7 +1,6 @@
 import axios from "axios";
-import { Subcategory } from "@/lib/interfaces";
+import { Subcategory } from "@/lib/types/interfaces";
 import { Subcategory as SubcategoryPrisma } from "@prisma/client";
-import { handleError } from "@/lib/handleError";
 
 export const createSubcategory = async (subcategoryData: Subcategory) => {
   try {
@@ -10,8 +9,19 @@ export const createSubcategory = async (subcategoryData: Subcategory) => {
       subcategoryData
     );
     return response.data;
-  } catch (error) {
-    throw new Error(handleError(error));
+  } catch (error: unknown) {
+    const axiosError = error as {
+      response?: {
+        data?: { message?: string; error?: string };
+      };
+    };
+    
+    if (axiosError.response?.data?.message) {
+      throw new Error(axiosError.response.data.message);
+    } else if (axiosError.response?.data?.error) {
+      throw new Error(axiosError.response.data.error);
+    }
+    throw new Error("Възникна грешка при добавяне на подкатегорията!");
   }
 };
 
@@ -21,8 +31,8 @@ export const fetchSubcategories = async (): Promise<SubcategoryPrisma[]> => {
     const data: SubcategoryPrisma[] = response.data;
     data.sort((a, b) => a.code.localeCompare(b.code));
     return data;
-  } catch (error) {
-    throw new Error(handleError(error));
+  } catch {
+    throw new Error("Възникна грешка при извличане на подкатегориите!");
   }
 };
 
@@ -30,8 +40,8 @@ export const fetchSubcategory = async (id: string) => {
   try {
     const response = await axios.get(`/api/dashboard/subcategories/${id}`);
     return response.data;
-  } catch (error) {
-    throw new Error(handleError(error));
+  } catch {
+    throw new Error("Възникна грешка при извличане на подкатегорията!");
   }
 };
 
@@ -48,8 +58,19 @@ export const editSubcategory = async ({
       updatedSubcategory
     );
     return response.data;
-  } catch (error) {
-    throw new Error(handleError(error));
+  } catch (error: unknown) {
+    const axiosError = error as {
+      response?: {
+        data?: { message?: string; error?: string };
+      };
+    };
+    
+    if (axiosError.response?.data?.message) {
+      throw new Error(axiosError.response.data.message);
+    } else if (axiosError.response?.data?.error) {
+      throw new Error(axiosError.response.data.error);
+    }
+    throw new Error("Възникна грешка при редактиране на подкатегорията!");
   }
 };
 
@@ -57,7 +78,7 @@ export const deleteSubcategory = async (id: string): Promise<string> => {
   try {
     await axios.delete(`/api/dashboard/subcategories/${id}`);
     return id;
-  } catch (error) {
-    throw new Error(handleError(error));
+  } catch {
+    throw new Error("Възникна грешка при изтриване на подкатегорията!");
   }
 };

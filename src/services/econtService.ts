@@ -1,6 +1,5 @@
 import axios from "axios";
-import { EcontOffice, EcontOfficeResponse } from "@/lib/interfaces";
-import { handleError } from "@/lib/handleError";
+import { EcontOffice, EcontOfficeResponse } from "@/lib/types/interfaces";
 
 export async function getEcontOfficesRest(
   cityName: string
@@ -10,8 +9,8 @@ export async function getEcontOfficesRest(
       params: { city: cityName },
     });
     return response.data;
-  } catch (error) {
-    throw new Error(handleError(error));
+  } catch {
+    throw new Error("Възникна грешка при извличане на офисите на Еконт!");
   }
 }
 
@@ -86,8 +85,7 @@ export async function getEcontOffices(
           longitude: office.location?.longitude || office.longitude,
         };
       });
-  } catch (error) {
-    console.error("Възникна грешка при извличане на офисите на Еконт:", error);
-    throw new Error(handleError(error));
+  } catch {
+    throw new Error("Възникна грешка при извличане на офисите на Еконт!");
   }
 }

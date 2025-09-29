@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect } from "react";
 import { Button } from "@mui/material";
 
 export default function Error({
@@ -10,10 +9,6 @@ export default function Error({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  useEffect(() => {
-    console.error("Възникна грешка:", error);
-  }, [error]);
-
   return (
     <div className="min-h-[calc(100vh-243.5px)] flex flex-col items-center justify-center px-4 bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
       <div className="max-w-md w-full space-y-6 text-center p-8 bg-white dark:bg-gray-800 rounded-xl shadow-lg dark:shadow-gray-800/30">

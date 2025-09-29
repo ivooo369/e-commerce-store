@@ -1,12 +1,18 @@
 import { Inter } from "next/font/google";
-import MainLayout from "@/ui/layouts/main-layout";
+import MainLayout from "@/ui/components/layouts/main-layout";
 import { Metadata } from "next";
 import "./globals.css";
 import dynamic from "next/dynamic";
+import { defaultMetadata } from "@/lib/utils/metadata";
 
-const ScrollToTop = dynamic(() => import("@/ui/components/scroll-to-top"), {
-  ssr: false,
-});
+export const metadata: Metadata = defaultMetadata;
+
+const ScrollToTop = dynamic(
+  () => import("@/ui/components/navigation/scroll-to-top"),
+  {
+    ssr: false,
+  }
+);
 
 const inter = Inter({
   subsets: ["latin"],
@@ -14,17 +20,6 @@ const inter = Inter({
   variable: "--font-inter",
   weight: ["400", "500", "600", "700"],
 });
-
-export const metadata: Metadata = {
-  title: {
-    template: "%s | LIPCI Design Studio",
-    default: "LIPCI Design Studio",
-  },
-  description: "Online store offering different categories of products",
-  icons: {
-    icon: "/assets/images/logo.jpg",
-  },
-};
 
 const themeScript = `
   (function() {
@@ -54,9 +49,7 @@ export default function RootLayout({
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
-      <body
-        className={`${inter.className} min-h-screen bg-bg-primary text-text-primary`}
-      >
+      <body className={`${inter.variable} font-sans`}>
         <MainLayout>{children}</MainLayout>
         <ScrollToTop />
       </body>

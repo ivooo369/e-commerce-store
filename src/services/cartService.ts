@@ -1,7 +1,6 @@
 import axios from "axios";
-import { CartItem, CartItemResponse } from "@/lib/interfaces";
-import { sanitizeProduct } from "@/lib/sanitizeProduct";
-import { handleError } from "@/lib/handleError";
+import { CartItem, CartItemResponse } from "@/lib/types/interfaces";
+import { sanitizeProduct } from "@/lib/utils/sanitizeProduct";
 
 export const cartService = {
   async getCartItems(customerId: string): Promise<CartItem[]> {
@@ -26,12 +25,10 @@ export const cartService = {
           quantity: row.quantity ?? 1,
         }))
         .filter((ci: CartItem) => ci.product && ci.product.code);
-    } catch (error) {
-      console.error(
-        "Възникна грешка при зареждане на продуктите в количката:",
-        error
+    } catch {
+      throw new Error(
+        "Възникна грешка при зареждане на продуктите в количката!"
       );
-      throw new Error(handleError(error));
     }
   },
 
@@ -46,12 +43,8 @@ export const cartService = {
         productCode,
         quantity,
       });
-    } catch (error) {
-      console.error(
-        "Възникна грешка при добавяне на продукт в количката:",
-        error
-      );
-      throw new Error(handleError(error));
+    } catch {
+      throw new Error("Възникна грешка при добавяне на продукт в количката!");
     }
   },
 
@@ -66,12 +59,8 @@ export const cartService = {
         productIdentifier: productCode,
         quantity,
       });
-    } catch (error) {
-      console.error(
-        "Възникна грешка при обновяване на продукт в количката:",
-        error
-      );
-      throw new Error(handleError(error));
+    } catch {
+      throw new Error("Възникна грешка при обновяване на продукт в количката!");
     }
   },
 
@@ -83,12 +72,10 @@ export const cartService = {
           productIdentifier: productCode,
         },
       });
-    } catch (error) {
-      console.error(
-        "Възникна грешка при премахване на продукт от количката:",
-        error
+    } catch {
+      throw new Error(
+        "Възникна грешка при премахване на продукт от количката!"
       );
-      throw new Error(handleError(error));
     }
   },
 
@@ -100,9 +87,8 @@ export const cartService = {
           clearAll: true,
         },
       });
-    } catch (error) {
-      console.error("Възникна грешка при изчистване на количката:", error);
-      throw new Error(handleError(error));
+    } catch {
+      throw new Error("Възникна грешка при изчистване на количката!");
     }
   },
 };

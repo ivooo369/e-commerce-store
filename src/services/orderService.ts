@@ -1,11 +1,10 @@
 import axios from "axios";
-import { handleError } from "@/lib/handleError";
 import {
   OrderData,
   OrderResponse,
   OrderStatusResponse,
   PaginatedOrdersResponse,
-} from "@/lib/interfaces";
+} from "@/lib/types/interfaces";
 
 const orderService = {
   async createOrder(orderData: OrderData): Promise<{ orderId: string }> {
@@ -16,9 +15,8 @@ const orderService = {
         orderData
       );
       return response.data;
-    } catch (error) {
-      console.error("Възникна грешка при създаване на поръчката:", error);
-      throw new Error(handleError(error));
+    } catch {
+      throw new Error("Възникна грешка при създаване на поръчката!");
     }
   },
 
@@ -29,12 +27,8 @@ const orderService = {
         `${baseUrl}/api/public/orders/${orderId}`
       );
       return response.data;
-    } catch (error) {
-      console.error(
-        "Възникна грешка при извличане на данните за поръчката:",
-        error
-      );
-      throw new Error(handleError(error));
+    } catch {
+      throw new Error("Възникна грешка при извличане на данните за поръчката!");
     }
   },
 
@@ -45,9 +39,8 @@ const orderService = {
         orderId,
       });
       return response.data;
-    } catch (error) {
-      console.error("Възникна грешка при отказване на поръчката:", error);
-      throw new Error(handleError(error));
+    } catch {
+      throw new Error("Възникна грешка при отказване на поръчката!");
     }
   },
 
@@ -61,9 +54,8 @@ const orderService = {
         }
       );
       return response.data;
-    } catch (error) {
-      console.error("Възникна грешка при потвърждаване на поръчката:", error);
-      throw new Error(handleError(error));
+    } catch {
+      throw new Error("Възникна грешка при потвърждаване на поръчката!");
     }
   },
 
@@ -85,12 +77,8 @@ const orderService = {
         name: order.name,
         email: order.email,
       };
-    } catch (error) {
-      console.error(
-        "Възникна грешка при извличане на статуса на поръчката:",
-        error
-      );
-      throw new Error(handleError(error));
+    } catch {
+      throw new Error("Възникна грешка при извличане на статуса на поръчката!");
     }
   },
 
@@ -103,9 +91,8 @@ const orderService = {
         },
       });
       return response.data;
-    } catch (error) {
-      console.error("Възникна грешка при зареждане на поръчките:", error);
-      throw new Error(handleError(error));
+    } catch {
+      throw new Error("Възникна грешка при зареждане на поръчките!");
     }
   },
 
@@ -117,22 +104,20 @@ const orderService = {
         updateData
       );
       return response.data;
-    } catch (error) {
-      console.error("Възникна грешка при актуализиране на поръчката:", error);
-      throw new Error(handleError(error));
+    } catch {
+      throw new Error("Възникна грешка при актуализиране на поръчката!");
     }
   },
 
-  async getOrderById(orderId: string) {
+  async getOrderById(orderId: string): Promise<OrderResponse> {
     try {
       const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "";
       const response = await axios.get(
         `${baseUrl}/api/public/orders/${orderId}`
       );
       return response.data;
-    } catch (error) {
-      console.error("Възникна грешка при извличане на поръчката:", error);
-      throw new Error(handleError(error));
+    } catch {
+      throw new Error("Възникна грешка при извличане на поръчката!");
     }
   },
 
@@ -163,9 +148,8 @@ const orderService = {
       );
 
       return response.data;
-    } catch (error) {
-      console.error("Възникна грешка при извличане на поръчките:", error);
-      throw new Error(handleError(error));
+    } catch {
+      throw new Error("Възникна грешка при извличане на поръчките!");
     }
   },
 };

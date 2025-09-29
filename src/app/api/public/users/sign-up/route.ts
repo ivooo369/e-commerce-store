@@ -2,8 +2,8 @@ import { NextResponse } from "next/server";
 import crypto from "crypto";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { sendVerificationEmail } from "@/lib/email";
-import prisma from "@/lib/prisma";
+import { sendVerificationEmail } from "@/lib/email-templates/verifyEmail";
+import prisma from "@/lib/services/prisma";
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
@@ -97,8 +97,7 @@ export async function POST(req: Request) {
       },
       { status: 200 }
     );
-  } catch (error) {
-    console.error("Възникна грешка при регистрацията:", error);
+  } catch {
     return NextResponse.json(
       { message: "Възникна грешка при регистрацията!" },
       { status: 500 }

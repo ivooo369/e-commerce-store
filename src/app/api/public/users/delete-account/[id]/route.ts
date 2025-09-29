@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
+import prisma from "@/lib/services/prisma";
 
 export async function DELETE(
   request: Request,
@@ -25,14 +25,21 @@ export async function DELETE(
       );
     }
 
+    await prisma.favorite.deleteMany({
+      where: { customerId: id },
+    });
+
+    await prisma.cart.deleteMany({
+      where: { customerId: id },
+    });
+
     await prisma.customer.delete({ where: { id: id } });
 
     return NextResponse.json(
       { message: "Акаунтът беше успешно изтрит!" },
       { status: 200 }
     );
-  } catch (error) {
-    console.error("Възникна грешка при изтриване на акаунта:", error);
+  } catch {
     return NextResponse.json(
       { message: "Възникна грешка при изтриване на акаунта!" },
       { status: 500 }

@@ -1,10 +1,13 @@
 import { NextResponse } from "next/server";
 import { Order } from "@prisma/client";
 import nodemailer from "nodemailer";
-import { getDeliveryMethod, calculateShippingCost } from "@/lib/delivery";
-import { OrderItem } from "@/lib/interfaces";
-import prisma from "@/lib/prisma";
-import { formatPrice } from "@/lib/currencyUtils";
+import { getDeliveryMethod, calculateShippingCost } from "@/lib/utils/delivery";
+import { OrderItem } from "@/lib/types/interfaces";
+import prisma from "@/lib/services/prisma";
+import {
+  adminOrderEmail,
+  customerOrderEmail,
+} from "@/lib/email-templates/orderEmails";
 
 const transporter = nodemailer.createTransport({
   service: "Gmail",
@@ -80,8 +83,7 @@ export async function GET(request: Request) {
     });
 
     return NextResponse.json(processedOrders);
-  } catch (error) {
-    console.error("Възникна грешка при зареждане на поръчките:", error);
+  } catch {
     return NextResponse.json(
       { message: "Възникна грешка при зареждане на поръчките!" },
       { status: 500 }
@@ -206,262 +208,44 @@ export async function POST(request: Request) {
       RETURNING *
     `) as OrderItem[];
 
-    const itemsHtml = items
-      .map((item, index) => {
-        const isLast = index === items.length - 1;
-        const hasImage = item.product.images && item.product.images.length > 0;
-        const imageUrl = hasImage
-          ? item.product.images[0]
-          : "/images/placeholder-product.jpg";
-
-        return `
-        <div style="${
-          !isLast
-            ? "padding-bottom: 15px; border-bottom: 1px solid #e5e7eb;"
-            : ""
-        } margin-bottom: 15px;">
-          <div style="display: flex; gap: 15px;">
-            <div style="width: 80px; height: 80px; flex-shrink: 0; margin-right: 20px; background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 4px; overflow: hidden;">
-              <img 
-                src="${imageUrl}" 
-                alt="${item.product.name}" 
-                style="width: 100%; height: 100%; object-fit: contain; padding: 4px;"
-                onerror="this.onerror=null; this.src='/images/placeholder-product.jpg'"
-              />
-            </div>
-            <div style="flex: 1; min-width: 0;">
-              <h3 style="margin: 0 0 5px 0; font-size: 15px; color: #1f2937; font-weight: 500; word-wrap: break-word;">
-                ${item.product.name}
-              </h3>
-              <p style="margin: 3px 0; font-size: 13px; color: #4b5563;">
-                Код: ${item.product.code}
-              </p>
-              <p style="margin: 3px 0; font-size: 13px; color: #4b5563;">
-                Количество: ${item.quantity} бр.
-              </p>
-              <p style="margin: 3px 0; font-size: 14px; color: #1f2937; font-weight: 500;">
-                ${(item.product.price * item.quantity).toFixed(2)} лв. / ${formatPrice(item.product.price * item.quantity, 'EUR')}
-                <span style="font-size: 12px; color: #6b7280; font-weight: normal; margin-left: 5px;">
-                  (${item.product.price.toFixed(2)} лв. / ${formatPrice(item.product.price, 'EUR')} × ${item.quantity} бр.)
-                </span>
-              </p>
-            </div>
-          </div>
-        </div>
-      `;
-      })
-      .join("");
-
     const orderId = order.id as string;
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+
+    const emailData = {
+      orderId,
+      name,
+      email,
+      phone,
+      city,
+      address: formattedAddress,
+      additionalInfo,
+      items: orderItems,
+      orderTotal,
+      shippingCost,
+      confirmUrl: `${baseUrl}/orders/confirm?orderId=${orderId}`,
+      cancelUrl: `${baseUrl}/orders/cancel?orderId=${orderId}`,
+    };
 
     const emailPromises = [];
 
-    // Email to admin
     emailPromises.push(
       transporter.sendMail({
-        from: `"LIPCI Design Studio" <${process.env.EMAIL_USER}>`,
+        from: `"Lipci Design Studio" <${process.env.EMAIL_USER}>`,
         to: process.env.EMAIL_USER,
         replyTo: email,
         subject: `Нова поръчка #${orderId.substring(0, 8).toUpperCase()}`,
-        html: `
-          <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 20px auto; border: 1px solid #e5e7eb; border-radius: 8px; max-width: 800px; overflow: hidden;">
-            <header style="background-color: #1E3A8A; color: #ffffff; padding: 1rem; text-align: center;">
-              <h1 style="margin: 0; font-size: 1.5rem;">Нова поръчка #${orderId.substring(
-                0,
-                8
-              )}</h1>
-            </header>
-            
-            <div style="padding: 1.5rem; background-color: #f8fafc;">
-              <div style="background-color: #ffffff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem;">
-                <h2 style="color: #1f2937; font-size: 1.1rem; margin-top: 0; border-bottom: 1px solid #e5e7eb; padding-bottom: 0.5rem; margin-bottom: 1rem;">Информация за поръчката</h2>
-                
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
-                  <div>
-                    <h3 style="font-size: 0.9rem; color: #6b7280; margin: 0 0 0.5rem 0;">Данни за доставка</h3>
-                    <p style="margin: 0.25rem 0;"><strong>Име:</strong> ${name}</p>
-                    <p style="margin: 0.25rem 0;"><strong>Телефон:</strong> ${phone}</p>
-                    <p style="margin: 0.25rem 0;"><strong>${
-                      address.startsWith("До офис:") ? "Офис:" : "Адрес:"
-                    }</strong> ${city}, ${address}</p>
-                    ${
-                      additionalInfo
-                        ? `<p style="margin: 0.25rem 0;"><strong>Допълнителна информация:</strong> ${additionalInfo}</p>`
-                        : ""
-                    }
-                  </div>
-                  <div style="height: 1px; background-color: #e5e7eb; margin: 0 0 1.5rem 0;"></div>
-                  <div>
-                    <h3 style="font-size: 0.9rem; color: #6b7280; margin: 0 0 0.5rem 0;">Данни за поръчката</h3>
-                    <p style="margin: 0.25rem 0;"><strong>Номер на поръчка:</strong> #${orderId.substring(
-                      0,
-                      8
-                    )}</p>
-                    <p style="margin: 0.25rem 0;"><strong>Дата на поръчка:</strong> ${new Date().toLocaleString(
-                      "bg-BG",
-                      {
-                        day: "2-digit",
-                        month: "2-digit",
-                        year: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      }
-                    )} ч.</p>
-                    <p style="margin: 0.25rem 0;"><strong>Email:</strong> ${email}</p>
-                  </div>
-                </div>
-
-                <h2 style="color: #1f2937; font-size: 1.1rem; margin: 1.5rem 0 0.5rem 0; padding-bottom: 0.5rem;">Поръчани продукти</h2>
-                ${itemsHtml}
-                
-                <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid #e5e7eb; text-align: right;">
-                  <div style="margin-bottom: 0.5rem;">
-                    <span style="margin-right: 1rem;">Стойност на продуктите:</span>
-                    <span>${(orderTotal - shippingCost).toFixed(2)} лв. / ${formatPrice(orderTotal - shippingCost, 'EUR')}</span>
-                  </div>
-                  <div style="margin-bottom: 0.5rem;">
-                    <span style="margin-right: 1rem;">Цена на доставка:</span>
-                    <span>${shippingCost.toFixed(2)} лв. / ${formatPrice(shippingCost, 'EUR')}</span>
-                  </div>
-                  <div style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid #e5e7eb;">
-                    <span style="font-weight: 600; margin-right: 1rem;">Обща сума:</span>
-                    <span style="font-size: 1.1rem; font-weight: 600; color: #1f2937;">
-                      ${orderTotal.toFixed(2)} лв. / ${formatPrice(orderTotal, 'EUR')}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-            <footer style="background-color: #f3f4f6; color: #6b7280; padding: 1rem; font-size: 0.85rem; text-align: center; border-top: 1px solid #e5e7eb;">
-              <p style="margin: 0.25rem 0;">© LIPCI Design Studio. Всички права запазени.</p>
-              <p style="margin: 0.25rem 0; font-size: 0.8rem;">Това е автоматично генерирано съобщение. Моля, не отговаряйте на този имейл!</p>
-            </footer>
-          </div>
-        `,
+        html: adminOrderEmail(emailData),
       })
     );
 
-    // Email to customer
     emailPromises.push(
       transporter.sendMail({
-        from: `"LIPCI Design Studio" <${process.env.EMAIL_USER}>`,
+        from: `"Lipci Design Studio" <${process.env.EMAIL_USER}>`,
         to: email,
         subject: `Потвърждение на поръчка #${orderId
           .substring(0, 8)
           .toUpperCase()}`,
-        html: `
-          <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 20px auto; border: 1px solid #e5e7eb; border-radius: 8px; max-width: 800px; overflow: hidden;">
-            <header style="background-color: #0a5c3a; color: #ffffff; padding: 1rem; text-align: center;">
-              <h1 style="margin: 0; font-size: 1.5rem;">Благодарим за вашата поръчка!</h1>
-              <p style="margin: 0.5rem 0 0; font-size: 1.1rem;">Номер на поръчка: #${orderId.substring(
-                0,
-                8
-              )}</p>
-            </header>
-            
-            <div style="padding: 1.5rem; background-color: #f8fafc;">
-              <p style="margin: 0 0 1rem 0;">Здравейте, ${name},</p>
-              <p style="margin: 0 0 1rem 0;">Благодарим ви, че пазарувахте при нас! Моля, потвърдете поръчката си, за да започнем обработката!</p>
-              
-              <div style="width: 100%; text-align: center; margin: 2rem 0;">
-                <table cellpadding="0" cellspacing="0" border="0" width="100%" style="max-width: 500px; margin: 0 auto 1rem auto;">
-                  <tr>
-                    <td align="center" style="padding: 8px 0;">
-                      <a href="${
-                        process.env.NEXT_PUBLIC_APP_URL ||
-                        "http://localhost:3000"
-                      }/orders/confirm?orderId=${orderId}" 
-                         style="display: inline-block; background-color: #0a5c3a; color: white; text-decoration: none; padding: 12px 24px; border-radius: 4px; font-weight: 500; font-size: 1rem; white-space: nowrap; width: 100%; max-width: 250px; text-align: center; box-sizing: border-box; mso-padding-alt: 12px 24px;">
-                        Потвърди поръчката
-                      </a>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td align="center" style="padding: 8px 0;">
-                      <a href="${
-                        process.env.NEXT_PUBLIC_APP_URL ||
-                        "http://localhost:3000"
-                      }/orders/cancel?orderId=${orderId}" 
-                         style="display: inline-block; background-color: #d32f2f; color: white; text-decoration: none; padding: 12px 24px; border-radius: 4px; font-weight: 500; font-size: 1rem; white-space: nowrap; width: 100%; max-width: 250px; text-align: center; box-sizing: border-box; mso-padding-alt: 12px 24px;">
-                        Откажи поръчката
-                      </a>
-                    </td>
-                  </tr>
-                </table>
-                <p style="font-size: 0.85rem; color: #6b7280; margin-bottom: 0;">
-                  Моля, изберете дали искате да потвърдите или откажете поръчката си!
-                </p>
-              </div>
-              
-              <div style="background-color: #ffffff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem;">
-                <h2 style="color: #1f2937; font-size: 1.1rem; margin-top: 0; border-bottom: 1px solid #e5e7eb; padding-bottom: 0.5rem; margin-bottom: 1rem;">Информация за поръчката</h2>
-                
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
-                  <div>
-                    <h3 style="font-size: 0.9rem; color: #6b7280; margin: 0 0 0.5rem 0;">Данни за доставка</h3>
-                    <p style="margin: 0.25rem 0;"><strong>Име:</strong> ${name}</p>
-                    <p style="margin: 0.25rem 0;"><strong>Телефон:</strong> ${phone}</p>
-                    <p style="margin: 0.25rem 0;"><strong>${
-                      address.startsWith("До офис:") ? "Офис:" : "Адрес:"
-                    }</strong> ${city}, ${address}</p>
-                    ${
-                      additionalInfo
-                        ? `<p style="margin: 0.25rem 0;"><strong>Допълнителна информация:</strong> ${additionalInfo}</p>`
-                        : ""
-                    }
-                  </div>
-                  <div style="height: 1px; background-color: #e5e7eb; margin: 0 0 1.5rem 0;"></div>
-                  <div>
-                    <h3 style="font-size: 0.9rem; color: #6b7280; margin: 0 0 0.5rem 0;">Данни за поръчката</h3>
-                    <p style="margin: 0.25rem 0;"><strong>Номер на поръчка: </strong> #${orderId.substring(
-                      0,
-                      8
-                    )}</p>
-                    <p style="margin: 0.25rem 0;"><strong>Дата на поръчка: </strong>${new Date().toLocaleString(
-                      "bg-BG",
-                      {
-                        day: "2-digit",
-                        month: "2-digit",
-                        year: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      }
-                    )} ч.</p>
-                  </div>
-                </div>
-
-                <h2 style="color: #1f2937; font-size: 1.1rem; margin: 1.5rem 0 0.5rem 0; padding-bottom: 0.5rem;">Вашите продукти</h2>
-                ${itemsHtml}
-                
-                <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid #e5e7eb; text-align: right;">
-                  <div style="margin-bottom: 0.5rem;">
-                    <span style="margin-right: 1rem;">Стойност на продуктите:</span>
-                    <span>${(orderTotal - shippingCost).toFixed(2)} лв. / ${formatPrice(orderTotal - shippingCost, 'EUR')}</span>
-                  </div>
-                  <div style="margin-bottom: 0.5rem;">
-                    <span style="margin-right: 1rem;">Цена на доставка:</span>
-                    <span>${shippingCost.toFixed(2)} лв. / ${formatPrice(shippingCost, 'EUR')}</span>
-                  </div>
-                  <div style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid #e5e7eb;">
-                    <span style="font-weight: 600; margin-right: 1rem;">Обща сума:</span>
-                    <span style="font-size: 1.1rem; font-weight: 600; color: #1f2937;">
-                      ${orderTotal.toFixed(2)} лв. / ${formatPrice(orderTotal, 'EUR')}
-                    </span>
-                  </div>
-                </div>
-              </div>
-    
-              <p>Ако имате въпроси относно вашата поръчка, моля, свържете се с нас на ${
-                process.env.EMAIL_USER
-              } или ни се обадете на телефонен номер: +359 88 911 5233.</p>
-            </div>
-            
-            <footer style="background-color: #f3f4f6; color: #6b7280; padding: 1rem; font-size: 0.85rem; text-align: center; border-top: 1px solid #e5e7eb;">
-              <p style="margin: 0.25rem 0;">© LIPCI Design Studio. Всички права запазени.</p>
-              <p style="margin: 0.25rem 0; font-size: 0.8rem;">Това е автоматично генерирано съобщение. Моля, не отговаряйте на този имейл!</p>
-            </footer>
-          </div>
-        `,
+        html: customerOrderEmail(emailData),
       })
     );
 
@@ -474,8 +258,7 @@ export async function POST(request: Request) {
       },
       { status: 201 }
     );
-  } catch (error) {
-    console.error("Възникна грешка при създаване на поръчка:", error);
+  } catch {
     return NextResponse.json(
       {
         message:

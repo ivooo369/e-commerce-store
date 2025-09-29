@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
-import { sendOrderStatusNotification } from "@/lib/email";
+import prisma from "@/lib/services/prisma";
+import { sendOrderStatusNotification } from "@/lib/email-templates/orderEmails";
 
 export async function POST(request: Request) {
   try {
@@ -26,23 +26,25 @@ export async function POST(request: Request) {
       return NextResponse.json({ status: currentStatus }, { status: 200 });
     }
 
-    await prisma.$executeRaw`
+    const result = await prisma.$executeRaw`
       UPDATE "public"."orders"
       SET status = 'confirmed',
           updated_at = NOW()
       WHERE id = ${orderId} AND status = 'pending'
+      RETURNING id;
     `;
 
-    await sendOrderStatusNotification(
-      orderId,
-      "confirmed",
-      currentOrder[0].name,
-      currentOrder[0].email
-    );
+    if (result) {
+      await sendOrderStatusNotification(
+        orderId,
+        "confirmed",
+        currentOrder[0].name,
+        currentOrder[0].email
+      );
+    }
 
     return NextResponse.json({ status: "confirmed" }, { status: 200 });
-  } catch (error) {
-    console.error("Възникна грешка при потвърждаване на поръчката:", error);
+  } catch {
     return NextResponse.json(
       { error: "Възникна грешка при потвърждаване на поръчката!" },
       { status: 500 }

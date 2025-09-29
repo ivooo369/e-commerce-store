@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcrypt";
-import prisma from "@/lib/prisma";
+import prisma from "@/lib/services/prisma";
 import jwt, { JwtPayload } from "jsonwebtoken";
 
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -104,8 +104,7 @@ export async function POST(req: Request) {
       { message: "Паролата е сменена успешно!" },
       { status: 200 }
     );
-  } catch (error) {
-    console.error("Възникна грешка при смяна на паролата:", error);
+  } catch {
     return NextResponse.json(
       { message: "Възникна грешка при смяна на паролата!" },
       { status: 500 }

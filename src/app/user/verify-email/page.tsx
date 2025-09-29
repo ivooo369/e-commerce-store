@@ -1,55 +1,49 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { verifyEmail } from "@/services/userService";
 
 export default function VerifyEmail() {
-  const [message, setMessage] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
-  const [customerName, setCustomerName] = useState("");
-  const [token, setToken] = useState<string | null>(null);
+  const [message, setMessage] = useState<string>("");
+  const [successMessage, setSuccessMessage] = useState<string>("");
+  const [customerName, setCustomerName] = useState<string>("");
+  const [isVerifying, setIsVerifying] = useState<boolean>(true);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const token = params.get("token");
-    setToken(token);
-  }, []);
 
-  const { isLoading, data, error } = useQuery({
-    queryKey: ["verifyEmail", token],
-    queryFn: () => verifyEmail(token!),
-    enabled: !!token,
-  });
-
-  useEffect(() => {
     if (!token) {
       setMessage("Токенът е невалиден!");
+      setIsVerifying(false);
       return;
     }
 
-    if (data) {
-      if (data.message) {
-        setSuccessMessage(data.message);
-        if (data.user && data.user.firstName) {
+    verifyEmail(token)
+      .then((data) => {
+        setSuccessMessage(data.message || "Имейлът е потвърден успешно!");
+        if (data.user?.firstName) {
           setCustomerName(data.user.firstName);
         }
-      }
-    }
+      })
+      .catch((error) => {
+        setMessage(
+          error?.message || "Възникна грешка при потвърждаването на имейла!"
+        );
+      })
+      .finally(() => {
+        setIsVerifying(false);
+      });
+  }, []);
 
-    if (error) {
-      setMessage((error as { message: string }).message);
-    }
-  }, [token, data, error]);
-
-  if (isLoading) {
+  if (isVerifying) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-bg-secondary">
         <div className="flex flex-col items-center">
           <div className="w-12 h-12 sm:w-16 sm:h-16 border-4 border-t-4 border-border-color border-t-accent-color rounded-full animate-spin"></div>
-          <p className="mt-4 text-text-secondary text-sm sm:text-lg">
-            Моля, изчакайте...
+          <p className="mt-4 text-lg font-medium text-text-primary">
+            Потвърждаване на имейл...
           </p>
         </div>
       </div>

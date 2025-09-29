@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
+import prisma from "@/lib/services/prisma";
 
 export async function GET() {
   try {
@@ -8,8 +8,7 @@ export async function GET() {
     });
 
     return NextResponse.json(messages, { status: 200 });
-  } catch (error) {
-    console.error("Възникна грешка при извличане на съобщенията:", error);
+  } catch {
     return NextResponse.json(
       { message: "Възникна грешка при извличане на съобщенията!" },
       { status: 500 }

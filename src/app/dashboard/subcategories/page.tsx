@@ -1,22 +1,22 @@
 "use client";
 
-import DashboardNav from "@/ui/dashboard/dashboard-primary-nav";
-import DashboardSecondaryNav from "@/ui/dashboard/dashboard-secondary-nav";
-import ConfirmationModal from "@/ui/components/confirmation-modal";
-import DashboardSearch from "@/ui/dashboard/dashboard-search";
-import SubcategoryCard from "@/ui/components/subcategory-card";
+import DashboardNav from "@/ui/components/layouts/dashboard-primary-nav";
+import DashboardSecondaryNav from "@/ui/components/layouts/dashboard-secondary-nav";
+import ConfirmationModal from "@/ui/components/modals/confirmation-modal";
+import DashboardSearch from "@/ui/components/search/dashboard-search";
+import SubcategoryCard from "@/ui/components/cards/subcategory-card";
 import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
-import CircularProgress from "@/ui/components/circular-progress";
-import PaginationButtons from "@/ui/components/pagination";
-import usePagination, { ITEMS_PER_PAGE } from "@/lib/usePagination";
+import CircularProgress from "@/ui/components/feedback/circular-progress";
+import PaginationButtons from "@/ui/components/navigation/pagination";
+import usePagination, { ITEMS_PER_PAGE } from "@/lib/hooks/usePagination";
 import Box from "@mui/material/Box";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { Category, Subcategory as SubcategoryPrisma } from "@prisma/client";
-import { Subcategory } from "@/lib/interfaces";
+import { Subcategory } from "@/lib/types/interfaces";
 import { fetchCategories } from "@/services/categoryService";
 import {
   deleteSubcategory,
@@ -73,11 +73,8 @@ export default function DashboardSubcategoriesPage() {
       try {
         await deleteSubcategory(subcategoryToDelete);
         queryClient.invalidateQueries({ queryKey: ["subcategories"] });
-      } catch (error) {
-        console.error(
-          "Възникна грешка при изтриване на подкатегорията:",
-          error
-        );
+      } catch {
+        throw new Error("Възникна грешка при изтриване на подкатегорията!");
       } finally {
         setIsDeleting(false);
         handleCloseSubcategoryModal();
@@ -171,7 +168,7 @@ export default function DashboardSubcategoriesPage() {
                     },
                   }}
                   onDelete={handleOpenSubcategoryModal}
-                  id={undefined}
+                  id={subcategory.id}
                 />
               ))}
             </div>

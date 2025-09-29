@@ -1,4 +1,4 @@
-import prisma from "@/lib/prisma";
+import prisma from "@/lib/services/prisma";
 import { NextResponse } from "next/server";
 
 export async function GET(
@@ -20,8 +20,7 @@ export async function GET(
     }
 
     return NextResponse.json(subcategory, { status: 200 });
-  } catch (error) {
-    console.error("Възникна грешка при извличане на подкатегорията:", error);
+  } catch {
     return NextResponse.json(
       { message: "Възникна грешка при извличане на подкатегорията!" },
       { status: 500 }
@@ -103,8 +102,7 @@ export async function PUT(
       },
       { status: 200 }
     );
-  } catch (error) {
-    console.error("Възникна грешка при редактиране на подкатегория:", error);
+  } catch {
     return NextResponse.json(
       { message: "Възникна грешка при редактиране на подкатегория!" },
       { status: 500 }
@@ -175,8 +173,7 @@ export async function DELETE(
       { message: "Подкатегорията е изтрита успешно!" },
       { status: 200 }
     );
-  } catch (error) {
-    console.error("Възникна грешка при изтриване на подкатегорията:", error);
+  } catch {
     return NextResponse.json(
       { message: "Възникна грешка при изтриване на подкатегорията!" },
       { status: 500 }

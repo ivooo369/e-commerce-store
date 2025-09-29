@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
-import cloudinary from "@/lib/cloudinary.config";
+import prisma from "@/lib/services/prisma";
+import cloudinary from "@/lib/config/cloudinary.config";
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -9,11 +9,7 @@ export async function GET(request: NextRequest) {
     try {
       const count = await prisma.product.count();
       return NextResponse.json({ count }, { status: 200 });
-    } catch (error) {
-      console.error(
-        "Възникна грешка при извличане на броя на продуктите:",
-        error
-      );
+    } catch {
       return NextResponse.json(
         { error: "Възникна грешка при извличане на броя на продуктите!" },
         { status: 500 }
@@ -33,8 +29,7 @@ export async function GET(request: NextRequest) {
     });
 
     return NextResponse.json(products, { status: 200 });
-  } catch (error) {
-    console.error("Възникна грешка при извличане на продуктите:", error);
+  } catch {
     return NextResponse.json(
       {
         error: "Възникна грешка при извличане на продуктите!",
@@ -70,9 +65,24 @@ export async function POST(request: Request) {
 
     if (!Array.isArray(images) || images.length === 0) {
       return NextResponse.json(
-        { message: "Трябва да качите поне едно изображение на продукта!" },
+        { message: "Моля, качете поне едно изображение на продукта!" },
         { status: 400 }
       );
+    }
+
+    for (const imageUrl of images) {
+      const base64Content = imageUrl.split(",")[1] || imageUrl;
+      const sizeInBytes = (base64Content.length * 3) / 4;
+
+      if (sizeInBytes > 2 * 1024 * 1024) {
+        return NextResponse.json(
+          {
+            message:
+              "Едно или повече изображения надвишават максималния размер от 2 MB!",
+          },
+          { status: 400 }
+        );
+      }
     }
 
     const existingProduct = await prisma.product.findUnique({
@@ -124,8 +134,7 @@ export async function POST(request: Request) {
       { message: "Продуктът е добавен успешно!", product: newProduct },
       { status: 201 }
     );
-  } catch (error) {
-    console.error("Възникна грешка при добавяне на продукта:", error);
+  } catch {
     return NextResponse.json(
       { message: "Възникна грешка при добавяне на продукта!" },
       { status: 500 }

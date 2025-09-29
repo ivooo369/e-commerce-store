@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
-import { handleError } from "@/lib/handleError";
+import prisma from "@/lib/services/prisma";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -43,9 +42,11 @@ export async function GET(request: Request) {
     });
 
     return NextResponse.json(favoriteProducts, { status: 200 });
-  } catch (error) {
-    console.error("Възникна грешка при извличане на любимите продукти:", error);
-    return NextResponse.json({ message: handleError(error) }, { status: 500 });
+  } catch {
+    return NextResponse.json(
+      { message: "Възникна грешка при извличане на любимите продукти!" },
+      { status: 500 }
+    );
   }
 }
 
@@ -101,12 +102,14 @@ export async function POST(request: Request) {
     });
 
     return NextResponse.json(
-      { message: "Продуктът беше добавен успешно в 'Любими'!" },
+      { message: "Продуктът беше добавен успешно към 'Любими'!" },
       { status: 201 }
     );
-  } catch (error) {
-    console.error("Възникна грешка при добавяне в 'Любими':", error);
-    return NextResponse.json({ message: handleError(error) }, { status: 500 });
+  } catch {
+    return NextResponse.json(
+      { message: "Възникна грешка при добавяне на продукта към 'Любими'!" },
+      { status: 500 }
+    );
   }
 }
 
@@ -151,8 +154,10 @@ export async function DELETE(request: Request) {
       { message: "Продуктът беше премахнат успешно от 'Любими'!" },
       { status: 200 }
     );
-  } catch (error) {
-    console.error("Възникна грешка при премахване от 'Любими':", error);
-    return NextResponse.json({ message: handleError(error) }, { status: 500 });
+  } catch {
+    return NextResponse.json(
+      { message: "Възникна грешка при премахване на продукта от 'Любими'!" },
+      { status: 500 }
+    );
   }
 }

@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { DecodedToken } from "@/lib/interfaces";
-import prisma from "@/lib/prisma";
+import { DecodedToken } from "@/lib/types/interfaces";
+import prisma from "@/lib/services/prisma";
 const JWT_SECRET = process.env.JWT_SECRET;
 
 export async function GET(req: Request) {
@@ -50,11 +50,7 @@ export async function GET(req: Request) {
       { firstName: user.firstName, lastName: user.lastName },
       { status: 200 }
     );
-  } catch (error) {
-    console.error(
-      "Възникна грешка при извличане на данните на потребителя:",
-      error
-    );
+  } catch {
     return NextResponse.json(
       { error: "Възникна грешка при извличане на данните на потребителя!" },
       { status: 500 }
@@ -97,7 +93,7 @@ export async function POST(req: Request) {
 
     if (!existingUser || typeof existingUser.password !== "string") {
       return NextResponse.json(
-        { message: "Невалиден имейл или парола!" },
+        { message: "Неправилен имейл или парола!" },
         { status: 400 }
       );
     }
@@ -109,7 +105,7 @@ export async function POST(req: Request) {
 
     if (!isPasswordValid) {
       return NextResponse.json(
-        { message: "Невалиден имейл или парола!" },
+        { message: "Неправилен имейл или парола!" },
         { status: 400 }
       );
     }
@@ -139,11 +135,7 @@ export async function POST(req: Request) {
       },
       { status: 200 }
     );
-  } catch (error) {
-    console.error(
-      "Възникна грешка при влизане в потребителския акаунт:",
-      error
-    );
+  } catch {
     return NextResponse.json(
       { message: "Възникна грешка при влизане в потребителския акаунт!" },
       { status: 500 }

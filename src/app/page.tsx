@@ -1,6 +1,9 @@
 import { fetchCategories } from "@/services/categoryService";
-import CategoryCard from "@/ui/components/category-card";
+import CategoryCard from "@/ui/components/cards/category-card";
 import Link from "next/link";
+import { generateMetadata } from "@/lib/utils/metadata";
+
+export const metadata = generateMetadata("/");
 
 export default async function HomePage() {
   const categories = await fetchCategories();

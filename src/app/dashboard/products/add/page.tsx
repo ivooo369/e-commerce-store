@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useRef } from "react";
-import DashboardNav from "@/ui/dashboard/dashboard-primary-nav";
+import { useAutoDismissAlert } from "@/lib/hooks/useAutoDismissAlert";
+import DashboardNav from "@/ui/components/layouts/dashboard-primary-nav";
 import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
 import OutlinedInput from "@mui/material/OutlinedInput";
@@ -10,13 +11,13 @@ import MenuItem from "@mui/material/MenuItem";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
 import Image from "next/image";
-import AlertMessage from "@/ui/components/alert-message";
+import AlertMessage from "@/ui/components/feedback/alert-message";
 import { FaTrash } from "react-icons/fa";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Subcategory as SubcategoryPrisma } from "@prisma/client";
 import { createProduct } from "@/services/productService";
 import { fetchSubcategories } from "@/services/subcategoryService";
-import DashboardSecondaryNav from "@/ui/dashboard/dashboard-secondary-nav";
+import DashboardSecondaryNav from "@/ui/components/layouts/dashboard-secondary-nav";
 
 export default function DashboardAddNewProductPage() {
   const [productName, setProductName] = useState("");
@@ -27,10 +28,7 @@ export default function DashboardAddNewProductPage() {
   const [productImageUrls, setProductImageUrls] = useState<string[]>([]);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [isAdding, setIsAdding] = useState(false);
-  const [alert, setAlert] = useState<{
-    message: string;
-    severity: "success" | "error";
-  } | null>(null);
+  const [alert, setAlert] = useAutoDismissAlert(5000);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const queryClient = useQueryClient();
 
@@ -50,7 +48,7 @@ export default function DashboardAddNewProductPage() {
         queryClient.setQueryData(["productCount"], data.newCount);
       }
       setAlert({
-        message: data.message,
+        message: data.message || "Продуктът е добавен успешно!",
         severity: "success",
       });
       setProductName("");
@@ -61,16 +59,24 @@ export default function DashboardAddNewProductPage() {
       setProductImageUrls([]);
       setSelectedFiles([]);
     },
-
-    onError: (error: Error) => {
+    onError: (error: unknown) => {
+      const errorMessage =
+        (
+          error as {
+            response?: { data?: { message?: string; error?: string } };
+          }
+        )?.response?.data?.message ||
+        (error as { response?: { data?: { error?: string } } })?.response?.data
+          ?.error ||
+        (error as Error)?.message ||
+        "Възникна грешка при добавяне на продукта!";
       setAlert({
-        message: error.message,
+        message: errorMessage,
         severity: "error",
       });
     },
     onSettled: () => {
       setIsAdding(false);
-      setTimeout(() => setAlert(null), 5000);
     },
   });
 
@@ -82,17 +88,39 @@ export default function DashboardAddNewProductPage() {
     setSelectedFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
   };
 
+  const MAX_FILE_SIZE = 2 * 1024 * 1024;
+
   const handleFileChange = (files: FileList | null) => {
-    if (files) {
-      const newFiles = Array.from(files);
-      const newImageUrls = newFiles.map((file) => URL.createObjectURL(file));
+    if (!files) return;
 
-      setSelectedFiles((prevFiles) => [...prevFiles, ...newFiles]);
-      setProductImageUrls((prevUrls) => [...prevUrls, ...newImageUrls]);
+    const validFiles: File[] = [];
+    const oversizedFiles: string[] = [];
 
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
+    Array.from(files).forEach((file) => {
+      if (file.size > MAX_FILE_SIZE) {
+        oversizedFiles.push(file.name);
+      } else {
+        validFiles.push(file);
       }
+    });
+
+    if (oversizedFiles.length > 0) {
+      setAlert({
+        message:
+          "Едно или повече изображения надвишават максималния размер от 2 MB!",
+        severity: "error",
+      });
+      return;
+    }
+
+    if (validFiles.length > 0) {
+      const newImageUrls = validFiles.map((file) => URL.createObjectURL(file));
+      setSelectedFiles((prevFiles) => [...prevFiles, ...validFiles]);
+      setProductImageUrls((prevUrls) => [...prevUrls, ...newImageUrls]);
+    }
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
     }
   };
 
@@ -246,13 +274,16 @@ export default function DashboardAddNewProductPage() {
                   key={index}
                   className="relative flex justify-center items-center"
                 >
-                  <Image
-                    src={url}
-                    alt={`Изображение на продукт: ${index + 1}`}
-                    width={200}
-                    height={200}
-                    className="rounded-md"
-                  />
+                  <div className="relative w-48 h-32">
+                    <Image
+                      src={url}
+                      alt={`Изображение на продукт: ${index + 1}`}
+                      fill
+                      className="rounded-md object-contain"
+                      sizes="(max-width: 768px) 100vw, 50vw"
+                    />
+                  </div>
+
                   <button
                     type="button"
                     className="absolute top-0 right-0 p-2 bg-error-color hover:bg-red-700 transition text-white rounded-full"

@@ -1,5 +1,5 @@
-import cloudinary from "@/lib/cloudinary.config";
-import prisma from "@/lib/prisma";
+import cloudinary from "@/lib/config/cloudinary.config";
+import prisma from "@/lib/services/prisma";
 import { NextResponse } from "next/server";
 
 export async function GET(
@@ -34,8 +34,7 @@ export async function GET(
       },
       { status: 200 }
     );
-  } catch (error) {
-    console.error("Възникна грешка при извличане на категорията:", error);
+  } catch {
     return NextResponse.json(
       { message: "Възникна грешка при извличане на категорията!" },
       { status: 500 }
@@ -102,6 +101,18 @@ export async function PUT(
       );
     }
 
+    if (imageUrl && imageUrl !== existingCategory.imageUrl) {
+      const base64Content = imageUrl.split(",")[1] || imageUrl;
+      const sizeInBytes = (base64Content.length * 3) / 4;
+
+      if (sizeInBytes > 2 * 1024 * 1024) {
+        return NextResponse.json(
+          { message: "Изображението надвишава максималния размер от 2 MB!" },
+          { status: 400 }
+        );
+      }
+    }
+
     let updatedImageUrl = existingCategory.imageUrl;
 
     if (imageUrl && imageUrl !== existingCategory.imageUrl) {
@@ -138,8 +149,7 @@ export async function PUT(
       },
       { status: 200 }
     );
-  } catch (error) {
-    console.error("Възникна грешка при редактиране на категорията:", error);
+  } catch {
     return NextResponse.json(
       { message: "Възникна грешка при редактиране на категорията!" },
       { status: 500 }
@@ -226,8 +236,7 @@ export async function DELETE(
       },
       { status: 200 }
     );
-  } catch (error) {
-    console.error("Възникна грешка при изтриване на категорията:", error);
+  } catch {
     return NextResponse.json(
       { message: "Възникна грешка при изтриване на категорията!" },
       { status: 500 }

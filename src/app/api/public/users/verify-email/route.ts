@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
+import prisma from "@/lib/services/prisma";
 
 export const dynamic = "force-dynamic";
 export async function GET(req: Request) {
@@ -51,8 +51,7 @@ export async function GET(req: Request) {
       },
       { status: 200 }
     );
-  } catch (error) {
-    console.error("Възникна грешка при потвърждаване на имейла:", error);
+  } catch {
     return NextResponse.json(
       { message: "Възникна грешка при потвърждаване на имейла!" },
       { status: 500 }

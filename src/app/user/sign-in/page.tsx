@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
-import AlertMessage from "@/ui/components/alert-message";
+import AlertMessage from "@/ui/components/feedback/alert-message";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import {
@@ -13,26 +13,24 @@ import {
   IconButton,
   Button,
 } from "@mui/material";
-import { setUser } from "@/lib/userSlice";
+import { setUser } from "@/lib/store/slices/userSlice";
 import { useDispatch } from "react-redux";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import AccountBenefits from "@/ui/components/account-benefits";
+import AccountBenefits from "@/ui/components/others/account-benefits";
 import { signIn } from "@/services/userService";
+import { useAutoDismissAlert } from "@/lib/hooks/useAutoDismissAlert";
 import { cartService } from "@/services/cartService";
-import { setCartItems } from "@/lib/cartSlice";
+import { setCartItems } from "@/lib/store/slices/cartSlice";
 
 export default function SignInPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [signingIn, setIsSigningIn] = useState(false);
-  const [alert, setAlert] = useState<{
-    message: string;
-    severity: "success" | "error";
-  } | null>(null);
   const dispatch = useDispatch();
   const router = useRouter();
+  const [alert, setAlert] = useAutoDismissAlert();
 
   const handleClickShowPassword = () => setIsPasswordVisible((show) => !show);
   const handleMouseDownPassword = (event: { preventDefault: () => void }) => {
@@ -68,10 +66,9 @@ export default function SignInPage() {
       try {
         const cartItems = await cartService.getCartItems(responseData.user.id);
         dispatch(setCartItems(cartItems));
-      } catch (error) {
-        console.error(
-          "Възникна грешка при извличане на продуктите от количката:",
-          error
+      } catch {
+        throw new Error(
+          "Възникна грешка при извличане на продуктите от количката!"
         );
       }
 
@@ -87,7 +84,6 @@ export default function SignInPage() {
         message: error.message,
         severity: "error",
       });
-      setTimeout(() => setAlert(null), 5000);
       setIsSigningIn(false);
     },
   });

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
+import prisma from "@/lib/services/prisma";
 
 export async function GET(
   request: Request,
@@ -15,10 +15,10 @@ export async function GET(
           include: {
             subcategory: {
               include: {
-                category: true
-              }
-            }
-          }
+                category: true,
+              },
+            },
+          },
         },
       },
     });
@@ -38,7 +38,7 @@ export async function GET(
         price: product.price,
         description: product.description,
         images: product.images,
-        subcategories: product.subcategories.map(sub => ({
+        subcategories: product.subcategories.map((sub) => ({
           id: sub.subcategoryId,
           subcategory: {
             id: sub.subcategory.id,
@@ -47,17 +47,16 @@ export async function GET(
             category: {
               id: sub.subcategory.category.id,
               name: sub.subcategory.category.name,
-              code: sub.subcategory.category.code
-            }
-          }
+              code: sub.subcategory.category.code,
+            },
+          },
         })),
         createdAt: product.createdAt,
-        updatedAt: product.updatedAt
+        updatedAt: product.updatedAt,
       },
       { status: 200 }
     );
-  } catch (error) {
-    console.error("Възникна грешка при извличане на продукта:", error);
+  } catch {
     return NextResponse.json(
       { message: "Възникна грешка при извличане на продукта!" },
       { status: 500 }

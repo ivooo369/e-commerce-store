@@ -1,8 +1,7 @@
 import axios from "axios";
 import { Category as CategoryPrisma } from "@prisma/client";
-import { Category } from "@/lib/interfaces";
-import { handleError } from "@/lib/handleError";
-import prisma from "@/lib/prisma";
+import { Category } from "@/lib/types/interfaces";
+import prisma from "@/lib/services/prisma";
 
 export const fetchCategories = async (): Promise<CategoryPrisma[]> => {
   if (typeof window === "undefined") {
@@ -11,9 +10,8 @@ export const fetchCategories = async (): Promise<CategoryPrisma[]> => {
         orderBy: { code: "asc" },
       });
       return categories;
-    } catch (error) {
-      console.error("Възникна грешка при зареждане на категориите:", error);
-      throw new Error(handleError(error));
+    } catch {
+      throw new Error("Възникна грешка при зареждане на категориите!");
     }
   }
 
@@ -22,9 +20,8 @@ export const fetchCategories = async (): Promise<CategoryPrisma[]> => {
     return data.sort((a: { code: string }, b: { code: string }) =>
       a.code.localeCompare(b.code)
     );
-  } catch (error) {
-    console.error("Възникна грешка при зареждане на категориите:", error);
-    throw new Error(handleError(error));
+  } catch {
+    throw new Error("Възникна грешка при зареждане на категориите!");
   }
 };
 
@@ -32,9 +29,8 @@ export const fetchCategoriesForHeader = async () => {
   try {
     const { data } = await axios.get("/api/public/categories");
     return data.map((category: { name: string }) => category.name);
-  } catch (error) {
-    console.error("Възникна грешка при извличане на категориите:", error);
-    throw new Error(handleError(error));
+  } catch {
+    throw new Error("Възникна грешка при извличане на категориите!");
   }
 };
 
@@ -45,9 +41,19 @@ export const createCategory = async (categoryData: Category) => {
       categoryData
     );
     return data;
-  } catch (error) {
-    console.error("Възникна грешка при създаване на категория:", error);
-    throw new Error(handleError(error));
+  } catch (error: unknown) {
+    const axiosError = error as {
+      response?: {
+        data?: { message?: string; error?: string };
+      };
+    };
+    
+    if (axiosError.response?.data?.message) {
+      throw new Error(axiosError.response.data.message);
+    } else if (axiosError.response?.data?.error) {
+      throw new Error(axiosError.response.data.error);
+    }
+    throw new Error("Възникна грешка при създаване на категорията!");
   }
 };
 
@@ -55,9 +61,8 @@ export const deleteCategory = async (id: string) => {
   try {
     await axios.delete(`/api/dashboard/categories/${id}`);
     return id;
-  } catch (error) {
-    console.error("Възникна грешка при изтриване на категория:", error);
-    throw new Error(handleError(error));
+  } catch {
+    throw new Error("Възникна грешка при изтриване на категорията!");
   }
 };
 
@@ -65,9 +70,8 @@ export const fetchCategory = async (id: string) => {
   try {
     const { data } = await axios.get(`/api/dashboard/categories/${id}`);
     return data;
-  } catch (error) {
-    console.error("Възникна грешка при извличане на категория:", error);
-    throw new Error(handleError(error));
+  } catch {
+    throw new Error("Възникна грешка при извличане на категорията!");
   }
 };
 
@@ -78,9 +82,19 @@ export const editCategory = async (updatedCategory: Category, id: string) => {
       updatedCategory
     );
     return data;
-  } catch (error) {
-    console.error("Възникна грешка при обновяване на категория:", error);
-    throw new Error(handleError(error));
+  } catch (error: unknown) {
+    const axiosError = error as {
+      response?: {
+        data?: { message?: string; error?: string };
+      };
+    };
+    
+    if (axiosError.response?.data?.message) {
+      throw new Error(axiosError.response.data.message);
+    } else if (axiosError.response?.data?.error) {
+      throw new Error(axiosError.response.data.error);
+    }
+    throw new Error("Възникна грешка при обновяване на категорията!");
   }
 };
 
@@ -137,12 +151,10 @@ export const fetchCategoryByNameWithProducts = async (name: string) => {
         })),
         products,
       };
-    } catch (error) {
-      console.error(
-        "Възникна грешка при зареждане на категорията с продукти:",
-        error
+    } catch {
+      throw new Error(
+        "Възникна грешка при зареждане на категорията с продукти!"
       );
-      throw new Error(handleError(error));
     }
   }
 
@@ -158,11 +170,7 @@ export const fetchCategoryByNameWithProducts = async (name: string) => {
       subcategories: data.subcategories || [],
       products: data.products || [],
     };
-  } catch (error) {
-    console.error(
-      "Възникна грешка при зареждане на категорията с продукти:",
-      error
-    );
-    throw new Error(handleError(error));
+  } catch {
+    throw new Error("Възникна грешка при зареждане на категорията с продукти!");
   }
 };

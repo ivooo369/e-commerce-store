@@ -1,14 +1,14 @@
 "use client";
 
 import { Category } from "@prisma/client";
-import DashboardNav from "@/ui/dashboard/dashboard-primary-nav";
-import DashboardSecondaryNav from "@/ui/dashboard/dashboard-secondary-nav";
-import CategoryCard from "@/ui/components/category-card-dashboard";
-import ConfirmationModal from "@/ui/components/confirmation-modal";
-import DashboardSearch from "@/ui/dashboard/dashboard-search";
-import CircularProgress from "@/ui/components/circular-progress";
-import PaginationButtons from "@/ui/components/pagination";
-import usePagination, { ITEMS_PER_PAGE } from "@/lib/usePagination";
+import DashboardNav from "@/ui/components/layouts/dashboard-primary-nav";
+import DashboardSecondaryNav from "@/ui/components/layouts/dashboard-secondary-nav";
+import DashboardCategoryCard from "@/ui/components/cards/dashboard-category-card";
+import ConfirmationModal from "@/ui/components/modals/confirmation-modal";
+import DashboardSearch from "@/ui/components/search/dashboard-search";
+import CircularProgress from "@/ui/components/feedback/circular-progress";
+import PaginationButtons from "@/ui/components/navigation/pagination";
+import usePagination, { ITEMS_PER_PAGE } from "@/lib/hooks/usePagination";
 import Box from "@mui/material/Box";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
@@ -62,8 +62,7 @@ export default function DashboardCategoriesPage() {
       try {
         await deleteCategory(categoryToDelete);
         queryClient.invalidateQueries({ queryKey: ["categories"] });
-      } catch (error) {
-        console.error("Възникна грешка при изтриване на категорията:", error);
+      } catch {
         queryClient.invalidateQueries({ queryKey: ["categories"] });
       } finally {
         setIsDeleting(false);
@@ -111,7 +110,7 @@ export default function DashboardCategoriesPage() {
           <div className="container mx-auto">
             <div className="grid gap-5 sm:gap-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {currentItems.map((category) => (
-                <CategoryCard
+                <DashboardCategoryCard
                   key={category.id}
                   category={category}
                   onDelete={handleOpenModal}

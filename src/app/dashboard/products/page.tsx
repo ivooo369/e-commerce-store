@@ -2,21 +2,21 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import DashboardNav from "@/ui/dashboard/dashboard-primary-nav";
-import DashboardSecondaryNav from "@/ui/dashboard/dashboard-secondary-nav";
-import ProductCard from "@/ui/components/product-card-dashboard";
-import ConfirmationModal from "@/ui/components/confirmation-modal";
+import DashboardNav from "@/ui/components/layouts/dashboard-primary-nav";
+import DashboardSecondaryNav from "@/ui/components/layouts/dashboard-secondary-nav";
+import DashboardProductCard from "@/ui/components/cards/dashboard-product-card";
+import ConfirmationModal from "@/ui/components/modals/confirmation-modal";
 import Box from "@mui/material/Box";
 import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import { Category, Subcategory } from "@prisma/client";
-import DashboardSearch from "@/ui/dashboard/dashboard-search";
-import CircularProgress from "@/ui/components/circular-progress";
-import usePagination, { ITEMS_PER_PAGE } from "@/lib/usePagination";
-import PaginationButtons from "@/ui/components/pagination";
-import { ProductWithSubcategories } from "@/lib/interfaces";
+import DashboardSearch from "@/ui/components/search/dashboard-search";
+import CircularProgress from "@/ui/components/feedback/circular-progress";
+import usePagination, { ITEMS_PER_PAGE } from "@/lib/hooks/usePagination";
+import PaginationButtons from "@/ui/components/navigation/pagination";
+import { ProductWithSubcategories } from "@/lib/types/interfaces";
 import { deleteProduct, fetchProducts } from "@/services/productService";
 import { fetchCategories } from "@/services/categoryService";
 import { fetchSubcategories } from "@/services/subcategoryService";
@@ -118,8 +118,7 @@ export default function DashboardProductsPage() {
         if (result.newCount !== undefined) {
           queryClient.setQueryData(["productCount"], result.newCount);
         }
-      } catch (error) {
-        console.error("Възникна грешка при изтриване на продукта:", error);
+      } catch {
         setFilteredProducts((prevProducts) => [
           ...prevProducts,
           productsData?.find(
@@ -238,7 +237,7 @@ export default function DashboardProductsPage() {
           <div className="container mx-auto">
             <div className="grid gap-5 sm:gap-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {currentItems.map((product: ProductWithSubcategories) => (
-                <ProductCard
+                <DashboardProductCard
                   key={product.id}
                   product={product}
                   onDelete={() => product.id && handleOpenModal(product.id)}

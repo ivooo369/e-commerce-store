@@ -10,13 +10,14 @@ import FormControl from "@mui/material/FormControl";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import Button from "@mui/material/Button";
-import AlertMessage from "@/ui/components/alert-message";
+import AlertMessage from "@/ui/components/feedback/alert-message";
 import { useDispatch } from "react-redux";
-import { setUser } from "@/lib/userSlice";
+import { setUser } from "@/lib/store/slices/userSlice";
 import Link from "next/link";
-import AccountBenefits from "@/ui/components/account-benefits";
+import AccountBenefits from "@/ui/components/others/account-benefits";
 import { Checkbox, FormControlLabel } from "@mui/material";
 import { signUp } from "@/services/userService";
+import { useAutoDismissAlert } from "@/lib/hooks/useAutoDismissAlert";
 
 export default function SignUpPage() {
   const dispatch = useDispatch();
@@ -32,11 +33,8 @@ export default function SignUpPage() {
   const [address, setAddress] = useState("");
   const [phone, setPhone] = useState("");
   const [signingUp, setIsSigningUp] = useState(false);
-  const [alert, setAlert] = useState<{
-    message: string;
-    severity: "success" | "error";
-  } | null>(null);
   const [areTermsAccepted, setAreTermsAccepted] = useState(false);
+  const [alert, setAlert] = useAutoDismissAlert();
 
   const handleClickShowPassword = () => setIsPasswordVisible((show) => !show);
   const handleClickShowConfirmPassword = () =>
@@ -87,12 +85,11 @@ export default function SignUpPage() {
       setPhone("");
       setIsSigningUp(false);
     },
-    onError: (error: { message: string }) => {
+    onError: (error: Error) => {
       setAlert({
-        message: error.message,
+        message: error.message || "Възникна грешка при регистрацията!",
         severity: "error",
       });
-      setTimeout(() => setAlert(null), 5000);
       setIsSigningUp(false);
     },
   });
@@ -105,7 +102,6 @@ export default function SignUpPage() {
         message: "Паролата трябва да е поне 8 символа!",
         severity: "error",
       });
-      setTimeout(() => setAlert(null), 5000);
       return;
     }
 
@@ -114,7 +110,6 @@ export default function SignUpPage() {
         message: "Новата парола и паролата за потвърждение не съвпадат!",
         severity: "error",
       });
-      setTimeout(() => setAlert(null), 5000);
       return;
     }
 
@@ -272,7 +267,9 @@ export default function SignUpPage() {
                 color="primary"
                 required
                 size="medium"
-                className="text-black dark:text-white checked:text-black dark:checked:text-white"
+                inputProps={{
+                  "aria-label": "Съгласие с условията",
+                }}
                 onInvalid={(event) => {
                   const checkbox = event.target as HTMLInputElement;
                   checkbox.setCustomValidity(

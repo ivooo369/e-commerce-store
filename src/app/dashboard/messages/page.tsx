@@ -1,15 +1,15 @@
 "use client";
 
-import MessageCard from "@/ui/components/message-card";
-import DashboardNav from "@/ui/dashboard/dashboard-primary-nav";
+import MessageCard from "@/ui/components/cards/message-card";
+import DashboardNav from "@/ui/components/layouts/dashboard-primary-nav";
 import Box from "@mui/material/Box";
-import CircularProgress from "@/ui/components/circular-progress";
-import ConfirmationModal from "@/ui/components/confirmation-modal";
+import CircularProgress from "@/ui/components/feedback/circular-progress";
+import ConfirmationModal from "@/ui/components/modals/confirmation-modal";
 import { Message as MessagePrisma } from "@prisma/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { deleteMessage, fetchMessages } from "@/services/messageService";
-import DashboardSecondaryNav from "@/ui/dashboard/dashboard-secondary-nav";
+import DashboardSecondaryNav from "@/ui/components/layouts/dashboard-secondary-nav";
 
 export default function DashboardMessagesPage() {
   const queryClient = useQueryClient();
@@ -49,7 +49,6 @@ export default function DashboardMessagesPage() {
       if (context) {
         queryClient.setQueryData(["messages"], context.previousMessages);
       }
-      console.error("Възникна грешка при изтриване на съобщението:", error);
       setIsDeleting(false);
     },
     onSuccess: () => {

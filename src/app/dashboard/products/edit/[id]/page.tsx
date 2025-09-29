@@ -1,11 +1,12 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { useAutoDismissAlert } from "@/lib/hooks/useAutoDismissAlert";
 import { useParams, useRouter } from "next/navigation";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
 import { FaTrash } from "react-icons/fa";
-import DashboardNav from "@/ui/dashboard/dashboard-primary-nav";
+import DashboardNav from "@/ui/components/layouts/dashboard-primary-nav";
 import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
 import OutlinedInput from "@mui/material/OutlinedInput";
@@ -13,11 +14,11 @@ import Select, { SelectChangeEvent } from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
-import CircularProgress from "@/ui/components/circular-progress";
-import AlertMessage from "@/ui/components/alert-message";
+import CircularProgress from "@/ui/components/feedback/circular-progress";
+import AlertMessage from "@/ui/components/feedback/alert-message";
 import { editProduct, fetchProduct } from "@/services/productService";
 import { fetchSubcategories } from "@/services/subcategoryService";
-import DashboardSecondaryNav from "@/ui/dashboard/dashboard-secondary-nav";
+import DashboardSecondaryNav from "@/ui/components/layouts/dashboard-secondary-nav";
 
 export default function DashboardEditProductPage() {
   const router = useRouter();
@@ -33,11 +34,7 @@ export default function DashboardEditProductPage() {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [isEditing, setIsEditing] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const [alert, setAlert] = useState<{
-    message: string;
-    severity: "success" | "error";
-  } | null>(null);
-  const queryClient = useQueryClient();
+  const [alert, setAlert] = useAutoDismissAlert(5000);
 
   const { data: updatedProduct, isLoading: isProductLoading } = useQuery({
     queryKey: ["product", productId],
@@ -63,90 +60,161 @@ export default function DashboardEditProductPage() {
 
   const handleImageRemove = (index: number) => {
     const imageUrlToRemove = productImageUrls[index];
-    const fileToRemove = selectedFiles.find(
-      (file) => file.name === imageUrlToRemove
-    );
 
-    if (fileToRemove) {
-      setSelectedFiles((prevFiles) =>
-        prevFiles.filter((file) => file.name !== fileToRemove.name)
-      );
-    } else {
+    if (imageUrlToRemove.startsWith("blob:")) {
+      setSelectedFiles((prevFiles) => {
+        const blobIndex = productImageUrls
+          .slice(0, index)
+          .filter((url) => url.startsWith("blob:")).length;
+        const newBlobFiles = prevFiles.filter(
+          (_, fileIndex) => fileIndex !== blobIndex
+        );
+        return newBlobFiles;
+      });
+    } else if (imageUrlToRemove.startsWith("http")) {
       setImagesToRemove((prev) => [...prev, imageUrlToRemove]);
     }
 
     setProductImageUrls((prevUrls) => prevUrls.filter((_, i) => i !== index));
   };
 
+  const MAX_FILE_SIZE = 2 * 1024 * 1024;
+
   const handleFileChange = (files: FileList | null) => {
-    if (files) {
-      const newFiles = Array.from(files);
-      setSelectedFiles((prevFiles) => [...prevFiles, ...newFiles]);
+    if (!files) return;
 
-      const newImageUrls = newFiles.map((file) => URL.createObjectURL(file));
-      setProductImageUrls((prevUrls) => [...prevUrls, ...newImageUrls]);
+    const validFiles: File[] = [];
+    const oversizedFiles: string[] = [];
 
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
+    Array.from(files).forEach((file) => {
+      if (file.size > MAX_FILE_SIZE) {
+        oversizedFiles.push(file.name);
+      } else {
+        validFiles.push(file);
       }
+    });
+
+    if (oversizedFiles.length > 0) {
+      setAlert({
+        message:
+          "Едно или повече изображения надвишават максималния размер от 2 MB!",
+        severity: "error",
+      });
+      return;
+    }
+
+    if (validFiles.length > 0) {
+      setSelectedFiles((prevFiles) => [...prevFiles, ...validFiles]);
+      const newImageUrls = validFiles.map((file) => URL.createObjectURL(file));
+      setProductImageUrls((prevUrls) => [...prevUrls, ...newImageUrls]);
+    }
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
     }
   };
 
   const handleProductSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!productName.trim() || !productCode.trim() || !subcategoryIds.length) {
+      setAlert({
+        message: "Моля, попълнете всички задължителни полета!",
+        severity: "error",
+      });
+      return;
+    }
+
+    if (price === undefined || price <= 0) {
+      setAlert({
+        message: "Цената трябва да бъде по-голяма от 0!",
+        severity: "error",
+      });
+      return;
+    }
+
+    const existingHttpImages = productImageUrls.filter(
+      (url) => url.startsWith("http") && !imagesToRemove.includes(url)
+    );
+
+    const totalImages = existingHttpImages.length + selectedFiles.length;
+
+    if (totalImages === 0) {
+      setAlert({
+        message: "Моля, качете поне едно изображение на продукта!",
+        severity: "error",
+      });
+      return;
+    }
+
     setIsEditing(true);
 
-    const imageUrls =
-      selectedFiles.length > 0
-        ? await Promise.all(
-            selectedFiles.map(
-              (file) =>
-                new Promise<string>((resolve) => {
-                  const reader = new FileReader();
-                  reader.onloadend = () => resolve(reader.result as string);
-                  reader.readAsDataURL(file);
-                })
-            )
-          )
-        : productImageUrls.filter((url) => !imagesToRemove.includes(url));
-
-    const finalPrice = price !== undefined && price > 0 ? price : 0;
-
-    const updatedProductData = {
-      id: updatedProduct.id,
-      name: productName,
-      code: productCode,
-      subcategoryIds,
-      price: finalPrice,
-      description,
-      images: imageUrls,
-      imagesToRemove,
-      createdAt: updatedProduct.createdAt,
-      updatedAt: new Date(),
-    };
-
-    queryClient.setQueryData(["product", productId], updatedProductData);
-
     try {
+      const newImageUrls: string[] = [];
+      if (selectedFiles.length > 0) {
+        const convertPromises = selectedFiles.map(
+          (file) =>
+            new Promise<string>((resolve, reject) => {
+              const reader = new FileReader();
+              reader.onloadend = () => {
+                if (reader.result) {
+                  resolve(reader.result as string);
+                } else {
+                  reject(new Error("Failed to read file"));
+                }
+              };
+              reader.onerror = () =>
+                reject(new Error("Възникна грешка, свързана с FileReader!"));
+              reader.readAsDataURL(file);
+            })
+        );
+
+        try {
+          const convertedImages = await Promise.all(convertPromises);
+          newImageUrls.push(...convertedImages);
+        } catch {
+          throw new Error("Възникна грешка при обработка на изображенията!");
+        }
+      }
+
+      const finalPrice = price > 0 ? price : 0;
+
+      const allImages = [...existingHttpImages, ...newImageUrls];
+
+      const updatedProductData = {
+        id: updatedProduct.id,
+        name: productName.trim(),
+        code: productCode.trim(),
+        subcategoryIds,
+        price: finalPrice,
+        description: description.trim(),
+        images: allImages,
+        imagesToRemove,
+        createdAt: updatedProduct.createdAt,
+        updatedAt: new Date(),
+      };
+
       const responseData = await editProduct(productId, updatedProductData);
+
       setAlert({
-        message: responseData.message,
+        message: responseData.message || "Продуктът е обновен успешно!",
         severity: "success",
       });
 
       resetForm();
       setTimeout(() => router.push("/dashboard/products"), 1000);
     } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Възникна грешка при обновяване на продукта. Моля, опитайте отново!";
+
       setAlert({
-        message:
-          (error instanceof Error
-            ? error.message
-            : "Възникна грешка! Моля, опитайте отново!") || "",
+        message: errorMessage,
         severity: "error",
       });
-
+    } finally {
       setIsEditing(false);
-      setTimeout(() => setAlert(null), 5000);
     }
   };
 
@@ -163,9 +231,9 @@ export default function DashboardEditProductPage() {
 
   if (isProductLoading || isSubcategoriesLoading) {
     return (
-      <div className="flex justify-center items-center h-screen">
+      <Box className="flex justify-center items-center h-screen">
         <CircularProgress message="Зареждане на данните за продукта..." />
-      </div>
+      </Box>
     );
   }
 
@@ -274,13 +342,16 @@ export default function DashboardEditProductPage() {
                   key={index}
                   className="relative flex justify-center items-center"
                 >
-                  <Image
-                    src={url}
-                    alt={`Продукт изображение ${index + 1}`}
-                    width={200}
-                    height={200}
-                    className="rounded-md"
-                  />
+                  <div className="relative w-48 h-32">
+                    <Image
+                      src={url}
+                      alt={`Продукт изображение ${index + 1}`}
+                      fill
+                      className="rounded-md object-contain"
+                      sizes="(max-width: 768px) 100vw, 50vw"
+                    />
+                  </div>
+
                   <button
                     type="button"
                     className="absolute top-0 right-0 p-2 bg-error-color hover:bg-red-700 transition text-white rounded-full"

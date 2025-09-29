@@ -1,25 +1,27 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useAutoDismissAlert } from "@/lib/hooks/useAutoDismissAlert";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import OutlinedInput from "@mui/material/OutlinedInput";
-import InputLabel from "@mui/material/InputLabel";
-import FormControl from "@mui/material/FormControl";
 import Button from "@mui/material/Button";
-import AlertMessage from "@/ui/components/alert-message";
 import { useSelector, useDispatch } from "react-redux";
-import { setUser } from "@/lib/userSlice";
-import { RootState } from "@/lib/store";
-import CircularProgress from "@/ui/components/circular-progress";
+import { setUser } from "@/lib/store/slices/userSlice";
+import { RootState } from "@/lib/store/store";
+import useProtectedRoute from "@/lib/hooks/useProtectedRoute";
+import CircularProgress from "@/ui/components/feedback/circular-progress";
 import {
   fetchUserData,
   updateUserData,
   resendVerificationEmail,
 } from "@/services/userService";
+import { AccountUpdateForm } from "@/ui/components/forms/account-update-form";
+import Box from "@mui/material/Box";
 
 export default function MyAccountPage() {
   const dispatch = useDispatch();
   const signedInUser = useSelector((state: RootState) => state.user);
+
+  useProtectedRoute();
   const queryClient = useQueryClient();
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -29,10 +31,7 @@ export default function MyAccountPage() {
   const [phone, setPhone] = useState("");
   const [isVerified, setIsVerified] = useState<boolean | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
-  const [alert, setAlert] = useState<{
-    message: string;
-    severity: "success" | "error";
-  } | null>(null);
+  const [alert, setAlert] = useAutoDismissAlert(5000);
 
   const [isResending, setIsResending] = useState(false);
 
@@ -129,6 +128,18 @@ export default function MyAccountPage() {
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    if (phone) {
+      const phoneRegex = /^\d{10,20}$/;
+      if (!phoneRegex.test(phone)) {
+        setAlert({
+          message: "Моля, въведете валиден телефонен номер!",
+          severity: "error",
+        });
+        return;
+      }
+    }
+
     setIsUpdating(true);
 
     mutation.mutate({
@@ -282,9 +293,9 @@ export default function MyAccountPage() {
         </div>
       </div>
       {isLoading ? (
-        <div className="flex justify-center items-center py-10">
+        <Box className="flex justify-center items-center py-10">
           <CircularProgress message="Зареждане на данните..." />
-        </div>
+        </Box>
       ) : isError ? (
         <div className="text-center py-10">
           <h2 className="text-2xl font-bold text-text-primary">
@@ -292,91 +303,42 @@ export default function MyAccountPage() {
           </h2>
         </div>
       ) : (
-        <form
+        <AccountUpdateForm
+          formState={{
+            firstName,
+            lastName,
+            email,
+            city,
+            address,
+            phone,
+          }}
+          isUpdating={isUpdating}
+          alert={alert}
+          onInputChange={(e) => {
+            const { name, value } = e.target;
+            switch (name) {
+              case "firstName":
+                setFirstName(value);
+                break;
+              case "lastName":
+                setLastName(value);
+                break;
+              case "email":
+                setEmail(value);
+                break;
+              case "city":
+                setCity(value);
+                break;
+              case "address":
+                setAddress(value);
+                break;
+              case "phone":
+                setPhone(value);
+                break;
+            }
+          }}
           onSubmit={handleSubmit}
-          className="bg-card-bg shadow-lg rounded-lg p-4 sm:p-6 space-y-4 border border-card-border transition-colors duration-300"
-        >
-          <FormControl fullWidth variant="outlined" required>
-            <InputLabel htmlFor="firstName">Име</InputLabel>
-            <OutlinedInput
-              id="firstName"
-              name="firstName"
-              value={firstName}
-              onChange={(e) => setFirstName(e.target.value)}
-              label="Име"
-              inputProps={{ maxLength: 50, autoComplete: "first name" }}
-            />
-          </FormControl>
-          <FormControl fullWidth variant="outlined" required>
-            <InputLabel htmlFor="lastName">Фамилия</InputLabel>
-            <OutlinedInput
-              id="lastName"
-              name="lastName"
-              value={lastName}
-              onChange={(e) => setLastName(e.target.value)}
-              label="Фамилия"
-              inputProps={{ maxLength: 50, autoComplete: "last name" }}
-            />
-          </FormControl>
-          <FormControl fullWidth variant="outlined" required>
-            <InputLabel htmlFor="email">E-mail</InputLabel>
-            <OutlinedInput
-              id="email"
-              name="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              label="E-mail"
-              inputProps={{ maxLength: 255, autoComplete: "email" }}
-            />
-          </FormControl>
-          <FormControl fullWidth variant="outlined">
-            <InputLabel htmlFor="city">Населено място</InputLabel>
-            <OutlinedInput
-              id="location"
-              name="location"
-              value={city}
-              onChange={(e) => setCity(e.target.value)}
-              label="Населено място"
-              inputProps={{ maxLength: 100, autoComplete: "city" }}
-            />
-          </FormControl>
-          <FormControl fullWidth variant="outlined">
-            <InputLabel htmlFor="address">Адрес</InputLabel>
-            <OutlinedInput
-              id="address"
-              name="address"
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
-              label="Адрес"
-              inputProps={{ maxLength: 255, autoComplete: "address" }}
-            />
-          </FormControl>
-          <FormControl fullWidth variant="outlined">
-            <InputLabel htmlFor="phone">Телефон</InputLabel>
-            <OutlinedInput
-              id="phone"
-              name="phone"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              label="Телефон"
-              inputProps={{ maxLength: 20, autoComplete: "phone" }}
-            />
-          </FormControl>
-          <Button
-            variant="contained"
-            className="font-bold"
-            color="primary"
-            type="submit"
-            disabled={isUpdating}
-            fullWidth
-          >
-            {isUpdating ? "Обновяване..." : "Обнови акаунта"}
-          </Button>
-          {alert && (
-            <AlertMessage severity={alert.severity} message={alert.message} />
-          )}
-        </form>
+        />
       )}
     </div>
   );

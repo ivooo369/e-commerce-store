@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
+import prisma from "@/lib/services/prisma";
 
 export async function GET(
   request: Request,
@@ -14,7 +14,7 @@ export async function GET(
 
     if (!category) {
       return NextResponse.json(
-        { message: "Category not found" },
+        { message: "Категорията не е намерена!" },
         { status: 404 }
       );
     }
@@ -47,11 +47,7 @@ export async function GET(
       subcategories,
       products,
     });
-  } catch (error) {
-    console.error(
-      "Възникна грешка при извличане на данните за категорията:",
-      error
-    );
+  } catch {
     return NextResponse.json(
       { message: "Възникна грешка при извличане на данните за категорията!" },
       { status: 500 }

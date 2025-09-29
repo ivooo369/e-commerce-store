@@ -1,4 +1,4 @@
-import { Settlement } from "@/lib/interfaces";
+import { Settlement } from "@/lib/types/interfaces";
 import axios from "axios";
 
 const GEONAMES_USERNAME = "lipci";
@@ -37,11 +37,7 @@ export async function searchSettlements(query: string): Promise<Settlement[]> {
     return [];
   } catch (error) {
     if (axios.isAxiosError(error)) {
-      console.error(
-        "Възникна грешка при извличане на населените места:",
-        error.response?.status,
-        error.message
-      );
+      throw new Error("Възникна грешка при извличане на населените места!");
     }
     return [];
   }
@@ -71,10 +67,8 @@ export async function getSettlementByPostalCode(
     return null;
   } catch (error) {
     if (axios.isAxiosError(error)) {
-      console.error(
-        "Възникна грешка при извличане на населените места по пощенски код:",
-        error.response?.status,
-        error.message
+      throw new Error(
+        "Възникна грешка при извличане на населените места по пощенски код!"
       );
     }
     return null;

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
+import prisma from "@/lib/services/prisma";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -39,8 +39,7 @@ export async function GET(request: Request) {
     });
 
     return NextResponse.json(products, { status: 200 });
-  } catch (error) {
-    console.error("Възникна грешка при извличане на продуктите:", error);
+  } catch {
     return NextResponse.json(
       { message: "Възникна грешка при извличане на продуктите!" },
       { status: 500 }

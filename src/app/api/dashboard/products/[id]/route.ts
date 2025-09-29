@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
-import cloudinary from "@/lib/cloudinary.config";
+import prisma from "@/lib/services/prisma";
+import cloudinary from "@/lib/config/cloudinary.config";
 
 export async function GET(
   request: Request,
@@ -42,8 +42,7 @@ export async function GET(
       },
       { status: 200 }
     );
-  } catch (error) {
-    console.error("Възникна грешка при извличане на продукта:", error);
+  } catch {
     return NextResponse.json(
       { message: "Възникна грешка при извличане на продукта!" },
       { status: 500 }
@@ -80,11 +79,31 @@ export async function PUT(
       );
     }
 
-    if (images && (!Array.isArray(images) || images.length === 0)) {
+    if (!images || !Array.isArray(images) || images.length === 0) {
       return NextResponse.json(
-        { message: "Трябва да качите поне едно изображение на продукта!" },
+        { message: "Моля, качете поне едно изображение на продукта!" },
         { status: 400 }
       );
+    }
+
+    const newImages = images.filter(
+      (imageUrl) => typeof imageUrl === "string" && imageUrl.startsWith("data:")
+    );
+
+    for (const imageUrl of newImages) {
+      const base64Content = imageUrl.split(",")[1];
+      if (base64Content) {
+        const sizeInBytes = (base64Content.length * 3) / 4;
+        if (sizeInBytes > 2 * 1024 * 1024) {
+          return NextResponse.json(
+            {
+              message:
+                "Едно или повече изображения надвишават максималния размер от 2 MB!",
+            },
+            { status: 400 }
+          );
+        }
+      }
     }
 
     const existingProductWithCode = await prisma.product.findUnique({
@@ -109,32 +128,37 @@ export async function PUT(
       );
     }
 
-    const handleImageUpload = async (images: string[]) => {
-      const existingImageUrls = existingProduct.images || [];
-      const newImagesToUpload = images.filter(
-        (img) => !existingImageUrls.includes(img)
-      );
-
-      const uploadPromises = newImagesToUpload.map((imageUrl) =>
-        cloudinary.uploader.upload(imageUrl, {
-          folder: "LIPCI/products",
-        })
-      );
-      const uploadedImages = await Promise.all(uploadPromises);
-      return uploadedImages.map((upload) => upload.secure_url);
-    };
-
-    const newImageUrls: string[] = [];
-
-    if (images && images.length > 0) {
-      const uploadedImages = await handleImageUpload(images);
-      newImageUrls.push(...uploadedImages);
-    }
-
-    const imagesToKeep = existingProduct.images.filter(
+    const existingImageUrls = existingProduct.images || [];
+    const imagesToKeep = existingImageUrls.filter(
       (img) => !imagesToRemove || !imagesToRemove.includes(img)
     );
-    const combinedImages = [...imagesToKeep, ...newImageUrls];
+
+    const newImagesToUpload = images.filter(
+      (img) => typeof img === "string" && img.startsWith("data:")
+    );
+
+    const uploadedImageUrls: string[] = [];
+
+    if (newImagesToUpload.length > 0) {
+      try {
+        const uploadPromises = newImagesToUpload.map(async (imageUrl) => {
+          const result = await cloudinary.uploader.upload(imageUrl, {
+            folder: "LIPCI/products",
+          });
+          return result.secure_url;
+        });
+
+        const uploadResults = await Promise.all(uploadPromises);
+        uploadedImageUrls.push(...uploadResults);
+      } catch {
+        return NextResponse.json(
+          { message: "Възникна грешка при качване на изображенията!" },
+          { status: 500 }
+        );
+      }
+    }
+
+    const combinedImages = [...imagesToKeep, ...uploadedImageUrls];
 
     const updatedProduct = await prisma.product.update({
       where: { id },
@@ -163,20 +187,26 @@ export async function PUT(
 
     await Promise.all(createSubcategoryRelations);
 
-    if (imagesToRemove) {
-      const deleteImagePromises = imagesToRemove.map((imageUrl: string) => {
-        const publicId = imageUrl.split("/").pop()?.split(".")[0];
-        return cloudinary.uploader.destroy(`LIPCI/products/${publicId}`);
-      });
-      await Promise.all(deleteImagePromises);
+    if (imagesToRemove && imagesToRemove.length > 0) {
+      try {
+        const deleteImagePromises = imagesToRemove.map((imageUrl: string) => {
+          const publicId = imageUrl.split("/").pop()?.split(".")[0];
+          if (publicId) {
+            return cloudinary.uploader.destroy(`LIPCI/products/${publicId}`);
+          }
+          return Promise.resolve();
+        });
+        await Promise.all(deleteImagePromises);
+      } catch {
+        throw new Error("Възникна грешка при изтриване на стари изображения!");
+      }
     }
 
     return NextResponse.json(
-      { message: "Продуктът е обновен успешно!", category: updatedProduct },
+      { message: "Продуктът е обновен успешно!", product: updatedProduct },
       { status: 200 }
     );
-  } catch (error) {
-    console.error("Възникна грешка при обновяване на продукта:", error);
+  } catch {
     return NextResponse.json(
       { message: "Възникна грешка! Моля, опитайте отново!" },
       { status: 500 }
@@ -229,8 +259,7 @@ export async function DELETE(
       { message: "Продуктът е изтрит успешно!" },
       { status: 200 }
     );
-  } catch (error) {
-    console.error("Възникна грешка при изтриване на продукта:", error);
+  } catch {
     return NextResponse.json(
       { message: "Възникна грешка при изтриване на продукта!" },
       { status: 500 }

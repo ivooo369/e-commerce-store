@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
+import prisma from "@/lib/services/prisma";
 
 export async function PATCH(
   request: Request,
@@ -31,8 +31,7 @@ export async function PATCH(
     });
 
     return NextResponse.json(updatedOrder);
-  } catch (error) {
-    console.error("Възникна грешка при актуализиране на поръчката:", error);
+  } catch {
     return NextResponse.json(
       { error: "Възникна грешка при актуализиране на поръчката!" },
       { status: 500 }

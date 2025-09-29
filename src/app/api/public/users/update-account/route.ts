@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
+import prisma from "@/lib/services/prisma";
 import jwt from "jsonwebtoken";
-import { DecodedToken, UpdateUser } from "@/lib/interfaces";
+import { DecodedToken, UpdateUser } from "@/lib/types/interfaces";
 
 export const dynamic = "force-dynamic";
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -58,11 +58,7 @@ export async function GET(req: Request) {
       },
       { status: 200 }
     );
-  } catch (error) {
-    console.error(
-      "Възникна грешка при извличане на потребителската информация:",
-      error
-    );
+  } catch {
     return NextResponse.json(
       { message: "Възникна грешка при обработка на заявката!" },
       { status: 500 }
@@ -115,9 +111,25 @@ export async function PUT(req: Request) {
 
     const updatedData: UpdateUser = {};
 
+    if (email?.trim()) {
+      const existingUser = await prisma.customer.findFirst({
+        where: {
+          email: email.trim(),
+          id: { not: decoded.userId },
+        },
+      });
+
+      if (existingUser) {
+        return NextResponse.json(
+          { message: "Потребител с този имейл вече съществува!" },
+          { status: 409 }
+        );
+      }
+      updatedData.email = email.trim();
+    }
+
     if (firstName?.trim()) updatedData.firstName = firstName.trim();
     if (lastName?.trim()) updatedData.lastName = lastName.trim();
-    if (email?.trim()) updatedData.email = email.trim();
     if (city?.trim()) updatedData.city = city.trim();
     if (address?.trim()) updatedData.address = address.trim();
     if (phone?.trim()) updatedData.phone = phone.trim();
@@ -141,11 +153,7 @@ export async function PUT(req: Request) {
       },
       { status: 200 }
     );
-  } catch (error) {
-    console.error(
-      "Възникна грешка при обновяване на информацията на потребителя:",
-      error
-    );
+  } catch {
     return NextResponse.json(
       { message: "Възникна грешка при обновяване на информацията!" },
       { status: 500 }

@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
-import AlertMessage from "@/ui/components/alert-message";
+import useProtectedRoute from "@/lib/hooks/useProtectedRoute";
+import AlertMessage from "@/ui/components/feedback/alert-message";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import {
@@ -15,9 +16,12 @@ import {
   Button,
 } from "@mui/material";
 import { changePassword } from "@/services/userService";
+import { useAutoDismissAlert } from "@/lib/hooks/useAutoDismissAlert";
 
 export default function ChangePasswordPage() {
   const router = useRouter();
+  useProtectedRoute();
+
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -27,28 +31,7 @@ export default function ChangePasswordPage() {
   const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] =
     useState(false);
   const [isChanging, setIsChanging] = useState(false);
-  const [alert, setAlert] = useState<{
-    message: string;
-    severity: "success" | "error";
-  } | null>(null);
-
-  useEffect(() => {
-    const token = localStorage.getItem("userData");
-
-    if (!token || isTokenExpired(token)) {
-      router.push("/user/sign-in");
-    }
-  }, [router]);
-
-  const isTokenExpired = (token: string): boolean => {
-    try {
-      const payload = JSON.parse(atob(token.split(".")[1]));
-      const currentTime = Math.floor(Date.now() / 1000);
-      return payload.exp < currentTime;
-    } catch {
-      return true;
-    }
-  };
+  const [alert, setAlert] = useAutoDismissAlert(5000);
 
   const handleClickShowPassword = (field: string) => {
     if (field === "current") setIsCurrentPasswordVisible((show) => !show);
@@ -64,37 +47,55 @@ export default function ChangePasswordPage() {
     mutationFn: changePassword,
     onMutate: () => {
       setIsChanging(true);
+      setAlert(null);
     },
     onSuccess: (responseData) => {
       setAlert({
-        message: responseData.message,
+        message: responseData.message || "Паролата беше сменена успешно!",
         severity: "success",
       });
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+
       setTimeout(() => {
-        setAlert(null);
         router.push("/");
       }, 1500);
-      setIsChanging(false);
     },
-    onError: (error: { message: string }) => {
+    onError: (
+      error: Error & { response?: { data?: { message?: string } } }
+    ) => {
+      const errorMessage =
+        error.response?.data?.message ||
+        error.message ||
+        "Възникна грешка при смяна на паролата!";
       setAlert({
-        message: error.message,
+        message: errorMessage,
         severity: "error",
       });
-      setTimeout(() => setAlert(null), 5000);
+    },
+    onSettled: () => {
       setIsChanging(false);
     },
   });
 
   const handleChangePassword = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setAlert(null);
 
     if (newPassword.trim() !== confirmPassword.trim()) {
       setAlert({
         message: "Новата парола и паролата за потвърждение не съвпадат!",
         severity: "error",
       });
-      setTimeout(() => setAlert(null), 5000);
+      return;
+    }
+
+    if (newPassword.trim().length < 8) {
+      setAlert({
+        message: "Паролата трябва да бъде поне 8 символа!",
+        severity: "error",
+      });
       return;
     }
 

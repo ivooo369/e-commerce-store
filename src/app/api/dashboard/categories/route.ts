@@ -1,13 +1,12 @@
 import { NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
-import cloudinary from "@/lib/cloudinary.config";
+import prisma from "@/lib/services/prisma";
+import cloudinary from "@/lib/config/cloudinary.config";
 
 export async function GET() {
   try {
     const categories = await prisma.category.findMany();
     return NextResponse.json(categories, { status: 200 });
-  } catch (error) {
-    console.error("Възникна грешка при извличане на категориите:", error);
+  } catch {
     return NextResponse.json(
       { message: "Възникна грешка при извличане на категориите!" },
       { status: 500 }
@@ -33,6 +32,16 @@ export async function POST(request: Request) {
     if (!imageUrl) {
       return NextResponse.json(
         { message: "Трябва да качите изображение на категорията!" },
+        { status: 400 }
+      );
+    }
+
+    const base64Content = imageUrl.split(",")[1] || imageUrl;
+    const sizeInBytes = (base64Content.length * 3) / 4;
+
+    if (sizeInBytes > 2 * 1024 * 1024) {
+      return NextResponse.json(
+        { message: "Изображението надвишава максималния размер от 2 MB!" },
         { status: 400 }
       );
     }
@@ -85,8 +94,7 @@ export async function POST(request: Request) {
       { message: "Категорията е добавена успешно!", category: newCategory },
       { status: 201 }
     );
-  } catch (error) {
-    console.error("Възникна грешка при добавяне на категорията:", error);
+  } catch {
     return NextResponse.json(
       { message: "Възникна грешка при добавяне на категорията!" },
       { status: 500 }

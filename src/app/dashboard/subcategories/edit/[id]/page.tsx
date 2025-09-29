@@ -1,24 +1,26 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useAutoDismissAlert } from "@/lib/hooks/useAutoDismissAlert";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useParams, useRouter } from "next/navigation";
-import DashboardNav from "@/ui/dashboard/dashboard-primary-nav";
+import DashboardNav from "@/ui/components/layouts/dashboard-primary-nav";
 import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
 import OutlinedInput from "@mui/material/OutlinedInput";
 import Button from "@mui/material/Button";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
-import CircularProgress from "@/ui/components/circular-progress";
-import AlertMessage from "@/ui/components/alert-message";
+import CircularProgress from "@/ui/components/feedback/circular-progress";
+import AlertMessage from "@/ui/components/feedback/alert-message";
 import { Category } from "@prisma/client";
 import { fetchCategories } from "@/services/categoryService";
 import {
   editSubcategory,
   fetchSubcategory,
 } from "@/services/subcategoryService";
-import DashboardSecondaryNav from "@/ui/dashboard/dashboard-secondary-nav";
+import DashboardSecondaryNav from "@/ui/components/layouts/dashboard-secondary-nav";
+import Box from "@mui/material/Box";
 
 export default function DashboardEditSubcategoryPage() {
   const router = useRouter();
@@ -29,10 +31,7 @@ export default function DashboardEditSubcategoryPage() {
     code: "",
     categoryId: "",
   });
-  const [alert, setAlert] = useState<{
-    message: string;
-    severity: "success" | "error";
-  } | null>(null);
+  const [alert, setAlert] = useAutoDismissAlert(5000);
   const [isEditing, setIsEditing] = useState(false);
   const queryClient = useQueryClient();
 
@@ -74,51 +73,82 @@ export default function DashboardEditSubcategoryPage() {
 
   const handleSubcategorySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (
+      !subcategoryData.name.trim() ||
+      !subcategoryData.code.trim() ||
+      !subcategoryData.categoryId
+    ) {
+      setAlert({
+        message: "Моля, попълнете всички задължителни полета!",
+        severity: "error",
+      });
+      return;
+    }
+
+    const codeRegex = /^[a-zA-Z0-9]+$/;
+    if (!codeRegex.test(subcategoryData.code)) {
+      setAlert({
+        message: "Кодът трябва да съдържа само букви и цифри, без интервали!",
+        severity: "error",
+      });
+      return;
+    }
+
     setIsEditing(true);
 
-    if (subcategoryId) {
-      try {
-        const updatedSubcategory = {
-          name: subcategoryData.name,
-          code: subcategoryData.code,
-          categoryId: subcategoryData.categoryId,
-        };
+    try {
+      const updatedSubcategory = {
+        name: subcategoryData.name.trim(),
+        code: subcategoryData.code.trim().toUpperCase(),
+        categoryId: subcategoryData.categoryId,
+      };
 
-        queryClient.setQueryData(
-          ["subcategory", subcategoryId],
-          updatedSubcategory
-        );
+      queryClient.setQueryData(
+        ["subcategory", subcategoryId],
+        updatedSubcategory
+      );
 
-        const response = await editSubcategory({
-          id: subcategoryId,
-          updatedSubcategory,
-        });
+      const response = await editSubcategory({
+        id: subcategoryId,
+        updatedSubcategory,
+      });
 
-        setAlert({ message: response.message, severity: "success" });
+      setAlert({
+        message: response.message || "Подкатегорията е обновена успешно!",
+        severity: "success",
+      });
 
-        queryClient.invalidateQueries({
-          queryKey: ["subcategory", subcategoryId],
-        });
+      queryClient.invalidateQueries({
+        queryKey: ["subcategory", subcategoryId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["subcategories"],
+      });
 
-        setTimeout(() => {
-          router.push("/dashboard/subcategories");
-        }, 1000);
-      } catch (error: unknown) {
-        if (error instanceof Error) {
-          setAlert({ message: error.message, severity: "error" });
-        }
-      } finally {
-        setIsEditing(false);
-        setTimeout(() => setAlert(null), 5000);
-      }
+      setTimeout(() => {
+        router.push("/dashboard/subcategories");
+      }, 1000);
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Възникна грешка при обновяване на подкатегорията. Моля, опитайте отново!";
+
+      setAlert({
+        message: errorMessage,
+        severity: "error",
+      });
+    } finally {
+      setIsEditing(false);
     }
   };
 
   if (isCategoriesLoading || isSubcategoryLoading) {
     return (
-      <div className="flex justify-center items-center h-screen">
+      <Box className="flex justify-center items-center h-screen">
         <CircularProgress message="Зареждане на данните за подкатегорията..." />
-      </div>
+      </Box>
     );
   }
 

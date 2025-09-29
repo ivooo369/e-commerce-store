@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { Prisma } from "@prisma/client";
-import { OrderItem } from "@/lib/interfaces";
-import { calculateShippingCost, getDeliveryMethod } from "@/lib/delivery";
-import prisma from "@/lib/prisma";
+import { OrderItem } from "@/lib/types/interfaces";
+import { calculateShippingCost, getDeliveryMethod } from "@/lib/utils/delivery";
+import prisma from "@/lib/services/prisma";
 
 export const dynamic = "force-dynamic";
 
@@ -134,8 +134,7 @@ export async function GET(request: Request) {
       sortBy,
       sortOrder,
     });
-  } catch (error) {
-    console.error("Възникна грешка при извличане на поръчките:", error);
+  } catch {
     return NextResponse.json(
       { error: "Възникна грешка при извличане на поръчките!" },
       { status: 500 }

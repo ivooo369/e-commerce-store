@@ -1,53 +1,24 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { formatPrice } from "@/lib/currencyUtils";
+import { formatPrice } from "@/lib/utils/currency";
 import Image from "next/image";
 import Link from "next/link";
 import {
-  Truck,
-  Package,
   CreditCard,
   Check,
   AlertCircle,
   ChevronLeft,
   ChevronRight,
-  MapPin,
-  Phone,
 } from "lucide-react";
-import { useCart } from "@/lib/useCart";
-import SettlementInput from "@/ui/components/settlement-input";
-import OfficeMap from "@/ui/components/office-map";
-import { getEcontOfficesRest } from "@/services/econtService";
-import dynamic from "next/dynamic";
-import CircularProgress from "@/ui/components/circular-progress";
-import {
-  ApiOffice,
-  DeliveryOption,
-  FormDataDelivery,
-  Office,
-} from "@/lib/interfaces";
+import { useCart } from "@/lib/hooks/useCart";
+import { useOffices } from "@/lib/hooks/useOffices";
+import CircularProgress from "@/ui/components/feedback/circular-progress";
+import { FormDataDelivery, Settlement } from "@/lib/types/interfaces";
 import { orderService } from "@/services/orderService";
-import {
-  FormControl,
-  FormControlLabel,
-  FormHelperText,
-  Checkbox,
-} from "@mui/material";
-
-const DynamicOfficeMap = dynamic<React.ComponentProps<typeof OfficeMap>>(
-  () => import("@/ui/components/office-map").then((mod) => mod.default || mod),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="w-full h-64 bg-gray-100 rounded-lg flex items-center justify-center">
-        <div className="animate-pulse text-gray-500">
-          Зареждане на картата...
-        </div>
-      </div>
-    ),
-  }
-);
+import { deliveryOptions } from "@/lib/utils/delivery";
+import CheckoutSteps from "@/ui/components/others/checkout-step-content";
+import Box from "@mui/material/Box";
 
 export default function CheckoutPage() {
   const [isClient, setIsClient] = useState(false);
@@ -55,8 +26,6 @@ export default function CheckoutPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [formErrors] = useState<{ agreeTerms?: string }>({});
-  const [offices, setOffices] = useState<Office[]>([]);
-  const [isLoadingOffices, setIsLoadingOffices] = useState(false);
   const { items, getCartTotal } = useCart();
   const [formData, setFormData] = useState<FormDataDelivery>({
     firstName: "",
@@ -73,178 +42,25 @@ export default function CheckoutPage() {
     agreeTerms: false,
   });
 
-  const fetchOffices = useCallback(
-    async (deliveryMethod: string, cityName: string) => {
-      if (!cityName) return;
-
-      setIsLoadingOffices(true);
-      setOffices([]);
-      setFormData((prev) => ({ ...prev, officeId: "" }));
-
-      try {
-        if (deliveryMethod === "econt") {
-          const econtOffices = await getEcontOfficesRest(cityName);
-          const formattedOffices = econtOffices.map(
-            (office: ApiOffice): Office => {
-              const workTime = office.workTime || "";
-              const weeklySchedule = (office.weeklySchedule || []).map(
-                (schedule: { day: string; time?: string | null }) => ({
-                  day: schedule.day,
-                  time: schedule.time || null,
-                  isDayOff: !schedule.time,
-                })
-              );
-
-              const getCityName = (
-                city: string | { name: string } | undefined
-              ): string => {
-                if (!city) return "";
-                return typeof city === "string" ? city : city.name || "";
-              };
-
-              const safeString = (
-                value: string | number | boolean | null | undefined
-              ): string => {
-                return value != null ? String(value) : "";
-              };
-
-              const safePhones = (
-                phones: (string | number)[] | undefined
-              ): string[] => {
-                if (!Array.isArray(phones)) return [];
-                return phones.map((phone) => safeString(phone));
-              };
-
-              return {
-                id: safeString(office.id),
-                name: `Еконт офис ${safeString(office.name)}`,
-                address: {
-                  full: safeString(office.fullAddress || ""),
-                  city: getCityName(office.city || office.address?.city),
-                  street: safeString(
-                    office.street || office.address?.street || ""
-                  ),
-                  number: safeString(office.num || office.address?.num || ""),
-                  quarter: safeString(
-                    office.quarter || office.address?.quarter || ""
-                  ),
-                  other: safeString(
-                    office.other || office.address?.other || ""
-                  ),
-                  workTime: workTime,
-                },
-                phones: safePhones(office.phones),
-                workTime,
-                isMachine: Boolean(office.isAPS || office.isMachine),
-                latitude:
-                  typeof office.latitude === "number"
-                    ? office.latitude
-                    : office.location?.latitude,
-                longitude:
-                  typeof office.longitude === "number"
-                    ? office.longitude
-                    : office.location?.longitude,
-                weeklySchedule,
-              };
-            }
-          );
-          setOffices(formattedOffices);
-        } else if (deliveryMethod === "speedy") {
-          const { getSpeedyOfficesRest } = await import(
-            "@/services/speedyService"
-          );
-          const speedyOffices = await getSpeedyOfficesRest(cityName);
-          const formattedOffices = speedyOffices.map(
-            (office: ApiOffice): Office => {
-              const workTime = office.workTime || "";
-              const weeklySchedule = (office.weeklySchedule || []).map(
-                (schedule: { day: string; time?: string | null }) => ({
-                  day: schedule.day,
-                  time: schedule.time || null,
-                  isDayOff: !schedule.time,
-                })
-              );
-
-              const getCityName = (
-                city: string | { name: string } | undefined
-              ): string => {
-                if (!city) return "";
-                return typeof city === "string" ? city : city.name || "";
-              };
-
-              const safeString = (
-                value: string | number | boolean | null | undefined
-              ): string => {
-                return value != null ? String(value) : "";
-              };
-
-              const safePhones = (
-                phones: (string | number)[] | undefined
-              ): string[] => {
-                if (!Array.isArray(phones)) return [];
-                return phones.map((phone) => safeString(phone));
-              };
-
-              const latitude = office.latitude ?? office.location?.latitude;
-              const longitude = office.longitude ?? office.location?.longitude;
-
-              return {
-                id: safeString(office.id),
-                name: `Спиди офис ${safeString(office.name)}`,
-                address: {
-                  full: safeString(
-                    office.fullAddress || office.address?.fullAddress || ""
-                  ),
-                  city: getCityName(office.city || office.address?.city),
-                  street: safeString(
-                    office.street || office.address?.street || ""
-                  ),
-                  number: safeString(office.num || office.address?.num || ""),
-                  quarter: safeString(
-                    office.quarter || office.address?.quarter || ""
-                  ),
-                  other: safeString(
-                    office.other || office.address?.other || ""
-                  ),
-                  workTime,
-                },
-                phones: safePhones(office.phones),
-                workTime,
-                isMachine: Boolean(office.isAPS || office.isMachine),
-                latitude: latitude,
-                longitude: longitude,
-                weeklySchedule,
-              };
-            }
-          );
-          setOffices(formattedOffices);
-        }
-      } catch (error) {
-        console.error("Възникна грешка при зареждане на офисите:", error);
-        setError("Възникна грешка при зареждане на офисите!");
-        setOffices([]);
-      } finally {
-        setIsLoadingOffices(false);
-      }
-    },
-    []
+  const {
+    data: offices = [],
+    isLoading: isLoadingOffices,
+    error: officesError,
+  } = useOffices(
+    formData.deliveryMethod,
+    formData.city.split(",")[0]?.trim() || ""
   );
 
   const handleDeliveryMethodChange = useCallback(
-    async (method: "speedy" | "econt" | "address") => {
+    (method: "speedy" | "econt" | "address") => {
       setFormData((prev) => ({
         ...prev,
         deliveryMethod: method,
         officeId: "",
         ...(method !== "address" ? { address: "" } : {}),
       }));
-
-      const cityName = formData.city.split(",")[0].trim();
-      if (method !== "address" && cityName) {
-        await fetchOffices(method, cityName);
-      }
     },
-    [formData.city, fetchOffices]
+    []
   );
 
   const handleInputChange = useCallback(
@@ -265,43 +81,19 @@ export default function CheckoutPage() {
     []
   );
 
-  const steps = ["Данни за доставка", "Начин на доставка", "Потвърждение"];
+  const handleSettlementSelect = useCallback((settlement: Settlement) => {
+    setFormData((prev) => ({
+      ...prev,
+      city: `${settlement.placeName}, ${settlement.postalCode} (${
+        settlement.adminName2 || settlement.adminName1
+      })`,
+      region: settlement.adminName1,
+      municipality: settlement.adminName2 || settlement.adminName1,
+      officeId: "",
+    }));
+  }, []);
 
-  const deliveryOptions: DeliveryOption[] = [
-    {
-      id: "address",
-      title: "Доставка до адрес",
-      shortTitle: "До адрес",
-      description: "Доставка директно на посочения от вас адрес",
-      icon: (
-        <MapPin className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 dark:text-blue-400" />
-      ),
-      price: "9.90 лв. / 5.06 €",
-      color: "blue",
-    },
-    {
-      id: "speedy",
-      title: "До офис на Спиди",
-      shortTitle: "До Спиди",
-      description: "Вземете пратката от най-близкия офис на Спиди",
-      icon: (
-        <Truck className="w-5 h-5 sm:w-6 sm:h-6 text-red-600 dark:text-red-400" />
-      ),
-      price: "5.20 лв. / 2.66 €",
-      color: "red",
-    },
-    {
-      id: "econt",
-      title: "До офис на Еконт",
-      shortTitle: "До Еконт",
-      description: "Вземете пратката от най-близкия офис на Еконт",
-      icon: (
-        <Package className="w-5 h-5 sm:w-6 sm:h-6 text-orange-500 dark:text-orange-400" />
-      ),
-      price: "6.90 лв. / 3.53 €",
-      color: "orange",
-    },
-  ];
+  const steps = ["Данни за доставка", "Начин на доставка", "Потвърждение"];
 
   useEffect(() => {
     setIsClient(true);
@@ -309,9 +101,9 @@ export default function CheckoutPage() {
 
   if (!isClient) {
     return (
-      <div className="container mx-auto px-4 py-10 flex justify-center items-center min-h-[calc(100vh-243.5px)]">
+      <Box className="container mx-auto px-4 py-10 flex justify-center items-center min-h-[calc(100vh-243.5px)]">
         <CircularProgress message="Зареждане на данните за поръчката..." />
-      </div>
+      </Box>
     );
   }
 
@@ -335,7 +127,7 @@ export default function CheckoutPage() {
         { field: formData.lastName, name: "Фамилия" },
         { field: formData.email, name: "Имейл" },
         { field: formData.phone, name: "Телефон" },
-        { field: formData.city, name: "Град" },
+        { field: formData.city, name: "Населено място" },
       ];
 
       if (formData.region !== undefined) {
@@ -374,7 +166,7 @@ export default function CheckoutPage() {
         return;
       }
 
-      const phoneRegex = /^\d{10,15}$/;
+      const phoneRegex = /^\d{10,20}$/;
       if (!phoneRegex.test(formData.phone)) {
         setError("Моля, въведете валиден телефонен номер!");
         return;
@@ -420,8 +212,8 @@ export default function CheckoutPage() {
           try {
             const parsedUserData = JSON.parse(userData);
             customerId = parsedUserData.id || "";
-          } catch (e) {
-            console.error("Възникна грешка:", e);
+          } catch {
+            throw new Error("Възникна грешка!");
           }
         }
       }
@@ -470,536 +262,8 @@ export default function CheckoutPage() {
           ? err.message
           : "Възникна грешка при обработка на поръчката!";
       setError(errorMessage);
-      console.error("Възникна грешка при обработка на поръчката:", err);
     } finally {
       setIsSubmitting(false);
-    }
-  };
-
-  const renderStepContent = () => {
-    switch (currentStep) {
-      case 0:
-        return (
-          <div className="space-y-6">
-            <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-100">
-              Данни за контакт
-            </h3>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
-                  Име <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  name="firstName"
-                  value={formData.firstName}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
-                  Фамилия <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  name="lastName"
-                  value={formData.lastName}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  required
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
-                Имейл адрес <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
-                Телефон <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="tel"
-                name="phone"
-                value={formData.phone}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
-                Населено място <span className="text-red-500">*</span>
-              </label>
-              <SettlementInput
-                value={formData.city}
-                onChange={(value) =>
-                  setFormData((prev) => ({ ...prev, city: value }))
-                }
-                onSelect={async (settlement) => {
-                  setFormData((prev) => ({
-                    ...prev,
-                    city: `${settlement.placeName}, ${settlement.postalCode} (${
-                      settlement.adminName2 || settlement.adminName1
-                    })`,
-                    region: settlement.adminName1,
-                    municipality:
-                      settlement.adminName2 || settlement.adminName1,
-                  }));
-                  if (formData.deliveryMethod !== "address") {
-                    await fetchOffices(
-                      formData.deliveryMethod,
-                      settlement.placeName
-                    );
-                  }
-                }}
-                required
-              />
-            </div>
-          </div>
-        );
-
-      case 1:
-        return (
-          <div className="space-y-6">
-            <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-100">
-              Изберете начин на доставка
-            </h3>
-
-            <div className="grid grid-cols-1 gap-2 sm:gap-4">
-              {deliveryOptions.map((option) => {
-                const isSelected = formData.deliveryMethod === option.id;
-                const colorClass = isSelected
-                  ? `border-blue-500 bg-blue-50 dark:bg-blue-900/30 shadow-md`
-                  : `border-gray-200 hover:border-gray-300 dark:border-gray-700 dark:hover:border-gray-500`;
-
-                return (
-                  <div
-                    key={option.id}
-                    className={`border-2 rounded-lg p-2 sm:rounded-xl sm:p-4 cursor-pointer transition-all duration-200 hover:shadow-md ${colorClass}`}
-                    onClick={() => handleDeliveryMethodChange(option.id)}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-2 sm:space-x-3">
-                        <div
-                          className={`p-1.5 rounded-full flex-shrink-0 ${
-                            isSelected
-                              ? "bg-blue-100 text-blue-600 dark:bg-blue-800 dark:text-blue-200"
-                              : "bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300"
-                          }`}
-                        >
-                          {option.icon}
-                        </div>
-                        <div className="min-w-0">
-                          <h4 className="font-medium text-gray-900 dark:text-white text-sm sm:text-base">
-                            <span className="hidden sm:inline">
-                              {option.title}
-                            </span>
-                            <span className="sm:hidden">
-                              {option.shortTitle || option.title}
-                            </span>
-                          </h4>
-                          <p className="text-sm text-gray-500 dark:text-gray-400 truncate hidden sm:block">
-                            {option.description}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="text-right ml-2 whitespace-nowrap">
-                        <span className="font-semibold text-gray-900 dark:text-white text-sm sm:text-base">
-                          {option.price}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-
-            {formData.deliveryMethod === "address" ? (
-              <div className="mt-6">
-                <label className="block text-base font-medium text-gray-700 dark:text-gray-200 mb-2">
-                  Пълен адрес за доставка{" "}
-                  <span className="text-red-500">*</span>
-                </label>
-                <textarea
-                  name="address"
-                  value={formData.address}
-                  onChange={handleInputChange}
-                  rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  required
-                />
-              </div>
-            ) : (
-              <div className="mt-6">
-                <h4 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-3">
-                  Офиси в/във{" "}
-                  {formData.city ? formData.city.split("(")[0].trim() : "града"}
-                </h4>
-
-                {isLoadingOffices ? (
-                  <div className="flex items-center justify-center py-8 space-x-3">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                    <p className="text-gray-600">Зареждане на офисите...</p>
-                  </div>
-                ) : offices.length > 0 ? (
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <h4 className="font-medium">Изберете офис:</h4>
-                      <div className="space-y-2 max-h-60 overflow-y-auto pr-2">
-                        {offices.map((office) => (
-                          <div key={office.id}>
-                            <div
-                              className={`p-4 border rounded-lg cursor-pointer transition-colors ${
-                                formData.officeId === office.id
-                                  ? "border-blue-500 bg-blue-50 dark:bg-blue-900/30 ring-2 ring-blue-200 dark:ring-blue-800"
-                                  : "border-gray-200 hover:border-blue-300 dark:border-gray-700 dark:hover:border-blue-400"
-                              }`}
-                              onClick={() =>
-                                setFormData((prev) => ({
-                                  ...prev,
-                                  officeId: office.id,
-                                }))
-                              }
-                            >
-                              <div className="flex justify-between items-start">
-                                <div>
-                                  <div className="font-medium">
-                                    {office.name}
-                                  </div>
-                                  <div className="text-sm text-gray-600 dark:text-gray-300 mt-1">
-                                    {office.address.full ||
-                                      `${office.address.street} ${office.address.number}`.trim()}
-                                  </div>
-                                </div>
-                                {formData.officeId === office.id && (
-                                  <Check className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
-                                )}
-                              </div>
-
-                              {(office.phones?.length > 0 ||
-                                office.isMachine ||
-                                (office.weeklySchedule &&
-                                  office.weeklySchedule.length > 0)) && (
-                                <div className="mt-2 pt-2 border-t border-gray-100 space-y-2">
-                                  {office.weeklySchedule &&
-                                    office.weeklySchedule.length > 0 && (
-                                      <div>
-                                        <div className="text-base text-gray-500 dark:text-gray-400 font-medium mb-1">
-                                          Работно време по дни:
-                                        </div>
-                                        <table className="w-full text-sm text-left mb-2">
-                                          <tbody>
-                                            {office.weeklySchedule.map(
-                                              (d: {
-                                                day: string;
-                                                time: string | null;
-                                              }) => (
-                                                <tr key={d.day}>
-                                                  <td className="pr-2 py-0.5 whitespace-nowrap">
-                                                    {d.day}:
-                                                  </td>
-                                                  <td className="py-0.5">
-                                                    {d.time
-                                                      ? d.time
-                                                      : "Почивен ден"}
-                                                  </td>
-                                                </tr>
-                                              )
-                                            )}
-                                          </tbody>
-                                        </table>
-                                      </div>
-                                    )}
-                                  {office.phones?.length > 0 && (
-                                    <div className="flex items-center text-sm text-gray-600 dark:text-gray-300">
-                                      <Phone className="w-3.5 h-3.5 mr-1.5 text-gray-500 flex-shrink-0" />
-                                      <span>{office.phones[0]}</span>
-                                    </div>
-                                  )}
-                                  {office.isMachine ||
-                                    (office.name.includes("Еконтомат") && (
-                                      <span className="inline-block px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full">
-                                        Автоматична станция
-                                      </span>
-                                    ))}
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-
-                      <div className="mt-6">
-                        <h4 className="font-medium mb-2">
-                          Разположение на офисите:
-                        </h4>
-                        <div className="h-64 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
-                          {(() => {
-                            return (
-                              <DynamicOfficeMap
-                                cityName={formData.city.split(",")[0] || "Град"}
-                                offices={offices}
-                                selectedOfficeId={formData.officeId}
-                                onOfficeSelect={(officeId) =>
-                                  setFormData((prev) => ({ ...prev, officeId }))
-                                }
-                              />
-                            );
-                          })()}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ) : formData.city ? (
-                  <div className="bg-yellow-50 border border-yellow-200 dark:bg-yellow-900/20 dark:border-yellow-700 rounded-lg p-4">
-                    <div className="flex items-start">
-                      <AlertCircle className="w-6 h-6 text-yellow-600 dark:text-yellow-400 mr-2 flex-shrink-0 mt-0.5" />
-                      <p className="text-yellow-700 dark:text-yellow-200">
-                        Няма налични офиси за &quot;
-                        {formData.city
-                          ? formData.city.split("(")[0].trim()
-                          : ""}
-                        &quot;.
-                      </p>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="bg-blue-50 border border-blue-200 dark:bg-blue-900/20 dark:border-blue-700 rounded-lg p-4">
-                    <div className="flex items-center">
-                      <AlertCircle className="w-5 h-5 text-blue-600 dark:text-blue-300 mr-2" />
-                      <p className="text-blue-700 dark:text-blue-200">
-                        Въведете град, за да видите наличните офиси
-                      </p>
-                    </div>
-                  </div>
-                )}
-
-                {formData.deliveryMethod === "speedy" && (
-                  <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/30 rounded-lg border border-blue-200 dark:border-blue-800">
-                    <h3 className="text-md font-medium text-blue-800 dark:text-blue-200 mb-2">
-                      Не намирате желания офис на Спиди?
-                    </h3>
-                    <div className="text-blue-700 dark:text-blue-200 text-sm">
-                      <p>
-                        Ако не намирате желания офис на Спиди в списъка с
-                        резултати, моля посочете го в полето „Бележки към
-                        поръчката“, и ние ще се погрижим поръчката Ви да бъде
-                        доставена до посочения офис.
-                      </p>
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-
-            <div>
-              <label className="block text-base font-medium text-gray-700 dark:text-gray-200 mb-2">
-                Бележки към поръчката
-              </label>
-              <textarea
-                name="notes"
-                value={formData.notes}
-                onChange={handleInputChange}
-                rows={3}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                required
-              />
-            </div>
-          </div>
-        );
-
-      case 2:
-        return (
-          <div className="space-y-6">
-            <div className="bg-gray-50 dark:bg-gray-900/40 rounded-lg p-6 border border-transparent dark:border-gray-700 break-words overflow-hidden">
-              <h4 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">
-                Данни за доставка
-              </h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-base">
-                <div>
-                  <span className="font-medium text-gray-700 dark:text-gray-300">
-                    Име:
-                  </span>
-                  <span className="ml-2 dark:text-gray-200">
-                    {formData.firstName} {formData.lastName}
-                  </span>
-                </div>
-                <div>
-                  <span className="font-medium text-gray-700 dark:text-gray-300">
-                    Имейл:
-                  </span>
-                  <span className="ml-2 dark:text-gray-200">
-                    {formData.email}
-                  </span>
-                </div>
-                <div>
-                  <span className="font-medium text-gray-700 dark:text-gray-300">
-                    Телефон:
-                  </span>
-                  <span className="ml-2 dark:text-gray-200">
-                    {formData.phone}
-                  </span>
-                </div>
-                <div>
-                  <span className="font-medium text-gray-700 dark:text-gray-300">
-                    Населено място:
-                  </span>
-                  <span className="ml-2 dark:text-gray-200">
-                    {formData.city}
-                  </span>
-                </div>
-                <div className="md:col-span-2">
-                  <span className="font-medium text-gray-700 dark:text-gray-300">
-                    Доставка:
-                  </span>
-                  <span className="ml-2 dark:text-gray-200">
-                    {
-                      deliveryOptions.find(
-                        (opt) => opt.id === formData.deliveryMethod
-                      )?.title
-                    }
-                  </span>
-                </div>
-
-                {formData.deliveryMethod === "address" ? (
-                  <div className="md:col-span-2">
-                    <span className="font-medium text-gray-700 dark:text-gray-300">
-                      Адрес:
-                    </span>
-                    <span className="ml-2 dark:text-gray-200">
-                      {formData.address}
-                    </span>
-                  </div>
-                ) : (
-                  <div className="md:col-span-2">
-                    <span className="font-medium text-gray-700 dark:text-gray-300">
-                      Офис:
-                    </span>
-                    <span className="ml-2 dark:text-gray-200">
-                      {(() => {
-                        const office = offices.find(
-                          (o) => o.id === formData.officeId
-                        );
-                        const address =
-                          office?.address?.full ||
-                          [office?.address?.street, office?.address?.number]
-                            .filter(Boolean)
-                            .join(" ");
-                        return `${office?.name || formData.officeId}${
-                          address ? ", " + address : ""
-                        }`;
-                      })()}
-                    </span>
-                  </div>
-                )}
-
-                {formData.notes && (
-                  <div className="md:col-span-2">
-                    <span className="font-medium text-gray-700 dark:text-gray-300">
-                      Бележки:
-                    </span>
-                    <span className="ml-2 dark:text-gray-200">
-                      {formData.notes}
-                    </span>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <div className="border-t pt-6">
-              <h4 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">
-                Начин на плащане
-              </h4>
-
-              <div className="border rounded-lg p-4 bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20 dark:border-yellow-700/60">
-                <div className="flex items-center space-x-3">
-                  <Truck className="w-6 h-6 text-orange-600 dark:text-orange-400" />
-                  <div>
-                    <div className="font-semibold text-gray-800 dark:text-gray-100">
-                      Наложен платеж
-                    </div>
-                    <div className="text-sm text-gray-600 dark:text-gray-300 mt-1">
-                      Плащане в брой при получаване на пратката
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
-              <div className="flex justify-center">
-                <FormControl
-                  component="fieldset"
-                  error={!formData.agreeTerms && !!formErrors?.agreeTerms}
-                  className="w-full max-w-2xl"
-                >
-                  <FormControlLabel
-                    className="m-0"
-                    control={
-                      <Checkbox
-                        name="agreeTerms"
-                        checked={formData.agreeTerms}
-                        onChange={handleInputChange}
-                        color="primary"
-                        required
-                        size="medium"
-                        inputProps={{
-                          "aria-label": "Съгласие с условията",
-                        }}
-                      />
-                    }
-                    label={
-                      <span className="text-base sm:text-lg text-gray-700 dark:text-gray-300">
-                        Съгласявам се с{" "}
-                        <a
-                          href="/terms"
-                          className="text-blue-600 dark:text-blue-400 hover:underline font-medium"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          Общите условия
-                        </a>{" "}
-                        и{" "}
-                        <a
-                          href="/privacy"
-                          className="text-blue-600 dark:text-blue-400 hover:underline font-medium"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          Политиката за поверителност
-                        </a>
-                      </span>
-                    }
-                  />
-                  {!formData.agreeTerms && formErrors?.agreeTerms && (
-                    <FormHelperText className="text-red-600 dark:text-red-400 ml-8 mt-1 text-sm">
-                      {formErrors.agreeTerms}
-                    </FormHelperText>
-                  )}
-                </FormControl>
-              </div>
-            </div>
-          </div>
-        );
-
-      default:
-        return null;
     }
   };
 
@@ -1062,7 +326,18 @@ export default function CheckoutPage() {
                 </div>
               )}
 
-              {renderStepContent()}
+              <CheckoutSteps
+                currentStep={currentStep}
+                formData={formData}
+                formErrors={formErrors}
+                offices={offices}
+                isLoadingOffices={isLoadingOffices}
+                officesError={officesError}
+                onInputChange={handleInputChange}
+                onDeliveryMethodChange={handleDeliveryMethodChange}
+                onFormDataChange={setFormData}
+                onSettlementSelect={handleSettlementSelect}
+              />
 
               <div className="flex flex-col sm:flex-row justify-between mt-6 gap-3">
                 {currentStep > 0 && (
@@ -1129,7 +404,7 @@ export default function CheckoutPage() {
                       } hover:bg-gray-50 dark:hover:bg-gray-700/50 p-2 rounded-lg transition-colors`}
                     >
                       <div className="flex-1">
-                        <p className="font-medium text-sm text-gray-800 dark:text-gray-100 hover:underline">
+                        <p className="font-medium text-sm text-gray-800 dark:text-gray-100">
                           {item.product.name}
                         </p>
                         <p className="text-xs text-gray-500 dark:text-gray-300 mt-1">

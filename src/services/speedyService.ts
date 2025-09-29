@@ -1,4 +1,4 @@
-import { SpeedyOfficeResponse } from "@/lib/interfaces";
+import { SpeedyOfficeResponse } from "@/lib/types/interfaces";
 
 function parseWorkTime(workTime: string): { day: string; time: string }[] {
   if (!workTime) {
@@ -91,7 +91,8 @@ export async function getSpeedyOfficesRest(
 
     const searchCity = normalizeCityName(cityName);
 
-    const allOffices = (await import("@/lib/speedyOffices")).speedyOffices;
+    const allOffices = (await import("@/lib/services/speedyOffices"))
+      .speedyOffices;
 
     const filteredOffices = allOffices.filter((office) => {
       const officeCity = normalizeCityName(office.city);
@@ -123,15 +124,6 @@ export async function getSpeedyOfficesRest(
         Math.abs(lng) <= 180
       ) {
         coordinates = [lat, lng];
-      } else {
-        console.warn(
-          "Пропускане на офис поради невалидни координати:",
-          office.id,
-          {
-            lat,
-            lng,
-          }
-        );
       }
 
       return {
@@ -173,8 +165,7 @@ export async function getSpeedyOfficesRest(
               ],
       };
     });
-  } catch (error) {
-    console.error("Възникна грешка:", error);
+  } catch {
     return [];
   }
 }

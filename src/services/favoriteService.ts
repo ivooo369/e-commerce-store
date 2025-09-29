@@ -1,5 +1,4 @@
 import axios from "axios";
-import { handleError } from "@/lib/handleError";
 
 const API_BASE_URL =
   typeof window !== "undefined" ? "" : "http://localhost:3000";
@@ -21,15 +20,14 @@ export const getFavorites = async (customerId: string) => {
       params: { customerId },
     });
     return response.data;
-  } catch (error) {
-    console.error("Възникна грешка при извличане на любимите продукти:", error);
-    throw new Error(handleError(error));
+  } catch {
+    throw new Error("Възникна грешка при извличане на любимите продукти!");
   }
 };
 
 export const addFavorite = async (customerId: string, productId: string) => {
   if (typeof window === "undefined" && !process.env.NEXT_RUNTIME) {
-    return { success: true, message: "Build time mock" };
+    return { success: true };
   }
 
   try {
@@ -38,15 +36,14 @@ export const addFavorite = async (customerId: string, productId: string) => {
       productId,
     });
     return response.data;
-  } catch (error) {
-    console.error("Възникна грешка при добавяне в 'Любими':", error);
-    throw new Error(handleError(error));
+  } catch {
+    throw new Error("Възникна грешка при добавяне на продукта към 'Любими'!");
   }
 };
 
 export const removeFavorite = async (customerId: string, productId: string) => {
   if (typeof window === "undefined" && !process.env.NEXT_RUNTIME) {
-    return { success: true, message: "Build time mock" };
+    return { success: true, message: "Възникна грешка!" };
   }
 
   try {
@@ -54,8 +51,7 @@ export const removeFavorite = async (customerId: string, productId: string) => {
       data: { customerId, productId },
     });
     return response.data;
-  } catch (error) {
-    console.error("Възникна грешка при премахване от 'Любими':", error);
-    throw new Error(handleError(error));
+  } catch {
+    throw new Error("Възникна грешка при премахване от 'Любими'!");
   }
 };

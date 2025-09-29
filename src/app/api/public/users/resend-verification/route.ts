@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import crypto from "crypto";
-import prisma from "@/lib/prisma";
-import { sendVerificationEmail } from "@/lib/email";
+import prisma from "@/lib/services/prisma";
+import { sendVerificationEmail } from "@/lib/email-templates/verifyEmail";
 
 export async function POST(req: Request) {
   try {
@@ -63,11 +63,7 @@ export async function POST(req: Request) {
       },
       { status: 200 }
     );
-  } catch (error) {
-    console.error(
-      "Възникна грешка при изпращане на имейла за потвърждение:",
-      error
-    );
+  } catch {
     return NextResponse.json(
       { message: "Възникна грешка при изпращане на имейла за потвърждение!" },
       { status: 500 }

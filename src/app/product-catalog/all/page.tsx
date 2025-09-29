@@ -1,24 +1,18 @@
 import {
   Subcategory as SubcategoryPrisma,
   Category as CategoryPrisma,
-  Product as ProductPrisma,
 } from "@prisma/client";
-import CategoryPageServerComponent from "@/ui/components/category-page";
+import CategoryPage from "@/ui/components/others/category-page-content";
 import { fetchAllPublicProducts } from "@/services/productService";
 import { fetchCategories } from "@/services/categoryService";
-import { ProductWithRelations } from "@/lib/interfaces";
+import { ProductWithRelations } from "@/lib/types/interfaces";
+import { generateMetadata } from "@/lib/utils/metadata";
+import {
+  ProductWithSubcategories,
+  SubcategoryWithRelations,
+} from "@/lib/types/types";
 
-type SubcategoryWithRelations = SubcategoryPrisma & {
-  category: CategoryPrisma;
-};
-
-type ProductWithSubcategories = ProductPrisma & {
-  subcategories: Array<{
-    subcategory: SubcategoryWithRelations;
-  }>;
-  createdAt: Date;
-  updatedAt: Date;
-};
+export const metadata = generateMetadata("/product-catalog/all");
 
 export default async function AllProductsPage() {
   try {
@@ -118,20 +112,18 @@ export default async function AllProductsPage() {
     );
 
     return (
-      <CategoryPageServerComponent
+      <CategoryPage
         category={categoryData}
         subcategories={subcategories}
         allProducts={transformedProducts}
         categories={categories}
       />
     );
-  } catch (error) {
-    console.error("Възникна грешка при зареждане на продуктите:", error);
+  } catch {
     return (
       <div className="container mx-auto px-4 py-4 sm:py-6 bg-bg-primary min-h-screen">
         <h1 className="text-3xl font-bold text-center text-error-color">
-          Възникна грешка при зареждане на продуктите. Моля, опитайте отново
-          по-късно!
+          Възникна грешка при зареждане на продуктите!
         </h1>
       </div>
     );

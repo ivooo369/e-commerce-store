@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
+import prisma from "@/lib/services/prisma";
 
 export const dynamic = "force-dynamic";
 
@@ -31,11 +31,7 @@ export async function GET(
       },
       { status: 200 }
     );
-  } catch (error) {
-    console.error(
-      "Възникна грешка при проверка на статуса на поръчката:",
-      error
-    );
+  } catch {
     return NextResponse.json(
       { error: "Възникна грешка при проверка на статуса на поръчката!" },
       { status: 500 }

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
+import prisma from "@/lib/services/prisma";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -26,11 +26,7 @@ export async function GET(request: Request) {
       },
     });
     return NextResponse.json(cartItems);
-  } catch (error) {
-    console.error(
-      "Възникна грешка при извличане на продуктите от количката:",
-      error
-    );
+  } catch {
     return NextResponse.json(
       { message: "Възникна грешка при извличане на продуктите от количката!" },
       { status: 500 }
@@ -48,7 +44,6 @@ export async function POST(request: Request) {
     productCode = productCode?.trim();
 
     if (!productCode) {
-      console.error("Липсва код на продукта:", { productCode });
       return NextResponse.json(
         {
           message: "Липсва код на продукта!",
@@ -102,12 +97,11 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json({ ...cartItem, sessionId }, { status: 201 });
-  } catch (error) {
-    console.error(
-      "Възникна грешка при добавяне на продукта в количката:",
-      error
+  } catch {
+    return NextResponse.json(
+      { message: "Възникна грешка при добавяне на продукта в количката!" },
+      { status: 500 }
     );
-    return NextResponse.json({ status: 500 });
   }
 }
 
@@ -116,11 +110,6 @@ export async function PUT(request: Request) {
     const { customerId, productIdentifier, quantity } = await request.json();
 
     if (!customerId || !productIdentifier || quantity === undefined) {
-      console.error("Липсват стойности за задължителните полета:", {
-        customerId,
-        productIdentifier,
-        quantity,
-      });
       return NextResponse.json(
         {
           message: "Липсват задължителни полета!",
@@ -175,8 +164,7 @@ export async function PUT(request: Request) {
       include: { product: true },
     });
     return NextResponse.json(updatedItem);
-  } catch (error) {
-    console.error("Възникна грешка при обновяване на количеството:", error);
+  } catch {
     return NextResponse.json(
       {
         message: "Възникна грешка при обновяване на количеството!",
@@ -244,11 +232,7 @@ export async function DELETE(request: Request) {
         message: "Продуктът беше премахнат от количката!",
       });
     }
-  } catch (error) {
-    console.error(
-      "Възникна грешка при обработка на заявката за количка:",
-      error
-    );
+  } catch {
     return NextResponse.json(
       {
         message: "Възникна грешка при обработка на заявката за количка!",

@@ -1,8 +1,10 @@
-import { StatusPageProps } from "@/lib/interfaces";
+import { OrderStatusPageProps } from "@/lib/types/interfaces";
 import { redirect } from "next/navigation";
 import { orderService } from "@/services/orderService";
 
-export default async function StatusPage({ searchParams }: StatusPageProps) {
+export default async function OrderStatusPage({
+  searchParams,
+}: OrderStatusPageProps) {
   const { orderId, status: statusParam } = searchParams;
 
   if (!orderId) {
@@ -15,7 +17,8 @@ export default async function StatusPage({ searchParams }: StatusPageProps) {
 
     const formatOrderDate = (dateString: string | Date) => {
       try {
-        const date = dateString instanceof Date ? dateString : new Date(dateString);
+        const date =
+          dateString instanceof Date ? dateString : new Date(dateString);
         if (isNaN(date.getTime())) {
           return "Датата не е налична";
         }
@@ -26,8 +29,7 @@ export default async function StatusPage({ searchParams }: StatusPageProps) {
           hour: "2-digit",
           minute: "2-digit",
         });
-      } catch (error) {
-        console.error("Възникна грешка при форматиране на датата:", error);
+      } catch {
         return "Датата не е налична";
       }
     };
@@ -44,11 +46,7 @@ export default async function StatusPage({ searchParams }: StatusPageProps) {
       default:
         return renderErrorPage("Невалиден статус на поръчката!");
     }
-  } catch (error) {
-    console.error(
-      "Възникна грешка при проверка на статуса на поръчката:",
-      error
-    );
+  } catch {
     return renderErrorPage(
       "Възникна грешка при проверка на статуса на поръчката!"
     );
@@ -76,7 +74,7 @@ function renderSuccessPage(orderId: string, orderDate: string) {
             </svg>
           </div>
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-            Поръчката е потвърдена!
+            Поръчката вече е потвърдена!
           </h2>
           <p className="text-gray-600 dark:text-gray-300 mb-1">
             Номер на поръчка:{" "}
@@ -164,7 +162,7 @@ function renderCancelledPage(orderId: string, orderDate: string) {
             </svg>
           </div>
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-            Поръчката е отказана
+            Поръчката вече е отказана!
           </h2>
           <p className="text-gray-600 dark:text-gray-300 mb-1">
             Номер на поръчка:{" "}

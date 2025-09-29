@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
 import { signIn } from "next-auth/react";
+import { useAutoDismissAlert } from "@/lib/hooks/useAutoDismissAlert";
 import TextField from "@mui/material/TextField";
 import IconButton from "@mui/material/IconButton";
 import OutlinedInput from "@mui/material/OutlinedInput";
@@ -13,18 +14,15 @@ import FormControl from "@mui/material/FormControl";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import Button from "@mui/material/Button";
-import AlertMessage from "@/ui/components/alert-message";
+import AlertMessage from "@/ui/components/feedback/alert-message";
 
 export default function DashboardLoginPage() {
   const [customerUsername, setCustomerUsername] = useState("");
   const [customerPassword, setCustomerPassword] = useState("");
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [isEntering, setIsEntering] = useState(false);
-  const [alert, setAlert] = useState<{
-    message: string;
-    severity: "success" | "error";
-  } | null>(null);
   const router = useRouter();
+  const [alert, setAlert] = useAutoDismissAlert();
 
   const handleClickShowPassword = () => setIsPasswordVisible((show) => !show);
 
@@ -50,9 +48,6 @@ export default function DashboardLoginPage() {
           message: result.error,
           severity: "error",
         });
-        setTimeout(() => {
-          setAlert(null);
-        }, 5000);
       } else {
         const redirectUrl = new URLSearchParams(window.location.search).get(
           "redirect"
@@ -66,9 +61,6 @@ export default function DashboardLoginPage() {
         message: error.message,
         severity: "error",
       });
-      setTimeout(() => {
-        setAlert(null);
-      }, 5000);
     },
   });
 
