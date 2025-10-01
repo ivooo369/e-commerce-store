@@ -6,7 +6,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import Button from "@mui/material/Button";
 import { useSelector, useDispatch } from "react-redux";
 import { setUser } from "@/lib/store/slices/userSlice";
-import { RootState } from "@/lib/store/store";
+import { RootState } from "@/lib/types/types";
 import useProtectedRoute from "@/lib/hooks/useProtectedRoute";
 import CircularProgress from "@/ui/components/feedback/circular-progress";
 import {

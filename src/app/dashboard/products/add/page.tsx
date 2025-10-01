@@ -47,6 +47,15 @@ export default function DashboardAddNewProductPage() {
       if (data.newCount !== undefined) {
         queryClient.setQueryData(["productCount"], data.newCount);
       }
+      queryClient.invalidateQueries({ queryKey: ["products"] });
+      queryClient.invalidateQueries({ queryKey: ["products", "all"] });
+      queryClient.invalidateQueries({ queryKey: ["publicProducts"] });
+      queryClient.invalidateQueries({ queryKey: ["allPublicProducts"] });
+      queryClient.invalidateQueries({
+        queryKey: ["products"],
+        predicate: (query) => query.queryKey[0] === "products",
+      });
+
       setAlert({
         message: data.message || "Продуктът е добавен успешно!",
         severity: "success",

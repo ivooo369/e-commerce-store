@@ -16,7 +16,7 @@ import { useFavorites } from "@/lib/hooks/useFavorites";
 import { Product } from "@/lib/types/interfaces";
 import Box from "@mui/material/Box";
 import { useSelector } from "react-redux";
-import { RootState } from "@/lib/store/store";
+import { RootState } from "@/lib/types/types";
 
 export default function ProductDetailsContent({
   product,

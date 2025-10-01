@@ -252,9 +252,6 @@ export default function CheckoutSteps({
                                                   {d.time
                                                     ? d.time
                                                     : "Почивен ден"}
-                                                  {d.time
-                                                    ? d.time
-                                                    : "Почивен ден"}
                                                 </td>
                                               </tr>
                                             ))}
@@ -541,4 +538,4 @@ export default function CheckoutSteps({
   };
 
   return <>{renderStepContent()}</>;
-};
+}

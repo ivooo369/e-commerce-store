@@ -1,35 +1,33 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useState, useMemo } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import DashboardNav from "@/ui/components/layouts/dashboard-primary-nav";
 import DashboardSecondaryNav from "@/ui/components/layouts/dashboard-secondary-nav";
 import DashboardProductCard from "@/ui/components/cards/dashboard-product-card";
 import ConfirmationModal from "@/ui/components/modals/confirmation-modal";
 import Box from "@mui/material/Box";
-import FormControl from "@mui/material/FormControl";
-import InputLabel from "@mui/material/InputLabel";
-import Select, { SelectChangeEvent } from "@mui/material/Select";
-import MenuItem from "@mui/material/MenuItem";
-import { Category, Subcategory } from "@prisma/client";
 import DashboardSearch from "@/ui/components/search/dashboard-search";
 import CircularProgress from "@/ui/components/feedback/circular-progress";
 import usePagination, { ITEMS_PER_PAGE } from "@/lib/hooks/usePagination";
 import PaginationButtons from "@/ui/components/navigation/pagination";
-import { ProductWithSubcategories } from "@/lib/types/interfaces";
+import {
+  ProductFiltersState,
+  ProductWithSubcategories,
+} from "@/lib/types/interfaces";
 import { deleteProduct, fetchProducts } from "@/services/productService";
 import { fetchCategories } from "@/services/categoryService";
-import { fetchSubcategories } from "@/services/subcategoryService";
+import ProductFilters from "@/ui/components/others/product-filters";
+import { useProductFilters } from "@/lib/hooks/useProductFilters";
 
 export default function DashboardProductsPage() {
   const queryClient = useQueryClient();
-  const [filteredProducts, setFilteredProducts] = useState<
-    ProductWithSubcategories[]
-  >([]);
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  const [selectedSubcategories, setSelectedSubcategories] = useState<string[]>(
-    []
-  );
+  const [filters, setFilters] = useState<ProductFiltersState>({
+    selectedCategories: [],
+    selectedSubcategories: [],
+    sortOption: "newest",
+    priceRange: [0, 500],
+  });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [productToDelete, setProductToDelete] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>("");
@@ -53,46 +51,61 @@ export default function DashboardProductsPage() {
     queryFn: fetchCategories,
   });
 
-  const {
-    data: subcategoriesData,
-    isLoading: subcategoriesLoading,
-    isError: subcategoriesError,
-  } = useQuery({
-    queryKey: ["subcategories"],
-    queryFn: fetchSubcategories,
-  });
+  const subcategoriesData = useMemo(() => {
+    if (!productsData) return [];
 
-  const filterProducts = useCallback(
-    (products: ProductWithSubcategories[], selectedSubcategory: string[]) => {
-      let filtered = products;
-
-      if (selectedSubcategory.length > 0) {
-        filtered = filtered.filter((product) =>
-          product.subcategories.some((sub) =>
-            selectedSubcategory.includes(sub.subcategory.id)
-          )
-        );
+    const subcategoryMap = new Map<
+      string,
+      {
+        id: string;
+        name: string;
+        code: string;
+        categoryId: string;
+        category: {
+          id: string;
+          name: string;
+          code: string;
+        };
+        createdAt: Date;
+        updatedAt: Date;
       }
+    >();
 
-      filtered = filtered.filter(
-        (product) =>
-          product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          product.code.toLowerCase().includes(searchTerm.toLowerCase())
-      );
+    productsData.forEach((product: ProductWithSubcategories) => {
+      product.subcategories?.forEach(({ subcategory }) => {
+        if (subcategory) {
+          const { category, ...subcategoryData } = subcategory;
+          const fullCategory = categoriesData?.find(
+            (cat) => cat.id === subcategoryData.categoryId
+          );
+          subcategoryMap.set(subcategoryData.id, {
+            ...subcategoryData,
+            categoryId: subcategoryData.categoryId,
+            category: {
+              id: subcategoryData.categoryId,
+              name: category?.name || "",
+              code: fullCategory?.code || "",
+            },
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          });
+        }
+      });
+    });
 
-      setFilteredProducts(filtered);
-    },
-    [searchTerm]
+    return Array.from(subcategoryMap.values()).sort((a, b) =>
+      a.code.localeCompare(b.code)
+    );
+  }, [productsData, categoriesData]);
+
+  const displayedProducts = useProductFilters(
+    productsData || [],
+    filters,
+    searchTerm
   );
 
-  useEffect(() => {
-    if (productsData) {
-      filterProducts(productsData, selectedSubcategories);
-    }
-  }, [searchTerm, selectedSubcategories, productsData, filterProducts]);
-
   const { currentPage, currentItems, paginate } =
-    usePagination(filteredProducts);
+    usePagination(displayedProducts);
 
   const handleOpenModal = (id: string) => {
     setProductToDelete(id);
@@ -108,23 +121,21 @@ export default function DashboardProductsPage() {
     if (productToDelete) {
       setIsDeleting(true);
 
-      setFilteredProducts((prevProducts) =>
-        prevProducts.filter((product) => product.id !== productToDelete)
-      );
-
       try {
         const result = await deleteProduct(productToDelete);
         queryClient.invalidateQueries({ queryKey: ["products"] });
+        queryClient.invalidateQueries({ queryKey: ["products", "all"] });
+        queryClient.invalidateQueries({ queryKey: ["publicProducts"] });
+        queryClient.invalidateQueries({ queryKey: ["allPublicProducts"] });
+        queryClient.invalidateQueries({
+          queryKey: ["products"],
+          predicate: (query) => query.queryKey[0] === "products",
+        });
         if (result.newCount !== undefined) {
           queryClient.setQueryData(["productCount"], result.newCount);
         }
       } catch {
-        setFilteredProducts((prevProducts) => [
-          ...prevProducts,
-          productsData?.find(
-            (product) => product.id === productToDelete
-          ) as ProductWithSubcategories,
-        ]);
+        throw new Error("Възникна грешка при изтриване на продукта!");
       } finally {
         setIsDeleting(false);
         handleCloseModal();
@@ -132,90 +143,40 @@ export default function DashboardProductsPage() {
     }
   };
 
-  const handleCategoryChange = (event: SelectChangeEvent<string[]>) => {
-    setSelectedCategories(event.target.value as string[]);
+  const handleFiltersChange = (newFilters: ProductFiltersState) => {
+    setFilters(newFilters);
   };
 
-  const handleSubcategoryChange = (event: SelectChangeEvent<string[]>) => {
-    setSelectedSubcategories(event.target.value as string[]);
-  };
-
-  const isLoading =
-    productsLoading || categoriesLoading || subcategoriesLoading;
-  const isError = productsError || categoriesError || subcategoriesError;
+  const isLoading = productsLoading || categoriesLoading;
+  const isError = productsError || categoriesError;
 
   return (
     <>
       <DashboardNav />
       <DashboardSecondaryNav />
-      <div className="container mx-auto pb-4 products-filter-container flex flex-col items-center max-w-screen-2xl mx-auto space-y-4 py-4 px-4">
-        <DashboardSearch
-          searchTerm={searchTerm}
-          onSearchChange={setSearchTerm}
+      <div className="container mx-auto px-4 py-4 sm:py-6 bg-bg-primary min-h-screen">
+        <div className="mb-4">
+          <DashboardSearch
+            searchTerm={searchTerm}
+            onSearchChange={setSearchTerm}
+          />
+        </div>
+
+        <ProductFilters
+          categories={categoriesData || []}
+          subcategories={subcategoriesData}
+          showCategoryFilter={true}
+          onFiltersChange={handleFiltersChange}
+          initialFilters={filters}
+          includeContainer={false}
         />
-        <FormControl fullWidth variant="outlined">
-          <InputLabel htmlFor="category-select">
-            Филтриране на подкатегориите според избраните категории
-          </InputLabel>
-          <Select
-            multiple
-            value={selectedCategories}
-            onChange={handleCategoryChange}
-            label="Филтриране на подкатегориите според избраните категории"
-            id="category-select"
-          >
-            {categoriesData?.map((category: Category) => (
-              <MenuItem key={category.id} value={category.id}>
-                {category.code} - {category.name}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-        <FormControl fullWidth variant="outlined">
-          <InputLabel htmlFor="subcategory-select">
-            Филтриране на продуктите според избраните подкатегории
-          </InputLabel>
-          <Select
-            multiple
-            value={selectedSubcategories}
-            onChange={handleSubcategoryChange}
-            label="Филтриране на продуктите според избраните подкатегории"
-            id="subcategory-select"
-            renderValue={(selected) =>
-              selected
-                .map((id) => {
-                  const subcategory = subcategoriesData?.find(
-                    (s: { id: string }) => s.id === id
-                  );
-                  return subcategory
-                    ? `${subcategory.code} - ${subcategory.name}`
-                    : "";
-                })
-                .join(", ")
-            }
-          >
-            {subcategoriesData
-              ?.filter(
-                (subcategory: Subcategory) =>
-                  selectedCategories.length === 0 ||
-                  selectedCategories.includes(subcategory.categoryId)
-              )
-              .map((subcategory: Subcategory) => (
-                <MenuItem key={subcategory.id} value={subcategory.id}>
-                  {subcategory.code} - {subcategory.name}
-                </MenuItem>
-              ))}
-          </Select>
-        </FormControl>
-        {!isLoading && filteredProducts.length > 0 && (
-          <div className="pb-2">
-            <PaginationButtons
-              itemsPerPage={ITEMS_PER_PAGE}
-              totalItems={filteredProducts.length}
-              paginate={paginate}
-              currentPage={currentPage}
-            />
-          </div>
+        {displayedProducts.length > 0 && (
+          <PaginationButtons
+            itemsPerPage={ITEMS_PER_PAGE}
+            totalItems={displayedProducts.length}
+            paginate={paginate}
+            currentPage={currentPage}
+          />
         )}
         {isLoading ? (
           <Box className="flex justify-center items-center min-h-[50vh] w-full">
@@ -228,14 +189,20 @@ export default function DashboardProductsPage() {
             </h2>
           </div>
         ) : currentItems.length === 0 ? (
-          <div className="container mx-auto font-bold min-w-full">
+          <div className="mt-4 font-bold">
             <p className="text-center text-2xl p-16 bg-card-bg rounded-md text-text-secondary border border-card-border transition-colors duration-300">
-              Няма намерени продукти
+              {filters.selectedSubcategories.length > 0 ||
+              filters.selectedCategories.length > 0 ||
+              filters.priceRange[0] > 0 ||
+              filters.priceRange[1] < 500 ||
+              searchTerm.length > 0
+                ? "Няма продукти, отговарящи на избраните филтри"
+                : "Няма налични продукти"}
             </p>
           </div>
         ) : (
           <div className="container mx-auto">
-            <div className="grid gap-5 sm:gap-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            <div className="grid gap-5 sm:gap-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 py-4 sm:py-6 md:py-8 px-4">
               {currentItems.map((product: ProductWithSubcategories) => (
                 <DashboardProductCard
                   key={product.id}
@@ -244,16 +211,12 @@ export default function DashboardProductsPage() {
                 />
               ))}
             </div>
-            <div className="pt-6">
-              {currentItems.length > 0 && (
-                <PaginationButtons
-                  itemsPerPage={ITEMS_PER_PAGE}
-                  totalItems={filteredProducts.length}
-                  paginate={paginate}
-                  currentPage={currentPage}
-                />
-              )}
-            </div>
+            <PaginationButtons
+              itemsPerPage={ITEMS_PER_PAGE}
+              totalItems={displayedProducts.length}
+              paginate={paginate}
+              currentPage={currentPage}
+            />
           </div>
         )}
         <ConfirmationModal

@@ -3,7 +3,9 @@ import prisma from "@/lib/services/prisma";
 
 export async function GET() {
   try {
-    const categories = await prisma.category.findMany();
+    const categories = await prisma.category.findMany({
+      orderBy: { code: "asc" },
+    });
     return NextResponse.json(categories, { status: 200 });
   } catch {
     return NextResponse.json(

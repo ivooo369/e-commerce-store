@@ -1,5 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
-import { RootState, AppDispatch } from "@/lib/store/store";
+import { RootState, AppDispatch } from "../types/types";
 import {
   addToCart,
   updateCartItem,

@@ -14,10 +14,10 @@ import MainSearch from "../search/main-search";
 import ThemeToggle from "../others/theme-toggle";
 import { useDispatch, useSelector } from "react-redux";
 import { clearUser } from "@/lib/store/slices/userSlice";
-import { RootState } from "@/lib/store/store";
-import { useQuery } from "@tanstack/react-query";
 import { fetchCategoriesForHeader } from "@/services/categoryService";
 import { clearCart } from "@/lib/store/slices/cartSlice";
+import { useQuery } from "@tanstack/react-query";
+import { RootState } from "@/lib/types/types";
 
 export default function Header() {
   const pathname = usePathname();
@@ -67,8 +67,8 @@ export default function Header() {
     };
   }, []);
 
-  const { data: categories, isLoading } = useQuery({
-    queryKey: ["categories"],
+  const { data: categories = [], isLoading } = useQuery({
+    queryKey: ["categoriesForHeader"],
     queryFn: fetchCategoriesForHeader,
   });
 
@@ -243,17 +243,17 @@ export default function Header() {
                   </Link>
                   {isLoading ? (
                     <p className="text-text-secondary">Зареждане...</p>
-                  ) : categories.length > 0 ? (
-                    categories.map((category: string, index: number) => (
+                  ) : categories && categories.length > 0 ? (
+                    categories.map((categoryName: string, index: number) => (
                       <Link
                         key={index}
                         href={`/product-catalog/categories/${encodeURIComponent(
-                          category
+                          categoryName
                         )}`}
                         className="block px-4 py-2 text-text-primary hover:bg-bg-secondary rounded transition-colors duration-300"
                         onClick={() => setIsCatalogMenuOpen(false)}
                       >
-                        {category}
+                        {categoryName}
                       </Link>
                     ))
                   ) : (

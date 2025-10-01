@@ -1,5 +1,7 @@
 "use client";
 
+export const dynamic = "force-dynamic";
+
 import MessageCard from "@/ui/components/cards/message-card";
 import DashboardNav from "@/ui/components/layouts/dashboard-primary-nav";
 import Box from "@mui/material/Box";
@@ -24,6 +26,9 @@ export default function DashboardMessagesPage() {
   } = useQuery({
     queryKey: ["messages"],
     queryFn: fetchMessages,
+    staleTime: 0,
+    refetchInterval: 30000,
+    refetchOnWindowFocus: true,
   });
 
   const deleteMutation = useMutation({
@@ -53,6 +58,7 @@ export default function DashboardMessagesPage() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["messages"] });
+      queryClient.refetchQueries({ queryKey: ["messages"] });
       setIsDeleting(false);
     },
     onSettled: () => {

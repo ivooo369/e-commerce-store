@@ -20,7 +20,7 @@ export default function Error({
             Възникна неочаквана грешка
           </h2>
           <p className="mt-3 text-lg text-gray-600 dark:text-gray-300">
-            {error.message || "Моля, опитайте отново по-късно!"}
+            {error.message}
           </p>
           <div className="mt-6">
             <Button

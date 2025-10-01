@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef, useCallback, memo } from "react";
 import L from "leaflet";
+import "leaflet/dist/leaflet.css";
 import { Office, OfficeMapProps } from "@/lib/types/interfaces";
 
 const OfficeMap = memo(function OfficeMap({
@@ -9,7 +10,6 @@ const OfficeMap = memo(function OfficeMap({
   selectedOfficeId,
   onOfficeSelect,
   className = "",
-  center,
 }: OfficeMapProps) {
   const mapRef = useRef<L.Map | null>(null);
   const markersRef = useRef<L.Marker[]>([]);
@@ -147,17 +147,8 @@ const OfficeMap = memo(function OfficeMap({
     };
   }, [cleanupMarkers]);
 
-  const officesString = JSON.stringify(offices);
-
-  const centerLat = center?.[0];
-  const centerLng = center?.[1];
-  const centerKey = center ? `${centerLat},${centerLng}` : "";
-
   useEffect(() => {
-    let updateTimeout: NodeJS.Timeout;
-    const isMounted = true;
-
-    if (!mapRef.current && mapContainerRef.current) {
+    if (!mapRef.current && mapContainerRef.current && !initializedRef.current) {
       try {
         const { center: initialCenter, zoom: initialZoom } =
           calculateMapBounds();
@@ -190,13 +181,24 @@ const OfficeMap = memo(function OfficeMap({
         }).addTo(map);
 
         mapRef.current = map;
+        initializedRef.current = true;
+
+        setTimeout(() => {
+          if (mapRef.current) {
+            mapRef.current.invalidateSize();
+          }
+        }, 100);
       } catch {
         throw new Error("Възникна грешка при инициализиране на картата!");
       }
     }
+  }, [calculateMapBounds]);
+
+  useEffect(() => {
+    if (!mapRef.current || !initializedRef.current) return;
 
     const updateMap = () => {
-      if (!isMounted || !mapRef.current || !mapContainerRef.current) return;
+      if (!mapRef.current) return;
 
       try {
         const map = mapRef.current;
@@ -286,9 +288,7 @@ const OfficeMap = memo(function OfficeMap({
               }
             } catch {
               throw new Error(
-                `Възникна грешка при добавяне на маркер за местоположение: ${JSON.stringify(
-                  coords
-                )}`
+                `Възникна грешка при добавяне на маркер за местоположение: ${coords}`
               );
             }
           }
@@ -313,51 +313,51 @@ const OfficeMap = memo(function OfficeMap({
             }
           }
         }
+
+        setTimeout(() => {
+          if (mapRef.current) {
+            mapRef.current.invalidateSize();
+          }
+        }, 50);
       } catch {
         throw new Error("Възникна грешка при обновяване на картата!");
       }
     };
 
-    const debouncedUpdate = () => {
-      if (updateTimeout) clearTimeout(updateTimeout);
-      updateTimeout = setTimeout(() => {
-        if (isMounted && mapContainerRef.current) {
-          updateMap();
-        }
-      }, 100);
-    };
-
-    if (mapRef.current) {
-      debouncedUpdate();
-    } else {
-      const timer = setTimeout(() => {
-        if (isMounted && mapContainerRef.current) {
-          debouncedUpdate();
-        }
-      }, 100);
-
-      return () => clearTimeout(timer);
-    }
-
-    return () => {
-      if (updateTimeout) clearTimeout(updateTimeout);
-    };
+    const timeoutId = setTimeout(updateMap, 100);
+    return () => clearTimeout(timeoutId);
   }, [
-    officesString,
+    offices,
     selectedOfficeId,
     onOfficeSelect,
-    centerKey,
-    calculateMapBounds,
     cleanupMarkers,
     centerMapOnLocation,
     createMarkerIcon,
-    offices,
   ]);
+
+  useEffect(() => {
+    if (!mapRef.current || !mapContainerRef.current) return;
+
+    const resizeObserver = new ResizeObserver(() => {
+      if (mapRef.current) {
+        setTimeout(() => {
+          mapRef.current?.invalidateSize();
+        }, 100);
+      }
+    });
+
+    resizeObserver.observe(mapContainerRef.current);
+
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, []);
 
   return (
     <div
       ref={mapContainerRef}
       className={`w-full h-full min-h-[400px] rounded-lg overflow-hidden z-[1] ${className}`}
+      style={{ minHeight: "400px" }}
     />
   );
 });

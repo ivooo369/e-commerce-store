@@ -1,6 +1,5 @@
-import { useState, useEffect } from 'react';
-
-import { AlertSeverity } from '@/lib/types/interfaces';
+import { useState, useEffect } from "react";
+import { AlertSeverity } from "../types/types";
 
 type AlertType = {
   message: string;

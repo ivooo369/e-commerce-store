@@ -30,9 +30,7 @@ export default function ConfirmOrderContent() {
           window.location.href = `/orders/status?orderId=${orderId}&status=invalid`;
         }
       } catch {
-        setError(
-          "Неуспешно потвърждаване на поръчката. Моля, опитайте отново по-късно!"
-        );
+        setError("Неуспешно потвърждаване на поръчката!");
         setStatus("error");
       }
     };
@@ -74,10 +72,7 @@ export default function ConfirmOrderContent() {
             <h2 className="mt-3 text-2xl font-bold text-gray-900 dark:text-white">
               Грешка
             </h2>
-            <p className="mt-2 text-gray-600 dark:text-gray-300">
-              {error ||
-                "Възникна грешка при потвърждаване на поръчката. Моля, опитайте отново по-късно!"}
-            </p>
+            <p className="mt-2 text-gray-600 dark:text-gray-300">{error}</p>
             <div className="mt-6">
               <a
                 href="/"

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useAutoDismissAlert } from "@/lib/hooks/useAutoDismissAlert";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Button,
   FormControl,
@@ -14,6 +14,7 @@ import AlertMessage from "@/ui/components/feedback/alert-message";
 import { sendMessage } from "@/services/messageService";
 
 export default function ContactForm() {
+  const queryClient = useQueryClient();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [title, setTitle] = useState("");
@@ -31,6 +32,8 @@ export default function ContactForm() {
         message: responseData.message,
         severity: "success",
       });
+
+      queryClient.invalidateQueries({ queryKey: ["messages"] });
 
       setName("");
       setEmail("");

@@ -1,16 +1,43 @@
+"use client";
+
+import { useQuery } from "@tanstack/react-query";
 import { fetchCategories } from "@/services/categoryService";
 import CategoryCard from "@/ui/components/cards/category-card";
 import Link from "next/link";
-import { generateMetadata } from "@/lib/utils/metadata";
+import CircularProgress from "@/ui/components/feedback/circular-progress";
+import Box from "@mui/material/Box";
 
-export const metadata = generateMetadata("/");
-export const dynamic = "force-dynamic";
+export default function HomePageContent() {
+  const {
+    data: categories = [],
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["categories"],
+    queryFn: fetchCategories,
+  });
 
-export default async function HomePage() {
-  const categories = await fetchCategories();
   const sortedCategories = [...categories].sort((a, b) =>
     a.code.localeCompare(b.code)
   );
+
+  if (isLoading) {
+    return (
+      <Box className="flex justify-center items-center py-10 my-auto">
+        <CircularProgress message="Зареждане на категориите..." />
+      </Box>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="text-center py-10">
+        <h2 className="text-2xl font-bold text-text-primary">
+          Възникна грешка при зареждане на категориите
+        </h2>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-4 py-4 sm:py-6 min-h-screen">

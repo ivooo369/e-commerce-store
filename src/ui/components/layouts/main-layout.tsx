@@ -15,7 +15,41 @@ const AuthInitializer = dynamic(
   }
 );
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60,
+      gcTime: 1000 * 60 * 5,
+      refetchOnWindowFocus: true,
+      refetchOnMount: true,
+      refetchOnReconnect: true,
+      retry: (failureCount, error: unknown) => {
+        const axiosError = error as { response?: { status?: number } };
+        if (
+          axiosError?.response?.status &&
+          axiosError.response.status >= 400 &&
+          axiosError.response.status < 500
+        ) {
+          return false;
+        }
+        return failureCount < 3;
+      },
+    },
+    mutations: {
+      retry: (failureCount, error: unknown) => {
+        const axiosError = error as { response?: { status?: number } };
+        if (
+          axiosError?.response?.status &&
+          axiosError.response.status >= 400 &&
+          axiosError.response.status < 500
+        ) {
+          return false;
+        }
+        return failureCount < 2;
+      },
+    },
+  },
+});
 
 export default function MainLayout({
   children,

@@ -2,7 +2,6 @@ import {
   Subcategory as SubcategoryPrisma,
   Category as CategoryPrisma,
 } from "@prisma/client";
-import CategoryPage from "@/ui/components/others/category-page-content";
 import { fetchAllPublicProducts } from "@/services/productService";
 import { fetchCategories } from "@/services/categoryService";
 import { ProductWithRelations } from "@/lib/types/interfaces";
@@ -11,7 +10,9 @@ import {
   ProductWithSubcategories,
   SubcategoryWithRelations,
 } from "@/lib/types/types";
+import CategoryPageContent from "@/ui/components/others/category-page-content";
 
+export const dynamic = "force-dynamic";
 export const metadata = generateMetadata("/product-catalog/all");
 
 export default async function AllProductsPage() {
@@ -112,7 +113,7 @@ export default async function AllProductsPage() {
     );
 
     return (
-      <CategoryPage
+      <CategoryPageContent
         category={categoryData}
         subcategories={subcategories}
         allProducts={transformedProducts}

@@ -1,7 +1,8 @@
 import ContactForm from "../../ui/components/forms/contact-form";
 import { generateMetadata } from "@/lib/utils/metadata";
 
-export const metadata = generateMetadata("/");
+export const metadata = generateMetadata("/contact");
+export const dynamic = "force-dynamic";
 
 export default function ContactPage() {
   return (

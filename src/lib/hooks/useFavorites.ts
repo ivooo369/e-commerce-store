@@ -1,12 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSelector } from "react-redux";
-import { RootState } from "@/lib/store/store";
 import {
   getFavorites,
   addFavorite,
   removeFavorite,
 } from "@/services/favoriteService";
 import { Product, UseFavoritesReturn } from "@/lib/types/interfaces";
+import { RootState } from "../types/types";
 
 export const useFavorites = (): UseFavoritesReturn => {
   const queryClient = useQueryClient();

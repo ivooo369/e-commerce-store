@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useAutoDismissAlert } from "@/lib/hooks/useAutoDismissAlert";
 import { useParams, useRouter } from "next/navigation";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Image from "next/image";
 import { FaTrash } from "react-icons/fa";
 import DashboardNav from "@/ui/components/layouts/dashboard-primary-nav";
@@ -24,6 +24,7 @@ export default function DashboardEditProductPage() {
   const router = useRouter();
   const { id } = useParams();
   const productId = Array.isArray(id) ? id[0] : id;
+  const queryClient = useQueryClient();
   const [productName, setProductName] = useState("");
   const [productCode, setProductCode] = useState("");
   const [subcategoryIds, setSubcategoryIds] = useState<string[]>([]);
@@ -199,6 +200,16 @@ export default function DashboardEditProductPage() {
       setAlert({
         message: responseData.message || "Продуктът е обновен успешно!",
         severity: "success",
+      });
+
+      queryClient.invalidateQueries({ queryKey: ["products"] });
+      queryClient.invalidateQueries({ queryKey: ["product", productId] });
+      queryClient.invalidateQueries({ queryKey: ["products", "all"] });
+      queryClient.invalidateQueries({ queryKey: ["publicProducts"] });
+      queryClient.invalidateQueries({ queryKey: ["allPublicProducts"] });
+      queryClient.invalidateQueries({
+        queryKey: ["products"],
+        predicate: (query) => query.queryKey[0] === "products",
       });
 
       resetForm();

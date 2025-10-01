@@ -2,7 +2,7 @@
 
 import { useState, useRef } from "react";
 import FormControl from "@mui/material/FormControl";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import InputLabel from "@mui/material/InputLabel";
 import OutlinedInput from "@mui/material/OutlinedInput";
 import Button from "@mui/material/Button";
@@ -12,7 +12,8 @@ import AlertMessage from "@/ui/components/feedback/alert-message";
 import { useAutoDismissAlert } from "@/lib/hooks/useAutoDismissAlert";
 import { createCategory } from "@/services/categoryService";
 
-export default function CategoryForm({ refetch }: { refetch: () => void }) {
+export default function CategoryForm() {
+  const queryClient = useQueryClient();
   const [categoryData, setCategoryData] = useState({
     name: "",
     code: "",
@@ -24,7 +25,17 @@ export default function CategoryForm({ refetch }: { refetch: () => void }) {
 
   const createCategoryMutation = useMutation({
     mutationFn: createCategory,
-    onSuccess: (data: { message?: string }) => {
+    onSuccess: (data: {
+      message?: string;
+      category?: {
+        id: string;
+        name: string;
+        code: string;
+        imageUrl: string;
+        createdAt: string;
+        updatedAt: string;
+      };
+    }) => {
       setAlert({
         message: data.message || "Категорията е добавена успешно!",
         severity: "success",
@@ -34,7 +45,29 @@ export default function CategoryForm({ refetch }: { refetch: () => void }) {
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }
-      refetch();
+
+      if (data.category) {
+        queryClient.setQueryData(
+          ["dashboardCategories"],
+          (
+            old:
+              | {
+                  id: string;
+                  name: string;
+                  code: string;
+                  imageUrl: string;
+                  createdAt: string;
+                  updatedAt: string;
+                }[]
+              | undefined
+          ) => (old ? [...old, data.category] : [data.category])
+        );
+      }
+
+      queryClient.invalidateQueries({ queryKey: ["dashboardCategories"] });
+      queryClient.invalidateQueries({ queryKey: ["categories"] });
+      queryClient.invalidateQueries({ queryKey: ["categoriesForHeader"] });
+      queryClient.invalidateQueries({ queryKey: ["subcategories"] });
     },
     onError: (error: Error) => {
       setAlert({

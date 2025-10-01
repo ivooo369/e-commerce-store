@@ -12,7 +12,10 @@ import usePagination, { ITEMS_PER_PAGE } from "@/lib/hooks/usePagination";
 import Box from "@mui/material/Box";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { deleteCategory, fetchCategories } from "@/services/categoryService";
+import {
+  deleteCategory,
+  fetchDashboardCategories,
+} from "@/services/categoryService";
 
 export default function DashboardCategoriesPage() {
   const queryClient = useQueryClient();
@@ -26,8 +29,8 @@ export default function DashboardCategoriesPage() {
     isLoading,
     isError,
   } = useQuery({
-    queryKey: ["categories"],
-    queryFn: fetchCategories,
+    queryKey: ["dashboardCategories"],
+    queryFn: fetchDashboardCategories,
   });
 
   const filteredCategories = categories
@@ -55,15 +58,23 @@ export default function DashboardCategoriesPage() {
     if (categoryToDelete) {
       setIsDeleting(true);
 
-      queryClient.setQueryData(["categories"], (old: Category[] | undefined) =>
-        old ? old.filter((cat) => cat.id !== categoryToDelete) : []
+      queryClient.setQueryData(
+        ["dashboardCategories"],
+        (old: Category[] | undefined) =>
+          old ? old.filter((cat) => cat.id !== categoryToDelete) : []
       );
 
       try {
         await deleteCategory(categoryToDelete);
+        queryClient.invalidateQueries({ queryKey: ["dashboardCategories"] });
         queryClient.invalidateQueries({ queryKey: ["categories"] });
+        queryClient.invalidateQueries({ queryKey: ["categoriesForHeader"] });
+        queryClient.invalidateQueries({ queryKey: ["subcategories"] });
+
+        queryClient.refetchQueries({ queryKey: ["categories"] });
+        queryClient.refetchQueries({ queryKey: ["categoriesForHeader"] });
       } catch {
-        queryClient.invalidateQueries({ queryKey: ["categories"] });
+        queryClient.invalidateQueries({ queryKey: ["dashboardCategories"] });
       } finally {
         setIsDeleting(false);
         handleCloseModal();

@@ -4,27 +4,33 @@ import { useState } from "react";
 import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
 import OutlinedInput from "@mui/material/OutlinedInput";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import Button from "@mui/material/Button";
 import AlertMessage from "@/ui/components/feedback/alert-message";
 import { useAutoDismissAlert } from "@/lib/hooks/useAutoDismissAlert";
 import { createSubcategory } from "@/services/subcategoryService";
+import { fetchDashboardCategories } from "@/services/categoryService";
 
 export default function SubcategoryForm({
-  categories,
-  refetch,
+  categories: propCategories,
 }: {
   categories: { id: string; name: string; code: string }[];
-  refetch: () => void;
 }) {
+  const queryClient = useQueryClient();
   const [subcategoryData, setSubcategoryData] = useState({
     name: "",
     code: "",
     categoryId: "",
   });
   const [alert, setAlert] = useAutoDismissAlert(5000);
+
+  const { data: categories = propCategories || [] } = useQuery({
+    queryKey: ["dashboardCategories"],
+    queryFn: fetchDashboardCategories,
+    initialData: propCategories,
+  });
 
   const createSubcategoryMutation = useMutation({
     mutationFn: createSubcategory,
@@ -34,7 +40,8 @@ export default function SubcategoryForm({
         severity: "success",
       });
       setSubcategoryData({ name: "", code: "", categoryId: "" });
-      refetch();
+
+      queryClient.invalidateQueries({ queryKey: ["subcategories"] });
     },
     onError: (error: Error) => {
       setAlert({

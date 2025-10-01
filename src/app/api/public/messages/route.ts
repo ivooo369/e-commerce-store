@@ -3,6 +3,8 @@ import prisma from "@/lib/services/prisma";
 import nodemailer from "nodemailer";
 import { contactEmailHtml } from "@/lib/email-templates/contactEmail";
 
+export const dynamic = "force-dynamic";
+
 const transporter = nodemailer.createTransport({
   service: "Gmail",
   auth: {

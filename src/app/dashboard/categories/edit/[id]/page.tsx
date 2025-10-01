@@ -125,7 +125,12 @@ export default function DashboardEditCategoryPage() {
       });
 
       queryClient.invalidateQueries({ queryKey: ["category", categoryId] });
+      queryClient.invalidateQueries({ queryKey: ["dashboardCategories"] });
       queryClient.invalidateQueries({ queryKey: ["categories"] });
+      queryClient.invalidateQueries({ queryKey: ["categoriesForHeader"] });
+
+      queryClient.refetchQueries({ queryKey: ["categories"] });
+      queryClient.refetchQueries({ queryKey: ["categoriesForHeader"] });
 
       setCategoryData({ name: "", code: "", imageUrl: "" });
       setSelectedFile(null);
@@ -138,7 +143,7 @@ export default function DashboardEditCategoryPage() {
       const errorMessage =
         error instanceof Error
           ? error.message
-          : "Възникна грешка при обновяване на категорията. Моля, опитайте отново!";
+          : "Възникна грешка при обновяване на категорията! Моля, опитайте отново!";
 
       setAlert({
         message: errorMessage,

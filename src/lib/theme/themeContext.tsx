@@ -2,8 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { ThemeContextType } from "../types/interfaces";
-
-export type Theme = "light" | "dark";
+import { Theme } from "../types/types";
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 

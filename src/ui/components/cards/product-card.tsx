@@ -15,7 +15,7 @@ import { useCart } from "@/lib/hooks/useCart";
 import { formatPrice } from "@/lib/utils/currency";
 import { useFavorites } from "@/lib/hooks/useFavorites";
 import { useSelector } from "react-redux";
-import { RootState } from "@/lib/store/store";
+import { RootState } from "@/lib/types/types";
 
 export default function ProductCard({ product }: ProductCardProps) {
   const { addItemToCart } = useCart();

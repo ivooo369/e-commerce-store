@@ -14,7 +14,7 @@ import {
 import { useCart } from "@/lib/hooks/useCart";
 import { useOffices } from "@/lib/hooks/useOffices";
 import CircularProgress from "@/ui/components/feedback/circular-progress";
-import { FormDataDelivery, Settlement } from "@/lib/types/interfaces";
+import { FormDataDelivery, Settlement, CartItem } from "@/lib/types/interfaces";
 import { orderService } from "@/services/orderService";
 import { deliveryOptions } from "@/lib/utils/delivery";
 import CheckoutSteps from "@/ui/components/others/checkout-step-content";
@@ -240,7 +240,7 @@ export default function CheckoutPage() {
               })(),
         phone: formData.phone,
         additionalInfo: formData.notes || "",
-        items: items.map((item) => ({
+        items: items.map((item: CartItem) => ({
           product: {
             id: item.product.id,
             name: item.product.name,
@@ -393,7 +393,7 @@ export default function CheckoutPage() {
                     Вашата количка е празна
                   </p>
                 ) : (
-                  items.map((item, index) => (
+                  items.map((item: CartItem, index: number) => (
                     <Link
                       key={item.product.code}
                       href={`/product-catalog/details/${item.product.code}`}

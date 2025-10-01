@@ -22,7 +22,8 @@ export const fetchMessages = async (): Promise<MessagePrisma[]> => {
 
 export const deleteMessage = async (id: string) => {
   try {
-    await axios.delete(`/api/dashboard/messages/${id}`);
+    const response = await axios.delete(`/api/dashboard/messages/${id}`);
+    return response.data;
   } catch {
     throw new Error("Възникна грешка при изтриване на съобщението!");
   }

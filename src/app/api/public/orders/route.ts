@@ -261,8 +261,7 @@ export async function POST(request: Request) {
   } catch {
     return NextResponse.json(
       {
-        message:
-          "Възникна грешка при обработка на поръчката Ви. Моля, опитайте отново по-късно!",
+        message: "Възникна грешка при обработка на поръчката!",
       },
       { status: 500 }
     );

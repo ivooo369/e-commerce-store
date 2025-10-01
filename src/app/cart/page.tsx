@@ -3,10 +3,10 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
-import { RootState } from "@/lib/store/store";
 import { useCart } from "@/lib/hooks/useCart";
 import { useFavorites } from "@/lib/hooks/useFavorites";
 import { formatPrice } from "@/lib/utils/currency";
+import { RootState } from "@/lib/types/types";
 import { Tooltip } from "@mui/material";
 import {
   Button,

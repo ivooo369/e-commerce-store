@@ -29,9 +29,7 @@ export default function CancelOrderContent() {
           return;
         }
       } catch {
-        setError(
-          "Неуспешно отказване на поръчката. Моля, опитайте отново по-късно!"
-        );
+        setError("Неуспешно отказване на поръчката!");
         setStatus("error");
       }
     };
@@ -77,10 +75,7 @@ export default function CancelOrderContent() {
             <h2 className="mt-3 text-2xl font-bold text-gray-900 dark:text-white">
               Грешка
             </h2>
-            <p className="mt-2 text-gray-600 dark:text-gray-300">
-              {error ||
-                "Възникна грешка при отказване на поръчката. Моля, опитайте отново по-късно!"}
-            </p>
+            <p className="mt-2 text-gray-600 dark:text-gray-300">{error}</p>
             <div className="mt-6">
               <a
                 href="/"

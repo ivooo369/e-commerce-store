@@ -14,7 +14,7 @@ import MenuItem from "@mui/material/MenuItem";
 import CircularProgress from "@/ui/components/feedback/circular-progress";
 import AlertMessage from "@/ui/components/feedback/alert-message";
 import { Category } from "@prisma/client";
-import { fetchCategories } from "@/services/categoryService";
+import { fetchDashboardCategories } from "@/services/categoryService";
 import {
   editSubcategory,
   fetchSubcategory,
@@ -40,8 +40,8 @@ export default function DashboardEditSubcategoryPage() {
     isLoading: isCategoriesLoading,
     isError: isCategoriesError,
   } = useQuery({
-    queryKey: ["categories"],
-    queryFn: fetchCategories,
+    queryKey: ["dashboardCategories"],
+    queryFn: fetchDashboardCategories,
   });
 
   const {

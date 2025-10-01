@@ -48,12 +48,29 @@ export default async function CategoryPage({
         allProducts={products}
       />
     );
-  } catch {
+  } catch (error) {
+    const isCategoryNotFound =
+      error instanceof Error && error.message === "Категорията не е намерена!";
+
+    if (isCategoryNotFound) {
+      return (
+        <div className="container mx-auto px-4 py-4 sm:py-6 bg-bg-primary min-h-screen">
+          <div className="container mx-auto px-4 mt-4 font-bold">
+            <p className="text-center text-2xl p-16 bg-card-bg rounded-md text-text-secondary border border-card-border transition-colors duration-300">
+              Избраната категория не е намерена
+            </p>
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div className="container mx-auto px-4 py-4 sm:py-6 bg-bg-primary min-h-screen">
-        <h1 className="text-3xl font-bold text-center text-error-color">
-          Възникна грешка при зареждане на продуктите от избраната категория!
-        </h1>
+        <div className="container mx-auto px-4 mt-4 font-bold">
+          <p className="text-center text-2xl p-16 bg-card-bg rounded-md text-text-secondary border border-card-border transition-colors duration-300">
+            Възникна грешка при зареждане на продуктите от избраната категория!
+          </p>
+        </div>
       </div>
     );
   }

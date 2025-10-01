@@ -4,24 +4,17 @@ import { useState, useMemo } from "react";
 import {
   CategoryPageProps,
   Product,
-  ProductWithRelations,
+  ProductFiltersState,
 } from "@/lib/types/interfaces";
-import {
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  SelectChangeEvent,
-  Box,
-  Slider,
-} from "@mui/material";
+import { Box } from "@mui/material";
 import ProductCard from "../cards/product-card";
 import CircularProgress from "../feedback/circular-progress";
 import usePagination, { ITEMS_PER_PAGE } from "@/lib/hooks/usePagination";
 import PaginationButtons from "@/ui/components/navigation/pagination";
 import { useQuery } from "@tanstack/react-query";
 import { fetchFilteredProducts } from "@/services/productService";
-import { formatPrice } from "@/lib/utils/currency";
+import { useProductFilters } from "@/lib/hooks/useProductFilters";
+import ProductFilters from "./product-filters";
 
 export default function CategoryPageContent({
   category,
@@ -29,22 +22,22 @@ export default function CategoryPageContent({
   allProducts,
   categories = [],
 }: CategoryPageProps) {
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  const [selectedSubcategories, setSelectedSubcategories] = useState<string[]>(
-    []
-  );
-  const [sortOption, setSortOption] = useState<string>("newest");
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, 500]);
+  const [filters, setFilters] = useState<ProductFiltersState>({
+    selectedCategories: [],
+    selectedSubcategories: [],
+    sortOption: "newest",
+    priceRange: [0, 500],
+  });
   const isAllProductsPage = category.id === "all";
 
   const { data: productsData = allProducts || [], isLoading } = useQuery({
-    queryKey: ["products", category.id, selectedSubcategories],
+    queryKey: ["products", category.id, filters.selectedSubcategories],
     queryFn: () =>
       allProducts && allProducts.length > 0
         ? Promise.resolve(allProducts)
         : fetchFilteredProducts(
             category.id,
-            selectedSubcategories,
+            filters.selectedSubcategories,
             subcategories
           ),
     enabled: !!category.id && (!allProducts || allProducts.length === 0),
@@ -69,68 +62,13 @@ export default function CategoryPageContent({
     [isAllProductsPage, categories]
   );
 
-  const displayedProducts = useMemo(() => {
-    let filtered = products;
-
-    if (selectedSubcategories.length > 0) {
-      filtered = filtered.filter((product) =>
-        (product.subcategories || []).some(
-          ({ subcategory }: { subcategory: ProductWithRelations }) =>
-            selectedSubcategories.includes(subcategory?.id || "")
-        )
-      );
-    }
-
-    filtered = [...filtered].sort((a, b) => {
-      switch (sortOption) {
-        case "alphabetical":
-          return a.name.localeCompare(b.name);
-        case "price-asc":
-          return a.price - b.price;
-        case "price-desc":
-          return b.price - a.price;
-        case "newest":
-        default:
-          return (
-            new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
-          );
-      }
-    });
-
-    filtered = filtered.filter(
-      (product) =>
-        product.price >= priceRange[0] && product.price <= priceRange[1]
-    );
-
-    return filtered;
-  }, [products, selectedSubcategories, sortOption, priceRange]);
+  const displayedProducts = useProductFilters(products, filters);
 
   const { currentPage, currentItems, paginate } =
     usePagination<Product>(displayedProducts);
 
-  const handleCategoryChange = (event: SelectChangeEvent<string[]>) => {
-    const value = event.target.value as string[];
-    setSelectedCategories(value);
-
-    if (value.length > 0) {
-      const validSubcategories = selectedSubcategories.filter((subcatId) => {
-        const sub = subcategories.find((s) => s.id === subcatId);
-        return sub && value.includes(sub.categoryId);
-      });
-      setSelectedSubcategories(validSubcategories);
-    }
-  };
-
-  const handleSubcategoryChange = (event: SelectChangeEvent<string[]>) => {
-    setSelectedSubcategories(event.target.value as string[]);
-  };
-
-  const handleSortChange = (event: SelectChangeEvent<string>) => {
-    setSortOption(event.target.value);
-  };
-
-  const handlePriceChange = (event: Event, newValue: number | number[]) => {
-    setPriceRange(newValue as [number, number]);
+  const handleFiltersChange = (newFilters: ProductFiltersState) => {
+    setFilters(newFilters);
   };
 
   return (
@@ -139,110 +77,13 @@ export default function CategoryPageContent({
         {category.name}
       </h1>
 
-      <div className="products-filter-container flex flex-col items-center max-w-screen-2xl mx-auto space-y-4 py-4 px-4">
-        <FormControl fullWidth variant="outlined">
-          <InputLabel htmlFor="sort-select">Сортиране</InputLabel>
-          <Select
-            id="sort-select"
-            value={sortOption}
-            onChange={handleSortChange}
-            label="Сортиране"
-          >
-            <MenuItem value="newest">Първо най-новите</MenuItem>
-            <MenuItem value="alphabetical">Азбучен ред</MenuItem>
-            <MenuItem value="price-asc">Цена: Ниска към висока</MenuItem>
-            <MenuItem value="price-desc">Цена: Висока към ниска</MenuItem>
-          </Select>
-        </FormControl>
-
-        {isAllProductsPage && (
-          <FormControl fullWidth variant="outlined">
-            <InputLabel htmlFor="category-select">
-              Филтриране на подкатегориите според избраните категории
-            </InputLabel>
-            <Select
-              id="category-select"
-              multiple
-              value={selectedCategories}
-              onChange={handleCategoryChange}
-              label="Филтриране на подкатегориите според избраните категории"
-              renderValue={(selected) =>
-                selected
-                  .map((id) => {
-                    const cat = availableCategories.find((c) => c.id === id);
-                    return cat ? `${cat.code} - ${cat.name}` : "";
-                  })
-                  .join(", ")
-              }
-            >
-              {availableCategories.map((c) => (
-                <MenuItem key={c.id} value={c.id}>
-                  {c.code} - {c.name}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        )}
-
-        <FormControl fullWidth variant="outlined">
-          <InputLabel htmlFor="subcategory-select">
-            Филтриране на продуктите според избраните подкатегории
-          </InputLabel>
-          <Select
-            id="subcategory-select"
-            multiple
-            value={selectedSubcategories}
-            onChange={handleSubcategoryChange}
-            label="Филтриране на продуктите според избраните подкатегории"
-            renderValue={(selected) =>
-              selected
-                .map((id) => {
-                  const sub = subcategories.find((s) => s.id === id);
-                  return sub ? `${sub.code} - ${sub.name}` : "";
-                })
-                .join(", ")
-            }
-          >
-            {[...subcategories]
-              .filter(
-                (sub) =>
-                  selectedCategories.length === 0 ||
-                  selectedCategories.includes(sub.categoryId)
-              )
-              .sort(
-                (a, b) =>
-                  (a.code || "").localeCompare(b.code || "") ||
-                  a.name.localeCompare(b.name)
-              )
-              .map((sub) => (
-                <MenuItem key={sub.id} value={sub.id}>
-                  {sub.code} - {sub.name}
-                </MenuItem>
-              ))}
-          </Select>
-        </FormControl>
-
-        <Box className="w-full px-4 font-semibold">
-          <p>Диапазон на цените</p>
-          <Slider
-            value={priceRange}
-            onChange={handlePriceChange}
-            valueLabelDisplay="auto"
-            min={0}
-            max={500}
-          />
-          <div className="flex flex-col gap-1 mt-2">
-            <div className="flex justify-between text-base">
-              <span>{formatPrice(priceRange[0], "BGN")}</span>
-              <span>{formatPrice(priceRange[1], "BGN")}</span>
-            </div>
-            <div className="flex justify-between text-sm text-gray-600">
-              <span>{formatPrice(priceRange[0], "EUR")}</span>
-              <span>{formatPrice(priceRange[1], "EUR")}</span>
-            </div>
-          </div>
-        </Box>
-      </div>
+      <ProductFilters
+        categories={availableCategories}
+        subcategories={subcategories}
+        showCategoryFilter={isAllProductsPage}
+        onFiltersChange={handleFiltersChange}
+        initialFilters={filters}
+      />
 
       {displayedProducts.length > 0 && (
         <PaginationButtons
@@ -261,10 +102,10 @@ export default function CategoryPageContent({
         ) : currentItems.length === 0 ? (
           <div className="container mx-auto px-4 mt-4 font-bold">
             <p className="text-center text-2xl p-16 bg-card-bg rounded-md text-text-secondary border border-card-border transition-colors duration-300">
-              {selectedSubcategories.length > 0 ||
-              selectedCategories.length > 0 ||
-              priceRange[0] > 0 ||
-              priceRange[1] < 500
+              {filters.selectedSubcategories.length > 0 ||
+              filters.selectedCategories.length > 0 ||
+              filters.priceRange[0] > 0 ||
+              filters.priceRange[1] < 500
                 ? "Няма продукти, отговарящи на избраните филтри"
                 : "Няма налични продукти"}
             </p>

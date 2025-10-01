@@ -1,6 +1,6 @@
 import { Category as CategoryPrisma } from "@prisma/client";
 import { Key } from "react";
-import { Theme } from "../theme/themeContext";
+import { AlertSeverity, Theme } from "./types";
 
 export interface DecodedToken {
   userId: string;
@@ -81,8 +81,6 @@ export interface ProductWithSubcategories extends ProductBase {
     };
   }>;
 }
-
-export type AlertSeverity = "success" | "error" | "info" | "warning";
 
 export interface AlertMessageProps {
   severity: AlertSeverity;
@@ -671,9 +669,35 @@ export interface AccountUpdateFormProps {
   };
   isUpdating: boolean;
   alert: {
-    severity: "success" | "error" | "info" | "warning";
+    severity: "success" | "error";
     message: string;
   } | null;
   onInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
+}
+
+export interface ProductFiltersState {
+  selectedCategories: string[];
+  selectedSubcategories: string[];
+  sortOption: string;
+  priceRange: [number, number];
+}
+
+export interface ProductFiltersProps {
+  categories: CategoryPrisma[];
+  subcategories: Array<{
+    id: string;
+    name: string;
+    code: string;
+    categoryId: string;
+    category: {
+      id: string;
+      name: string;
+      code: string;
+    };
+  }>;
+  showCategoryFilter?: boolean;
+  onFiltersChange: (filters: ProductFiltersState) => void;
+  initialFilters?: Partial<ProductFiltersState>;
+  includeContainer?: boolean;
 }

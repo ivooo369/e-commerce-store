@@ -17,9 +17,16 @@ export const fetchCategories = async (): Promise<CategoryPrisma[]> => {
 
   try {
     const { data } = await axios.get("/api/public/categories");
-    return data.sort((a: { code: string }, b: { code: string }) =>
-      a.code.localeCompare(b.code)
-    );
+    return data;
+  } catch {
+    throw new Error("Възникна грешка при зареждане на категориите!");
+  }
+};
+
+export const fetchDashboardCategories = async (): Promise<CategoryPrisma[]> => {
+  try {
+    const { data } = await axios.get("/api/dashboard/categories");
+    return data;
   } catch {
     throw new Error("Възникна грешка при зареждане на категориите!");
   }
@@ -47,7 +54,7 @@ export const createCategory = async (categoryData: Category) => {
         data?: { message?: string; error?: string };
       };
     };
-    
+
     if (axiosError.response?.data?.message) {
       throw new Error(axiosError.response.data.message);
     } else if (axiosError.response?.data?.error) {
@@ -88,7 +95,7 @@ export const editCategory = async (updatedCategory: Category, id: string) => {
         data?: { message?: string; error?: string };
       };
     };
-    
+
     if (axiosError.response?.data?.message) {
       throw new Error(axiosError.response.data.message);
     } else if (axiosError.response?.data?.error) {
@@ -151,7 +158,14 @@ export const fetchCategoryByNameWithProducts = async (name: string) => {
         })),
         products,
       };
-    } catch {
+    } catch (error) {
+      if (
+        error instanceof Error &&
+        error.message === "Категорията не е намерена!"
+      ) {
+        throw error;
+      }
+
       throw new Error(
         "Възникна грешка при зареждане на категорията с продукти!"
       );
@@ -161,6 +175,7 @@ export const fetchCategoryByNameWithProducts = async (name: string) => {
   try {
     const decodedName = decodeURIComponent(name);
     const encodedName = encodeURIComponent(decodedName);
+
     const { data } = await axios.get(
       `/api/public/categories/name/${encodedName}`
     );
@@ -170,7 +185,21 @@ export const fetchCategoryByNameWithProducts = async (name: string) => {
       subcategories: data.subcategories || [],
       products: data.products || [],
     };
-  } catch {
+  } catch (error: unknown) {
+    const axiosError = error as {
+      response?: {
+        data?: { message?: string };
+        status?: number;
+      };
+    };
+
+    if (
+      axiosError.response?.status === 404 &&
+      axiosError.response?.data?.message === "Категорията не е намерена!"
+    ) {
+      throw new Error("Категорията не е намерена!");
+    }
+
     throw new Error("Възникна грешка при зареждане на категорията с продукти!");
   }
 };

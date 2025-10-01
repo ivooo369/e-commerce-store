@@ -1,4 +1,9 @@
 import { Subcategory, Category, Product } from "@prisma/client";
+import { store } from "../store/store";
+
+export type Theme = "light" | "dark";
+
+export type AlertSeverity = "success" | "error";
 
 type SerializablePrimitive = string | number | boolean | null | undefined;
 
@@ -33,3 +38,7 @@ export type SortField =
   | "isCompleted";
 
 export type SortOrder = "asc" | "desc";
+
+export type RootState = ReturnType<typeof store.getState>;
+
+export type AppDispatch = typeof store.dispatch;

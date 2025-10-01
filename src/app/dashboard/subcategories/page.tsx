@@ -17,7 +17,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { Category, Subcategory as SubcategoryPrisma } from "@prisma/client";
 import { Subcategory } from "@/lib/types/interfaces";
-import { fetchCategories } from "@/services/categoryService";
+import { fetchDashboardCategories } from "@/services/categoryService";
 import {
   deleteSubcategory,
   fetchSubcategories,
@@ -36,8 +36,8 @@ export default function DashboardSubcategoriesPage() {
   const { data: categories = [], isLoading: isCategoriesLoading } = useQuery<
     Category[]
   >({
-    queryKey: ["categories"],
-    queryFn: fetchCategories,
+    queryKey: ["dashboardCategories"],
+    queryFn: fetchDashboardCategories,
   });
 
   const {
