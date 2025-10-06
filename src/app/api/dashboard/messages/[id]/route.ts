@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/services/prisma";
+import * as Sentry from "@sentry/nextjs";
 
 export const dynamic = "force-dynamic";
 
@@ -18,7 +19,8 @@ export async function DELETE(
       { message: "Съобщението е изтрито успешно!" },
       { status: 200 }
     );
-  } catch {
+  } catch (error) {
+    Sentry.captureException(error);
     return NextResponse.json(
       { message: "Възникна грешка при изтриване на съобщението!" },
       { status: 500 }

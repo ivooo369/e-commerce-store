@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/services/prisma";
+import * as Sentry from "@sentry/nextjs";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -42,7 +43,8 @@ export async function GET(request: Request) {
     });
 
     return NextResponse.json(favoriteProducts, { status: 200 });
-  } catch {
+  } catch (error) {
+    Sentry.captureException(error);
     return NextResponse.json(
       { message: "Възникна грешка при извличане на любимите продукти!" },
       { status: 500 }
@@ -105,7 +107,8 @@ export async function POST(request: Request) {
       { message: "Продуктът беше добавен успешно към 'Любими'!" },
       { status: 201 }
     );
-  } catch {
+  } catch (error) {
+    Sentry.captureException(error);
     return NextResponse.json(
       { message: "Възникна грешка при добавяне на продукта към 'Любими'!" },
       { status: 500 }
@@ -154,7 +157,8 @@ export async function DELETE(request: Request) {
       { message: "Продуктът беше премахнат успешно от 'Любими'!" },
       { status: 200 }
     );
-  } catch {
+  } catch (error) {
+    Sentry.captureException(error);
     return NextResponse.json(
       { message: "Възникна грешка при премахване на продукта от 'Любими'!" },
       { status: 500 }

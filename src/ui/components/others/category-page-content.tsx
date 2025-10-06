@@ -7,8 +7,8 @@ import {
   ProductFiltersState,
 } from "@/lib/types/interfaces";
 import { Box } from "@mui/material";
-import ProductCard from "../cards/product-card";
-import CircularProgress from "../feedback/circular-progress";
+import ProductCard from "@/ui/components/cards/product-card";
+import CircularProgress from "@/ui/components/feedback/circular-progress";
 import usePagination, { ITEMS_PER_PAGE } from "@/lib/hooks/usePagination";
 import PaginationButtons from "@/ui/components/navigation/pagination";
 import { useQuery } from "@tanstack/react-query";

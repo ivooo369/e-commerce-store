@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/services/prisma";
+import * as Sentry from "@sentry/nextjs";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -26,7 +27,8 @@ export async function GET(request: Request) {
       },
     });
     return NextResponse.json(cartItems);
-  } catch {
+  } catch (error) {
+    Sentry.captureException(error);
     return NextResponse.json(
       { message: "Възникна грешка при извличане на продуктите от количката!" },
       { status: 500 }
@@ -97,7 +99,8 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json({ ...cartItem, sessionId }, { status: 201 });
-  } catch {
+  } catch (error) {
+    Sentry.captureException(error);
     return NextResponse.json(
       { message: "Възникна грешка при добавяне на продукта в количката!" },
       { status: 500 }
@@ -164,7 +167,8 @@ export async function PUT(request: Request) {
       include: { product: true },
     });
     return NextResponse.json(updatedItem);
-  } catch {
+  } catch (error) {
+    Sentry.captureException(error);
     return NextResponse.json(
       {
         message: "Възникна грешка при обновяване на количеството!",
@@ -232,7 +236,8 @@ export async function DELETE(request: Request) {
         message: "Продуктът беше премахнат от количката!",
       });
     }
-  } catch {
+  } catch (error) {
+    Sentry.captureException(error);
     return NextResponse.json(
       {
         message: "Възникна грешка при обработка на заявката за количка!",

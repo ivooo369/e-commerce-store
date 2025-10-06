@@ -1,4 +1,5 @@
 import { SpeedyOfficeResponse } from "@/lib/types/interfaces";
+import * as Sentry from "@sentry/nextjs";
 
 function parseWorkTime(workTime: string): { day: string; time: string }[] {
   if (!workTime) {
@@ -165,7 +166,8 @@ export async function getSpeedyOfficesRest(
               ],
       };
     });
-  } catch {
+  } catch (error) {
+    Sentry.captureException(error);
     return [];
   }
 }

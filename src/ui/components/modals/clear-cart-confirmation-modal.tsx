@@ -38,7 +38,7 @@ function ClearCartConfirmationModalContent({
           variant="contained"
           className="font-bold bg-blue-500 hover:bg-blue-600 text-white"
         >
-          Отказ
+          Откажи
         </Button>
         <Button
           onClick={onConfirm}

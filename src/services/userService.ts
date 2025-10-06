@@ -1,6 +1,7 @@
 import axios from "axios";
 import { UserData, Customer } from "@/lib/types/interfaces";
 import jwt from "jsonwebtoken";
+import * as Sentry from "@sentry/nextjs";
 
 const getBaseUrl = () => {
   return (
@@ -19,7 +20,8 @@ export const fetchUserData = async (token: string) => {
       },
     });
     return data;
-  } catch {
+  } catch (error) {
+    Sentry.captureException(error);
     throw new Error("Възникна грешка при извличане на данните!");
   }
 };
@@ -44,6 +46,7 @@ export const updateUserData = async ({
     );
     return data;
   } catch (error) {
+    Sentry.captureException(error);
     if (axios.isAxiosError(error) && error.response?.status === 409) {
       throw new Error("Потребител с този имейл вече съществува!");
     }
@@ -71,8 +74,10 @@ export const changePassword = async (formData: {
       }
     );
     return data;
-  } catch (error: unknown) {
-    const message = (error as { response?: { data?: { message?: string } } })?.response?.data?.message;
+  } catch (error) {
+    Sentry.captureException(error);
+    const message = (error as { response?: { data?: { message?: string } } })
+      ?.response?.data?.message;
     throw new Error(message || "Възникна грешка при смяна на паролата!");
   }
 };
@@ -81,7 +86,8 @@ export const deleteAccount = async (userId: string) => {
   try {
     await axios.delete(`/api/public/users/delete-account/${userId}`);
     return userId;
-  } catch {
+  } catch (error) {
+    Sentry.captureException(error);
     throw new Error("Възникна грешка при изтриване на акаунта!");
   }
 };
@@ -102,7 +108,8 @@ export const signUp = async (formData: Customer) => {
     }
 
     return response.data;
-  } catch (error: unknown) {
+  } catch (error) {
+    Sentry.captureException(error);
     if (axios.isAxiosError(error) && error.response?.data?.message) {
       throw new Error(error.response.data.message);
     }
@@ -120,6 +127,7 @@ export const signIn = async (formData: { email: string; password: string }) => {
     });
     return data;
   } catch (error) {
+    Sentry.captureException(error);
     const axiosError = error as {
       response?: {
         status?: number;
@@ -150,7 +158,8 @@ export const verifyEmail = async (token: string) => {
       `/api/public/users/verify-email?token=${token}`
     );
     return data;
-  } catch {
+  } catch (error) {
+    Sentry.captureException(error);
     throw new Error("Възникна грешка при верификация на имейла!");
   }
 };
@@ -173,11 +182,57 @@ export const resendVerificationEmail = async (token: string) => {
       }
     );
     return data;
-  } catch {
+  } catch (error) {
+    Sentry.captureException(error);
     throw new Error("Възникна грешка при изпращане на имейла за верификация!");
   }
 };
 
 export const getVerificationLink = (token: string) => {
   return `${getBaseUrl()}/user/verify-email?token=${token}`;
+};
+
+export const forgotPassword = async (email: string) => {
+  try {
+    const { data } = await axios.post(
+      "/api/public/users/forgot-password",
+      { email },
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return data;
+  } catch (error) {
+    Sentry.captureException(error);
+    const message = (error as { response?: { data?: { message?: string } } })
+      ?.response?.data?.message;
+    throw new Error(
+      message || "Възникна грешка при изпращане на имейла за смяна на паролата!"
+    );
+  }
+};
+
+export const resetPassword = async (formData: {
+  token: string;
+  newPassword: string;
+}) => {
+  try {
+    const { data } = await axios.post(
+      "/api/public/users/reset-password",
+      formData,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return data;
+  } catch (error) {
+    Sentry.captureException(error);
+    const message = (error as { response?: { data?: { message?: string } } })
+      ?.response?.data?.message;
+    throw new Error(message || "Възникна грешка при смяна на паролата!");
+  }
 };

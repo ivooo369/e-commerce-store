@@ -1,10 +1,5 @@
 import { useState, useEffect } from "react";
-import { AlertSeverity } from "../types/types";
-
-type AlertType = {
-  message: string;
-  severity: AlertSeverity;
-} | null;
+import { AlertType } from "@/lib/types/types";
 
 export const useAutoDismissAlert = (timeout = 5000) => {
   const [alert, setAlert] = useState<AlertType>(null);

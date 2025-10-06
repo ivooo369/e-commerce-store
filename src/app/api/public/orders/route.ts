@@ -8,6 +8,7 @@ import {
   adminOrderEmail,
   customerOrderEmail,
 } from "@/lib/email-templates/orderEmails";
+import * as Sentry from "@sentry/nextjs";
 
 const transporter = nodemailer.createTransport({
   service: "Gmail",
@@ -35,7 +36,8 @@ export async function GET(request: Request) {
         Buffer.from(token.split(".")[1], "base64").toString()
       );
       userId = payload.userId;
-    } catch {
+    } catch (error) {
+      Sentry.captureException(error);
       return NextResponse.json(
         { message: "Невалиден токен!" },
         { status: 401 }
@@ -83,7 +85,8 @@ export async function GET(request: Request) {
     });
 
     return NextResponse.json(processedOrders);
-  } catch {
+  } catch (error) {
+    Sentry.captureException(error);
     return NextResponse.json(
       { message: "Възникна грешка при зареждане на поръчките!" },
       { status: 500 }
@@ -258,7 +261,8 @@ export async function POST(request: Request) {
       },
       { status: 201 }
     );
-  } catch {
+  } catch (error) {
+    Sentry.captureException(error);
     return NextResponse.json(
       {
         message: "Възникна грешка при обработка на поръчката!",

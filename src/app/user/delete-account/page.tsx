@@ -107,7 +107,7 @@ export default function DeleteAccountPage() {
             href="/"
             className="text-base sm:text-lg font-semibold text-blue-600 hover:underline"
           >
-            Отказ
+            Откажи
           </Link>
         </div>
         {alert && (

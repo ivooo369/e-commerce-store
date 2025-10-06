@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/services/prisma";
+import * as Sentry from "@sentry/nextjs";
 
 export async function GET() {
   try {
@@ -7,7 +8,8 @@ export async function GET() {
       orderBy: { code: "asc" },
     });
     return NextResponse.json(categories, { status: 200 });
-  } catch {
+  } catch (error) {
+    Sentry.captureException(error);
     return NextResponse.json(
       { message: "Възникна грешка при извличане на категориите!" },
       { status: 500 }

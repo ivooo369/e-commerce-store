@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcrypt";
 import prisma from "@/lib/services/prisma";
 import jwt, { JwtPayload } from "jsonwebtoken";
+import * as Sentry from "@sentry/nextjs";
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
@@ -34,7 +35,8 @@ export async function POST(req: Request) {
     let decodedToken: JwtPayload | string;
     try {
       decodedToken = jwt.verify(token, JWT_SECRET) as JwtPayload;
-    } catch {
+    } catch (error) {
+      Sentry.captureException(error);
       return NextResponse.json(
         { message: "Невалиден или изтекъл токен!" },
         { status: 401 }
@@ -104,7 +106,8 @@ export async function POST(req: Request) {
       { message: "Паролата е сменена успешно!" },
       { status: 200 }
     );
-  } catch {
+  } catch (error) {
+    Sentry.captureException(error);
     return NextResponse.json(
       { message: "Възникна грешка при смяна на паролата!" },
       { status: 500 }

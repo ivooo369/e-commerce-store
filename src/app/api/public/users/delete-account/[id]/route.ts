@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/services/prisma";
+import * as Sentry from "@sentry/nextjs";
 
 export async function DELETE(
   request: Request,
@@ -39,7 +40,8 @@ export async function DELETE(
       { message: "Акаунтът беше успешно изтрит!" },
       { status: 200 }
     );
-  } catch {
+  } catch (error) {
+    Sentry.captureException(error);
     return NextResponse.json(
       { message: "Възникна грешка при изтриване на акаунта!" },
       { status: 500 }

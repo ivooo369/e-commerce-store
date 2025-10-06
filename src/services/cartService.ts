@@ -1,6 +1,7 @@
 import axios from "axios";
 import { CartItem, CartItemResponse } from "@/lib/types/interfaces";
 import { sanitizeProduct } from "@/lib/utils/sanitizeProduct";
+import * as Sentry from "@sentry/nextjs";
 
 export const cartService = {
   async getCartItems(customerId: string): Promise<CartItem[]> {
@@ -25,7 +26,8 @@ export const cartService = {
           quantity: row.quantity ?? 1,
         }))
         .filter((ci: CartItem) => ci.product && ci.product.code);
-    } catch {
+    } catch (error) {
+      Sentry.captureException(error);
       throw new Error(
         "Възникна грешка при зареждане на продуктите в количката!"
       );
@@ -43,7 +45,8 @@ export const cartService = {
         productCode,
         quantity,
       });
-    } catch {
+    } catch (error) {
+      Sentry.captureException(error);
       throw new Error("Възникна грешка при добавяне на продукт в количката!");
     }
   },
@@ -59,7 +62,8 @@ export const cartService = {
         productIdentifier: productCode,
         quantity,
       });
-    } catch {
+    } catch (error) {
+      Sentry.captureException(error);
       throw new Error("Възникна грешка при обновяване на продукт в количката!");
     }
   },
@@ -72,7 +76,8 @@ export const cartService = {
           productIdentifier: productCode,
         },
       });
-    } catch {
+    } catch (error) {
+      Sentry.captureException(error);
       throw new Error(
         "Възникна грешка при премахване на продукт от количката!"
       );
@@ -87,7 +92,8 @@ export const cartService = {
           clearAll: true,
         },
       });
-    } catch {
+    } catch (error) {
+      Sentry.captureException(error);
       throw new Error("Възникна грешка при изчистване на количката!");
     }
   },

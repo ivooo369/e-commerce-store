@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/services/prisma";
+import * as Sentry from "@sentry/nextjs";
 
 export async function GET() {
   try {
@@ -8,7 +9,8 @@ export async function GET() {
     });
 
     return NextResponse.json(subcategories, { status: 200 });
-  } catch {
+  } catch (error) {
+    Sentry.captureException(error);
     return NextResponse.json(
       { message: "Възникна грешка при извличане на подкатегорията!" },
       { status: 500 }
@@ -89,7 +91,8 @@ export async function POST(request: Request) {
       },
       { status: 201 }
     );
-  } catch {
+  } catch (error) {
+    Sentry.captureException(error);
     return NextResponse.json(
       { message: "Възникна грешка при добавяне на подкатегорията!" },
       { status: 500 }

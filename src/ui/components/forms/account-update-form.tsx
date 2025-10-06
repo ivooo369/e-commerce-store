@@ -59,7 +59,12 @@ export function AccountUpdateForm({
           value={email}
           onChange={onInputChange}
           label="E-mail"
-          inputProps={{ maxLength: 255, autoComplete: "email" }}
+          inputProps={{
+            maxLength: 255,
+            autoComplete: "email",
+            readOnly: true,
+          }}
+          disabled
         />
       </FormControl>
 

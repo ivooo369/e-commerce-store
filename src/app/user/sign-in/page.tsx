@@ -143,19 +143,35 @@ export default function SignInPage() {
         </FormControl>
         <Button
           type="submit"
+          className="font-bold"
+          color="primary"
           variant="contained"
-          className="font-bold w-full bg-blue-500 hover:bg-blue-600 text-white"
           fullWidth
           disabled={signingIn}
         >
           {signingIn ? "Влизане..." : "Влез в акаунта си"}
         </Button>
-        <p className="flex justify-center items-center gap-1.5 text-base sm:text-lg font-semibold">
-          Нямате акаунт?
-          <Link href="/user/sign-up" className="text-blue-600 hover:underline">
-            Регистрирайте се тук
-          </Link>
-        </p>
+        <div className="flex flex-col sm:flex-row justify-center items-center gap-2 sm:gap-4 text-base">
+          <span>
+            <span className="font-semibold">Нямате акаунт?</span>{" "}
+            <Link
+              href="/user/sign-up"
+              className="text-blue-600 hover:underline font-medium"
+            >
+              Регистрирайте се
+            </Link>
+          </span>
+          <span className="hidden sm:inline text-gray-400">•</span>
+          <span>
+            <span className="font-semibold">Забравили сте паролата си?</span>{" "}
+            <Link
+              href="/user/forgot-password"
+              className="text-blue-600 hover:underline font-medium"
+            >
+              Сменете я
+            </Link>
+          </span>
+        </div>
         {alert && (
           <div>
             <AlertMessage severity={alert.severity} message={alert.message} />

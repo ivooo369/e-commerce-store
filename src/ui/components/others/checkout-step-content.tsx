@@ -4,7 +4,7 @@ import MuiCheckbox from "@mui/material/Checkbox";
 import SettlementInput from "@/ui/components/search/settlement-input";
 import { CheckoutStepsProps } from "@/lib/types/interfaces";
 import { deliveryOptions } from "@/lib/utils/delivery";
-import { MemoizedOfficeMap } from "../maps/memorized-office-map";
+import { MemoizedOfficeMap } from "@/ui/components/maps/memorized-office-map";
 
 export default function CheckoutSteps({
   currentStep,

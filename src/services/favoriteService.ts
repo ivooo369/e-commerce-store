@@ -1,4 +1,5 @@
 import axios from "axios";
+import * as Sentry from "@sentry/nextjs";
 
 const API_BASE_URL =
   typeof window !== "undefined" ? "" : "http://localhost:3000";
@@ -20,7 +21,8 @@ export const getFavorites = async (customerId: string) => {
       params: { customerId },
     });
     return response.data;
-  } catch {
+  } catch (error) {
+    Sentry.captureException(error);
     throw new Error("Възникна грешка при извличане на любимите продукти!");
   }
 };
@@ -36,7 +38,8 @@ export const addFavorite = async (customerId: string, productId: string) => {
       productId,
     });
     return response.data;
-  } catch {
+  } catch (error) {
+    Sentry.captureException(error);
     throw new Error("Възникна грешка при добавяне на продукта към 'Любими'!");
   }
 };
@@ -51,7 +54,8 @@ export const removeFavorite = async (customerId: string, productId: string) => {
       data: { customerId, productId },
     });
     return response.data;
-  } catch {
+  } catch (error) {
+    Sentry.captureException(error);
     throw new Error("Възникна грешка при премахване от 'Любими'!");
   }
 };

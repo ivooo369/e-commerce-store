@@ -1,5 +1,5 @@
 import { Subcategory, Category, Product } from "@prisma/client";
-import { store } from "../store/store";
+import { store } from "@/lib/store/store";
 
 export type Theme = "light" | "dark";
 
@@ -42,3 +42,8 @@ export type SortOrder = "asc" | "desc";
 export type RootState = ReturnType<typeof store.getState>;
 
 export type AppDispatch = typeof store.dispatch;
+
+export type AlertType = {
+  message: string;
+  severity: AlertSeverity;
+} | null;

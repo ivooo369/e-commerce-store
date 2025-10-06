@@ -3,6 +3,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { DecodedToken } from "@/lib/types/interfaces";
 import prisma from "@/lib/services/prisma";
+import * as Sentry from "@sentry/nextjs";
 const JWT_SECRET = process.env.JWT_SECRET;
 
 export async function GET(req: Request) {
@@ -27,7 +28,8 @@ export async function GET(req: Request) {
 
     try {
       decoded = jwt.verify(token, JWT_SECRET) as DecodedToken;
-    } catch {
+    } catch (error) {
+      Sentry.captureException(error);
       return NextResponse.json(
         { message: "Невалиден или изтекъл токен!" },
         { status: 401 }
@@ -50,7 +52,8 @@ export async function GET(req: Request) {
       { firstName: user.firstName, lastName: user.lastName },
       { status: 200 }
     );
-  } catch {
+  } catch (error) {
+    Sentry.captureException(error);
     return NextResponse.json(
       { error: "Възникна грешка при извличане на данните на потребителя!" },
       { status: 500 }
@@ -135,7 +138,8 @@ export async function POST(req: Request) {
       },
       { status: 200 }
     );
-  } catch {
+  } catch (error) {
+    Sentry.captureException(error);
     return NextResponse.json(
       { message: "Възникна грешка при влизане в потребителския акаунт!" },
       { status: 500 }

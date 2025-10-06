@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/services/prisma";
 import { sendOrderStatusNotification } from "@/lib/email-templates/orderEmails";
+import * as Sentry from "@sentry/nextjs";
 
 export async function POST(request: Request) {
   try {
@@ -44,7 +45,8 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json({ status: "cancelled" }, { status: 200 });
-  } catch {
+  } catch (error) {
+    Sentry.captureException(error);
     return NextResponse.json(
       { error: "Възникна грешка при отказване на поръчката!" },
       { status: 500 }

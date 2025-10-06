@@ -214,7 +214,7 @@ export default function DashboardEditProductPage() {
 
       resetForm();
       setTimeout(() => router.push("/dashboard/products"), 1000);
-    } catch (error: unknown) {
+    } catch (error) {
       const errorMessage =
         error instanceof Error
           ? error.message
@@ -342,7 +342,7 @@ export default function DashboardEditProductPage() {
               >
                 {productImageUrls.length > 0
                   ? `Качени изображения (${productImageUrls.length})`
-                  : "Качете изображения *"}
+                  : "Качи изображения *"}
               </Button>
             </label>
           </Box>
@@ -376,8 +376,10 @@ export default function DashboardEditProductPage() {
           )}
           <Button
             type="submit"
-            className="font-bold w-full bg-blue-500 hover:bg-blue-600 text-white"
+            className="font-bold"
+            color="primary"
             variant="contained"
+            fullWidth
             disabled={isEditing}
           >
             {isEditing ? "Редактиране..." : "Редактирай продукта"}

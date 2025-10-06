@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/services/prisma";
 import nodemailer from "nodemailer";
 import { contactEmailHtml } from "@/lib/email-templates/contactEmail";
+import * as Sentry from "@sentry/nextjs";
 
 export const dynamic = "force-dynamic";
 
@@ -95,7 +96,8 @@ export async function POST(request: Request) {
       { message: "Съобщението е изпратено успешно!", newMessage },
       { status: 201 }
     );
-  } catch {
+  } catch (error) {
+    Sentry.captureException(error);
     return NextResponse.json(
       { message: "Възникна грешка при обработка на съобщението!" },
       { status: 500 }

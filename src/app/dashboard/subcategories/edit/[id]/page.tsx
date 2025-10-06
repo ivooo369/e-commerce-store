@@ -129,7 +129,7 @@ export default function DashboardEditSubcategoryPage() {
       setTimeout(() => {
         router.push("/dashboard/subcategories");
       }, 1000);
-    } catch (error: unknown) {
+    } catch (error) {
       const errorMessage =
         error instanceof Error
           ? error.message
@@ -215,8 +215,10 @@ export default function DashboardEditSubcategoryPage() {
           </FormControl>
           <Button
             type="submit"
-            className="font-bold w-full bg-blue-500 hover:bg-blue-600 text-white"
+            className="font-bold"
+            color="primary"
             variant="contained"
+            fullWidth
             disabled={isEditing}
           >
             {isEditing ? "Редактиране..." : "Редактирай подкатегорията"}

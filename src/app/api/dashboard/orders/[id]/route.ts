@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/services/prisma";
+import * as Sentry from "@sentry/nextjs";
 
 export async function PATCH(
   request: Request,
@@ -31,7 +32,8 @@ export async function PATCH(
     });
 
     return NextResponse.json(updatedOrder);
-  } catch {
+  } catch (error) {
+    Sentry.captureException(error);
     return NextResponse.json(
       { error: "Възникна грешка при актуализиране на поръчката!" },
       { status: 500 }

@@ -1,6 +1,6 @@
 import { fetchProductByCode } from "@/services/productService";
 import { notFound } from "next/navigation";
-import ProductDetailsContent from "../../../../ui/components/others/product-details-content";
+import ProductDetailsContent from "@/ui/components/others/product-details-content";
 import { getDynamicMetadata } from "@/lib/utils/metadata";
 
 export async function generateMetadata({

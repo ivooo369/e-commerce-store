@@ -11,7 +11,7 @@ import {
   FaClipboardList,
   FaSignOutAlt,
 } from "react-icons/fa";
-import ThemeToggle from "../others/theme-toggle";
+import ThemeToggle from "@/ui/components/others/theme-toggle";
 import { getProductCount } from "@/services/productService";
 
 export default function DashboardNav() {

@@ -1,6 +1,6 @@
 import { notFound, redirect } from "next/navigation";
 import { fetchProductsByQuery } from "@/services/productService";
-import ResultsPageContent from "../../../ui/components/others/results-page-content";
+import ResultsPageContent from "@/ui/components/others/results-page-content";
 import { getDynamicMetadata } from "@/lib/utils/metadata";
 
 export async function generateMetadata({

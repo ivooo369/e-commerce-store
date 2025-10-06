@@ -1,5 +1,5 @@
-import { CartItem } from "../types/interfaces";
-import { sanitizeProduct } from "../utils/sanitizeProduct";
+import { CartItem } from "@/lib/types/interfaces";
+import { sanitizeProduct } from "@/lib/utils/sanitizeProduct";
 
 const ensureDateString = (value: Date): string | undefined => {
   if (!value) return undefined;

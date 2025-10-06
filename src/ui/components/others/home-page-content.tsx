@@ -49,7 +49,7 @@ export default function HomePageContent() {
           href="/product-catalog/all"
           className="view-all-button block w-full px-6 py-5 text-center rounded-xl shadow-lg text-xl font-semibold no-underline"
         >
-          Вижте всички продукти в магазина
+          Виж всички продукти в магазина
         </Link>
       </div>
       {categories.length === 0 ? (

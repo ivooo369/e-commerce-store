@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
-import { RootState } from "../types/types";
+import { RootState } from "@/lib/types/types";
 
 export default function useProtectedRoute() {
   const router = useRouter();

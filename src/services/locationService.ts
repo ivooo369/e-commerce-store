@@ -1,5 +1,6 @@
 import { Settlement } from "@/lib/types/interfaces";
 import axios from "axios";
+import * as Sentry from "@sentry/nextjs";
 
 const GEONAMES_USERNAME = "lipci";
 
@@ -36,6 +37,7 @@ export async function searchSettlements(query: string): Promise<Settlement[]> {
 
     return [];
   } catch (error) {
+    Sentry.captureException(error);
     if (axios.isAxiosError(error)) {
       throw new Error("Възникна грешка при извличане на населените места!");
     }
@@ -66,6 +68,7 @@ export async function getSettlementByPostalCode(
 
     return null;
   } catch (error) {
+    Sentry.captureException(error);
     if (axios.isAxiosError(error)) {
       throw new Error(
         "Възникна грешка при извличане на населените места по пощенски код!"

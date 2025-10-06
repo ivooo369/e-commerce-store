@@ -1,5 +1,6 @@
 import axios from "axios";
 import { EcontOffice, EcontOfficeResponse } from "@/lib/types/interfaces";
+import * as Sentry from "@sentry/nextjs";
 
 export async function getEcontOfficesRest(
   cityName: string
@@ -9,7 +10,8 @@ export async function getEcontOfficesRest(
       params: { city: cityName },
     });
     return response.data;
-  } catch {
+  } catch (error) {
+    Sentry.captureException(error);
     throw new Error("Възникна грешка при извличане на офисите на Еконт!");
   }
 }
@@ -85,7 +87,8 @@ export async function getEcontOffices(
           longitude: office.location?.longitude || office.longitude,
         };
       });
-  } catch {
+  } catch (error) {
+    Sentry.captureException(error);
     throw new Error("Възникна грешка при извличане на офисите на Еконт!");
   }
 }

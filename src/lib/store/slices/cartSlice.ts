@@ -1,11 +1,11 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { setUser, clearUser } from "../slices/userSlice";
-import { CartItem, CartState, ProductBase } from "../../types/interfaces";
+import { setUser, clearUser } from "@/lib/store/slices/userSlice";
+import { CartItem, CartState, ProductBase } from "@/lib/types/interfaces";
 import {
   getStoredCart,
   setStoredCart,
   clearStoredCart,
-} from "../../services/storage";
+} from "@/lib/services/storage";
 
 const prepareProductForStore = (product: ProductBase): ProductBase => {
   if (!product) return product;

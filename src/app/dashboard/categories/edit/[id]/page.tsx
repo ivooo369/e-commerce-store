@@ -139,7 +139,7 @@ export default function DashboardEditCategoryPage() {
       setTimeout(() => {
         router.push("/dashboard/categories");
       }, 1000);
-    } catch (error: unknown) {
+    } catch (error) {
       const errorMessage =
         error instanceof Error
           ? error.message
@@ -224,7 +224,7 @@ export default function DashboardEditCategoryPage() {
                   ? selectedFile.name
                   : categoryData.imageUrl
                   ? categoryData.imageUrl.split("/").pop()
-                  : "Качете изображение *"}
+                  : "Качи изображение *"}
               </Button>
             </label>
           </Box>
@@ -244,8 +244,10 @@ export default function DashboardEditCategoryPage() {
           </div>
           <Button
             type="submit"
+            className="font-bold"
+            color="primary"
             variant="contained"
-            className="font-bold w-full bg-blue-500 hover:bg-blue-600 text-white"
+            fullWidth
             disabled={isEditing}
           >
             {isEditing ? "Редактиране..." : "Редактирай категорията"}

@@ -5,8 +5,9 @@ import {
   OrderStatusResponse,
   PaginatedOrdersResponse,
 } from "@/lib/types/interfaces";
+import * as Sentry from "@sentry/nextjs";
 
-const orderService = {
+export const orderService = {
   async createOrder(orderData: OrderData): Promise<{ orderId: string }> {
     try {
       const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "";
@@ -15,7 +16,8 @@ const orderService = {
         orderData
       );
       return response.data;
-    } catch {
+    } catch (error) {
+      Sentry.captureException(error);
       throw new Error("Възникна грешка при създаване на поръчката!");
     }
   },
@@ -27,7 +29,8 @@ const orderService = {
         `${baseUrl}/api/public/orders/${orderId}`
       );
       return response.data;
-    } catch {
+    } catch (error) {
+      Sentry.captureException(error);
       throw new Error("Възникна грешка при извличане на данните за поръчката!");
     }
   },
@@ -39,7 +42,8 @@ const orderService = {
         orderId,
       });
       return response.data;
-    } catch {
+    } catch (error) {
+      Sentry.captureException(error);
       throw new Error("Възникна грешка при отказване на поръчката!");
     }
   },
@@ -54,7 +58,8 @@ const orderService = {
         }
       );
       return response.data;
-    } catch {
+    } catch (error) {
+      Sentry.captureException(error);
       throw new Error("Възникна грешка при потвърждаване на поръчката!");
     }
   },
@@ -77,7 +82,8 @@ const orderService = {
         name: order.name,
         email: order.email,
       };
-    } catch {
+    } catch (error) {
+      Sentry.captureException(error);
       throw new Error("Възникна грешка при извличане на статуса на поръчката!");
     }
   },
@@ -91,7 +97,8 @@ const orderService = {
         },
       });
       return response.data;
-    } catch {
+    } catch (error) {
+      Sentry.captureException(error);
       throw new Error("Възникна грешка при зареждане на поръчките!");
     }
   },
@@ -104,7 +111,8 @@ const orderService = {
         updateData
       );
       return response.data;
-    } catch {
+    } catch (error) {
+      Sentry.captureException(error);
       throw new Error("Възникна грешка при актуализиране на поръчката!");
     }
   },
@@ -116,7 +124,8 @@ const orderService = {
         `${baseUrl}/api/public/orders/${orderId}`
       );
       return response.data;
-    } catch {
+    } catch (error) {
+      Sentry.captureException(error);
       throw new Error("Възникна грешка при извличане на поръчката!");
     }
   },
@@ -148,10 +157,9 @@ const orderService = {
       );
 
       return response.data;
-    } catch {
+    } catch (error) {
+      Sentry.captureException(error);
       throw new Error("Възникна грешка при извличане на поръчките!");
     }
   },
 };
-
-export { orderService };

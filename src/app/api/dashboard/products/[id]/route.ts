@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/services/prisma";
 import cloudinary from "@/lib/config/cloudinary.config";
+import * as Sentry from "@sentry/nextjs";
 
 export async function GET(
   request: Request,
@@ -42,7 +43,8 @@ export async function GET(
       },
       { status: 200 }
     );
-  } catch {
+  } catch (error) {
+    Sentry.captureException(error);
     return NextResponse.json(
       { message: "Възникна грешка при извличане на продукта!" },
       { status: 500 }
@@ -150,7 +152,8 @@ export async function PUT(
 
         const uploadResults = await Promise.all(uploadPromises);
         uploadedImageUrls.push(...uploadResults);
-      } catch {
+      } catch (error) {
+        Sentry.captureException(error);
         return NextResponse.json(
           { message: "Възникна грешка при качване на изображенията!" },
           { status: 500 }
@@ -197,7 +200,8 @@ export async function PUT(
           return Promise.resolve();
         });
         await Promise.all(deleteImagePromises);
-      } catch {
+      } catch (error) {
+        Sentry.captureException(error);
         throw new Error("Възникна грешка при изтриване на стари изображения!");
       }
     }
@@ -206,7 +210,8 @@ export async function PUT(
       { message: "Продуктът е обновен успешно!", product: updatedProduct },
       { status: 200 }
     );
-  } catch {
+  } catch (error) {
+    Sentry.captureException(error);
     return NextResponse.json(
       { message: "Възникна грешка! Моля, опитайте отново!" },
       { status: 500 }
@@ -259,7 +264,8 @@ export async function DELETE(
       { message: "Продуктът е изтрит успешно!" },
       { status: 200 }
     );
-  } catch {
+  } catch (error) {
+    Sentry.captureException(error);
     return NextResponse.json(
       { message: "Възникна грешка при изтриване на продукта!" },
       { status: 500 }

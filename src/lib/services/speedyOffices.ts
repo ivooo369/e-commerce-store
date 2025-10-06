@@ -1,4 +1,4 @@
-import { SpeedyOffice } from "../types/interfaces";
+import { SpeedyOffice } from "@/lib/types/interfaces";
 
 // Sofia offices (10 offices)
 const sofiaOffices: SpeedyOffice[] = [

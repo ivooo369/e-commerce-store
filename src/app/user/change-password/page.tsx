@@ -17,10 +17,14 @@ import {
 } from "@mui/material";
 import { changePassword } from "@/services/userService";
 import { useAutoDismissAlert } from "@/lib/hooks/useAutoDismissAlert";
+import { useDispatch } from "react-redux";
+import { clearUser } from "@/lib/store/slices/userSlice";
+import Link from "next/link";
 
 export default function ChangePasswordPage() {
   const router = useRouter();
   useProtectedRoute();
+  const dispatch = useDispatch();
 
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -51,16 +55,21 @@ export default function ChangePasswordPage() {
     },
     onSuccess: (responseData) => {
       setAlert({
-        message: responseData.message || "Паролата беше сменена успешно!",
+        message:
+          responseData.message ||
+          "Паролата беше сменена успешно! Ще бъдете изведени от акаунта си за сигурност.",
         severity: "success",
       });
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
 
+      dispatch(clearUser());
+      localStorage.removeItem("userData");
+
       setTimeout(() => {
-        router.push("/");
-      }, 1500);
+        router.push("/user/sign-in");
+      }, 2000);
     },
     onError: (
       error: Error & { response?: { data?: { message?: string } } }
@@ -216,8 +225,19 @@ export default function ChangePasswordPage() {
           fullWidth
           disabled={isChanging}
         >
-          {isChanging ? "Обработване..." : "Смени паролата"}
+          {isChanging ? "Смяна..." : "Смени паролата"}
         </Button>
+
+        <p className="flex justify-center items-center gap-1.5 text-base sm:text-lg font-semibold">
+          Забравили сте паролата си?
+          <Link
+            href="/user/forgot-password"
+            className="text-blue-600 hover:underline"
+          >
+            Сменете я тук
+          </Link>
+        </p>
+
         {alert && (
           <div>
             <AlertMessage severity={alert.severity} message={alert.message} />

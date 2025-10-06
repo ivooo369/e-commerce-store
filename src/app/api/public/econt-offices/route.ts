@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import axios from "axios";
 import { EcontOffice } from "@/lib/types/interfaces";
+import * as Sentry from "@sentry/nextjs";
 
 export const dynamic = "force-dynamic";
 
@@ -97,7 +98,8 @@ export async function GET(req: NextRequest) {
     });
 
     return NextResponse.json(mappedOffices, { status: 200 });
-  } catch {
+  } catch (error) {
+    Sentry.captureException(error);
     return NextResponse.json(
       { message: "Възникна грешка при извличане на офисите на Econt!" },
       { status: 500 }

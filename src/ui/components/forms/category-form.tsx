@@ -200,7 +200,7 @@ export default function CategoryForm() {
             fullWidth
             className="normal-case"
           >
-            {selectedFile ? selectedFile.name : "Качете изображение *"}
+            {selectedFile ? selectedFile.name : "Качи изображение *"}
           </Button>
         </label>
       </Box>
@@ -219,8 +219,10 @@ export default function CategoryForm() {
       )}
       <Button
         type="submit"
-        className="font-bold w-full bg-blue-500 hover:bg-blue-600 text-white"
+        className="font-bold"
+        color="primary"
         variant="contained"
+        fullWidth
         disabled={createCategoryMutation.isPending}
       >
         {createCategoryMutation.isPending

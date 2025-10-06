@@ -1,4 +1,4 @@
-import { ContactEmailData } from "../types/interfaces";
+import { ContactEmailData } from "@/lib/types/interfaces";
 
 export function contactEmailHtml({
   name,

@@ -1,5 +1,9 @@
 import { Metadata } from "next";
-import { DynamicMetadata, RouteConfig, RouteMetadata } from "../types/interfaces";
+import {
+  DynamicMetadata,
+  RouteConfig,
+  RouteMetadata,
+} from "@/lib/types/interfaces";
 
 export const routeMetadata: RouteConfig = {
   "/": {

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/services/prisma";
+import * as Sentry from "@sentry/nextjs";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -25,7 +26,8 @@ export async function GET(request: Request) {
         },
       });
       return NextResponse.json(products, { status: 200 });
-    } catch {
+    } catch (error) {
+      Sentry.captureException(error);
       return NextResponse.json(
         { message: "Възникна грешка при извличане на продуктите!" },
         { status: 500 }
@@ -71,7 +73,8 @@ export async function GET(request: Request) {
     }
 
     return NextResponse.json(products, { status: 200 });
-  } catch {
+  } catch (error) {
+    Sentry.captureException(error);
     return NextResponse.json(
       { message: "Възникна грешка при извличане на продуктите!" },
       { status: 500 }

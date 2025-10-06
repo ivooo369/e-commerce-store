@@ -119,7 +119,7 @@ export default function ProductDetailsContent({
           >
             <div className="absolute inset-0 bg-black bg-opacity-50 flex justify-center items-center">
               <span className="text-center text-white text-lg sm:text-xl md:text-2xl font-bold">
-                Вижте изображението в цял размер
+                Виж изображението в цял размер
               </span>
             </div>
           </div>
@@ -213,7 +213,7 @@ export default function ProductDetailsContent({
           <div className="flex justify-center mt-4">
             <Button
               variant="contained"
-              className="bg-red-500 hover:bg-red-600 font-bold text-white"
+              className="font-bold bg-red-500 hover:bg-red-600 text-white disabled:bg-gray-400 disabled:text-white disabled:opacity-70 disabled:cursor-not-allowed"
               startIcon={<ShoppingCartIcon />}
               onClick={handleAddToCart}
               disabled={isAddingToCart}

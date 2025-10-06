@@ -4,14 +4,22 @@ import { Metadata } from "next";
 import "./globals.css";
 import dynamic from "next/dynamic";
 import { defaultMetadata } from "@/lib/utils/metadata";
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/next";
+import * as Sentry from "@sentry/nextjs";
 
-export const metadata: Metadata = defaultMetadata;
+export function generateMetadata(): Metadata {
+  return {
+    ...defaultMetadata,
+    other: {
+      ...Sentry.getTraceData(),
+    },
+  };
+}
 
 const ScrollToTop = dynamic(
   () => import("@/ui/components/navigation/scroll-to-top"),
-  {
-    ssr: false,
-  }
+  { ssr: false }
 );
 
 const inter = Inter({
@@ -52,6 +60,8 @@ export default function RootLayout({
       <body className={`${inter.variable} font-sans`}>
         <MainLayout>{children}</MainLayout>
         <ScrollToTop />
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );

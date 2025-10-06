@@ -9,8 +9,8 @@ import DashboardSecondaryNav from "@/ui/components/layouts/dashboard-secondary-n
 import OrderNotesModal from "@/ui/components/modals/order-notes-modal";
 import CircularProgress from "@/ui/components/feedback/circular-progress";
 import { useQuery } from "@tanstack/react-query";
-import OrderDetails from "../../../../ui/components/orders/order-details";
-import OrderSummary from "../../../../ui/components/orders/order-summary";
+import OrderDetails from "@/ui/components/orders/order-details";
+import OrderSummary from "@/ui/components/orders/order-summary";
 import Box from "@mui/material/Box";
 
 export default function OrderDetailsPage() {

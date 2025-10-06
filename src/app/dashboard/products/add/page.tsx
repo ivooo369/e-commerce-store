@@ -68,7 +68,7 @@ export default function DashboardAddNewProductPage() {
       setProductImageUrls([]);
       setSelectedFiles([]);
     },
-    onError: (error: unknown) => {
+    onError: (error) => {
       const errorMessage =
         (
           error as {
@@ -272,7 +272,7 @@ export default function DashboardAddNewProductPage() {
               >
                 {productImageUrls.length > 0
                   ? `Качени изображения (${productImageUrls.length})`
-                  : "Качете изображения *"}
+                  : "Качи изображения *"}
               </Button>
             </label>
           </Box>
@@ -306,8 +306,10 @@ export default function DashboardAddNewProductPage() {
           )}
           <Button
             type="submit"
-            className="font-bold w-full bg-blue-500 hover:bg-blue-600 text-white"
+            className="font-bold"
+            color="primary"
             variant="contained"
+            fullWidth
             disabled={isAdding}
           >
             {isAdding ? "Добавяне..." : "Добави нов продукт"}

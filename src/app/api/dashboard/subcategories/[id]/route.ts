@@ -1,5 +1,6 @@
 import prisma from "@/lib/services/prisma";
 import { NextResponse } from "next/server";
+import * as Sentry from "@sentry/nextjs";
 
 export async function GET(
   request: Request,
@@ -20,7 +21,8 @@ export async function GET(
     }
 
     return NextResponse.json(subcategory, { status: 200 });
-  } catch {
+  } catch (error) {
+    Sentry.captureException(error);
     return NextResponse.json(
       { message: "Възникна грешка при извличане на подкатегорията!" },
       { status: 500 }
@@ -102,7 +104,8 @@ export async function PUT(
       },
       { status: 200 }
     );
-  } catch {
+  } catch (error) {
+    Sentry.captureException(error);
     return NextResponse.json(
       { message: "Възникна грешка при редактиране на подкатегория!" },
       { status: 500 }
@@ -173,7 +176,8 @@ export async function DELETE(
       { message: "Подкатегорията е изтрита успешно!" },
       { status: 200 }
     );
-  } catch {
+  } catch (error) {
+    Sentry.captureException(error);
     return NextResponse.json(
       { message: "Възникна грешка при изтриване на подкатегорията!" },
       { status: 500 }

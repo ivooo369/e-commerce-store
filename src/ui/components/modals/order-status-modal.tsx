@@ -58,7 +58,7 @@ export default function OrderStatusModal({
           variant="contained"
           className="font-bold bg-gray-500 hover:bg-gray-600 text-white dark:bg-gray-500 dark:hover:bg-gray-600 dark:text-white"
         >
-          Отказ
+          Откажи
         </Button>
         <Button
           onClick={onConfirm}

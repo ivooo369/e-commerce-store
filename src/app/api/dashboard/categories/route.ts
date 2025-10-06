@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/services/prisma";
 import cloudinary from "@/lib/config/cloudinary.config";
+import * as Sentry from "@sentry/nextjs";
 
 export async function GET() {
   try {
@@ -8,7 +9,8 @@ export async function GET() {
       orderBy: { code: "asc" },
     });
     return NextResponse.json(categories, { status: 200 });
-  } catch {
+  } catch (error) {
+    Sentry.captureException(error);
     return NextResponse.json(
       { message: "Възникна грешка при извличане на категориите!" },
       { status: 500 }
@@ -96,7 +98,8 @@ export async function POST(request: Request) {
       { message: "Категорията е добавена успешно!", category: newCategory },
       { status: 201 }
     );
-  } catch {
+  } catch (error) {
+    Sentry.captureException(error);
     return NextResponse.json(
       { message: "Възникна грешка при добавяне на категорията!" },
       { status: 500 }

@@ -46,7 +46,7 @@ export default function ConfirmationModal({
               onClick={onCancel}
               className="flex flex-1 font-bold w-32 bg-blue-500 hover:bg-blue-600 text-white mr-3"
             >
-              Отказ
+              Откажи
             </Button>
             <Button
               variant="contained"

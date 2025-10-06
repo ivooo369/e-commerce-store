@@ -2,6 +2,7 @@ import axios from "axios";
 import { Category as CategoryPrisma } from "@prisma/client";
 import { Category } from "@/lib/types/interfaces";
 import prisma from "@/lib/services/prisma";
+import * as Sentry from "@sentry/nextjs";
 
 export const fetchCategories = async (): Promise<CategoryPrisma[]> => {
   if (typeof window === "undefined") {
@@ -10,7 +11,8 @@ export const fetchCategories = async (): Promise<CategoryPrisma[]> => {
         orderBy: { code: "asc" },
       });
       return categories;
-    } catch {
+    } catch (error) {
+      Sentry.captureException(error);
       throw new Error("Възникна грешка при зареждане на категориите!");
     }
   }
@@ -18,7 +20,8 @@ export const fetchCategories = async (): Promise<CategoryPrisma[]> => {
   try {
     const { data } = await axios.get("/api/public/categories");
     return data;
-  } catch {
+  } catch (error) {
+    Sentry.captureException(error);
     throw new Error("Възникна грешка при зареждане на категориите!");
   }
 };
@@ -27,7 +30,8 @@ export const fetchDashboardCategories = async (): Promise<CategoryPrisma[]> => {
   try {
     const { data } = await axios.get("/api/dashboard/categories");
     return data;
-  } catch {
+  } catch (error) {
+    Sentry.captureException(error);
     throw new Error("Възникна грешка при зареждане на категориите!");
   }
 };
@@ -36,7 +40,8 @@ export const fetchCategoriesForHeader = async () => {
   try {
     const { data } = await axios.get("/api/public/categories");
     return data.map((category: { name: string }) => category.name);
-  } catch {
+  } catch (error) {
+    Sentry.captureException(error);
     throw new Error("Възникна грешка при извличане на категориите!");
   }
 };
@@ -48,7 +53,8 @@ export const createCategory = async (categoryData: Category) => {
       categoryData
     );
     return data;
-  } catch (error: unknown) {
+  } catch (error) {
+    Sentry.captureException(error);
     const axiosError = error as {
       response?: {
         data?: { message?: string; error?: string };
@@ -68,7 +74,8 @@ export const deleteCategory = async (id: string) => {
   try {
     await axios.delete(`/api/dashboard/categories/${id}`);
     return id;
-  } catch {
+  } catch (error) {
+    Sentry.captureException(error);
     throw new Error("Възникна грешка при изтриване на категорията!");
   }
 };
@@ -77,7 +84,8 @@ export const fetchCategory = async (id: string) => {
   try {
     const { data } = await axios.get(`/api/dashboard/categories/${id}`);
     return data;
-  } catch {
+  } catch (error) {
+    Sentry.captureException(error);
     throw new Error("Възникна грешка при извличане на категорията!");
   }
 };
@@ -89,7 +97,8 @@ export const editCategory = async (updatedCategory: Category, id: string) => {
       updatedCategory
     );
     return data;
-  } catch (error: unknown) {
+  } catch (error) {
+    Sentry.captureException(error);
     const axiosError = error as {
       response?: {
         data?: { message?: string; error?: string };
@@ -159,6 +168,7 @@ export const fetchCategoryByNameWithProducts = async (name: string) => {
         products,
       };
     } catch (error) {
+      Sentry.captureException(error);
       if (
         error instanceof Error &&
         error.message === "Категорията не е намерена!"
@@ -185,7 +195,8 @@ export const fetchCategoryByNameWithProducts = async (name: string) => {
       subcategories: data.subcategories || [],
       products: data.products || [],
     };
-  } catch (error: unknown) {
+  } catch (error) {
+    Sentry.captureException(error);
     const axiosError = error as {
       response?: {
         data?: { message?: string };

@@ -23,7 +23,7 @@ const queryClient = new QueryClient({
       refetchOnWindowFocus: true,
       refetchOnMount: true,
       refetchOnReconnect: true,
-      retry: (failureCount, error: unknown) => {
+      retry: (failureCount, error) => {
         const axiosError = error as { response?: { status?: number } };
         if (
           axiosError?.response?.status &&
@@ -36,7 +36,7 @@ const queryClient = new QueryClient({
       },
     },
     mutations: {
-      retry: (failureCount, error: unknown) => {
+      retry: (failureCount, error) => {
         const axiosError = error as { response?: { status?: number } };
         if (
           axiosError?.response?.status &&

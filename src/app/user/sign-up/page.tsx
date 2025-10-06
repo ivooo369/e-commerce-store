@@ -286,13 +286,14 @@ export default function SignUpPage() {
           />
         </div>
         <Button
+          className="font-bold"
+          color="primary"
           variant="contained"
-          className="font-bold w-full bg-blue-500 hover:bg-blue-600 text-white"
           type="submit"
           disabled={signingUp}
           fullWidth
         >
-          {signingUp ? "Регистриране..." : "Регистрация"}
+          {signingUp ? "Регистриране..." : "Регистрирай се"}
         </Button>
         <p className="flex justify-center items-center gap-1.5 text-base sm:text-lg font-semibold">
           Имате акаунт?

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/services/prisma";
 import jwt from "jsonwebtoken";
 import { DecodedToken, UpdateUser } from "@/lib/types/interfaces";
+import * as Sentry from "@sentry/nextjs";
 
 export const dynamic = "force-dynamic";
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -28,7 +29,8 @@ export async function GET(req: Request) {
 
     try {
       decoded = jwt.verify(token, JWT_SECRET) as { userId: string };
-    } catch {
+    } catch (error) {
+      Sentry.captureException(error);
       return NextResponse.json(
         { message: "Невалиден или изтекъл токен!" },
         { status: 401 }
@@ -58,7 +60,8 @@ export async function GET(req: Request) {
       },
       { status: 200 }
     );
-  } catch {
+  } catch (error) {
+    Sentry.captureException(error);
     return NextResponse.json(
       { message: "Възникна грешка при обработка на заявката!" },
       { status: 500 }
@@ -88,7 +91,8 @@ export async function PUT(req: Request) {
 
     try {
       decoded = jwt.verify(token, JWT_SECRET) as DecodedToken;
-    } catch {
+    } catch (error) {
+      Sentry.captureException(error);
       return NextResponse.json(
         { message: "Невалиден или изтекъл токен!" },
         { status: 401 }
@@ -153,7 +157,8 @@ export async function PUT(req: Request) {
       },
       { status: 200 }
     );
-  } catch {
+  } catch (error) {
+    Sentry.captureException(error);
     return NextResponse.json(
       { message: "Възникна грешка при обновяване на информацията!" },
       { status: 500 }

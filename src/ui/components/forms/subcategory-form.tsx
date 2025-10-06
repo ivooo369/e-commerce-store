@@ -129,8 +129,10 @@ export default function SubcategoryForm({
       </FormControl>
       <Button
         type="submit"
-        className="font-bold w-full bg-blue-500 hover:bg-blue-600 text-white"
+        className="font-bold"
+        color="primary"
         variant="contained"
+        fullWidth
         disabled={createSubcategoryMutation.isPending}
       >
         {createSubcategoryMutation.isPending

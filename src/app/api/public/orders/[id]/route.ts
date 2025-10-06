@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/services/prisma";
 import { OrderItem, OrderResponse } from "@/lib/types/interfaces";
 import { getDeliveryMethod, SHIPPING_COSTS } from "@/lib/utils/delivery";
+import * as Sentry from "@sentry/nextjs";
 
 export async function GET(
   request: Request,
@@ -52,7 +53,8 @@ export async function GET(
           price: typeof item.price === "number" ? item.price : 0,
         }));
       }
-    } catch {
+    } catch (error) {
+      Sentry.captureException(error);
       items = [];
     }
 
@@ -96,7 +98,8 @@ export async function GET(
     };
 
     return NextResponse.json(response);
-  } catch {
+  } catch (error) {
+    Sentry.captureException(error);
     return NextResponse.json(
       {
         message: "Възникна грешка при извличане на данните за поръчката!",

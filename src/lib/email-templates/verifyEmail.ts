@@ -37,7 +37,7 @@ export const sendVerificationEmail = async (email: string, token: string) => {
         </div>
         <footer style="background-color: #1E3A8A; color: #ffffff; padding: 0.5rem; font-size: 0.9rem; text-align: center;">
           <p class="footer-text" style="margin: 0;">
-            Това съобщение е изпратено автоматично. Моля, не отговаряйте на него.
+            Това съобщение е изпратено автоматично. Моля, не отговаряйте на него!
           </p>
         </footer>
       </div>

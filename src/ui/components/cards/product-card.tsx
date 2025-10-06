@@ -121,7 +121,7 @@ export default function ProductCard({ product }: ProductCardProps) {
 
           <Button
             variant="contained"
-            className="font-bold w-full text-white bg-red-500 hover:bg-red-600 disabled:bg-gray-400 disabled:text-white disabled:opacity-70 disabled:cursor-not-allowed"
+            className="font-bold bg-red-500 hover:bg-red-600 text-white disabled:bg-gray-400 disabled:text-white disabled:opacity-70 disabled:cursor-not-allowed"
             onClick={handleAddToCart}
             startIcon={<ShoppingCartIcon />}
             fullWidth

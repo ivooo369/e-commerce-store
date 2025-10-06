@@ -1,6 +1,6 @@
 import React from "react";
 import { MapPin, Truck, Package } from "lucide-react";
-import { DeliveryOption } from "../types/interfaces";
+import { DeliveryOption } from "@/lib/types/interfaces";
 
 export const deliveryOptions: DeliveryOption[] = [
   {

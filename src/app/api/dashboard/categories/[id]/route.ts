@@ -1,6 +1,7 @@
 import cloudinary from "@/lib/config/cloudinary.config";
 import prisma from "@/lib/services/prisma";
 import { NextResponse } from "next/server";
+import * as Sentry from "@sentry/nextjs";
 
 export async function GET(
   request: Request,
@@ -34,7 +35,8 @@ export async function GET(
       },
       { status: 200 }
     );
-  } catch {
+  } catch (error) {
+    Sentry.captureException(error);
     return NextResponse.json(
       { message: "Възникна грешка при извличане на категорията!" },
       { status: 500 }
@@ -149,7 +151,8 @@ export async function PUT(
       },
       { status: 200 }
     );
-  } catch {
+  } catch (error) {
+    Sentry.captureException(error);
     return NextResponse.json(
       { message: "Възникна грешка при редактиране на категорията!" },
       { status: 500 }
@@ -236,7 +239,8 @@ export async function DELETE(
       },
       { status: 200 }
     );
-  } catch {
+  } catch (error) {
+    Sentry.captureException(error);
     return NextResponse.json(
       { message: "Възникна грешка при изтриване на категорията!" },
       { status: 500 }

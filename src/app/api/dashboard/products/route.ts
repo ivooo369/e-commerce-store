@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/services/prisma";
 import cloudinary from "@/lib/config/cloudinary.config";
+import * as Sentry from "@sentry/nextjs";
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -9,7 +10,8 @@ export async function GET(request: NextRequest) {
     try {
       const count = await prisma.product.count();
       return NextResponse.json({ count }, { status: 200 });
-    } catch {
+    } catch (error) {
+      Sentry.captureException(error);
       return NextResponse.json(
         { error: "Възникна грешка при извличане на броя на продуктите!" },
         { status: 500 }
@@ -33,7 +35,8 @@ export async function GET(request: NextRequest) {
     });
 
     return NextResponse.json(products, { status: 200 });
-  } catch {
+  } catch (error) {
+    Sentry.captureException(error);
     return NextResponse.json(
       {
         error: "Възникна грешка при извличане на продуктите!",
@@ -138,7 +141,8 @@ export async function POST(request: Request) {
       { message: "Продуктът е добавен успешно!", product: newProduct },
       { status: 201 }
     );
-  } catch {
+  } catch (error) {
+    Sentry.captureException(error);
     return NextResponse.json(
       { message: "Възникна грешка при добавяне на продукта!" },
       { status: 500 }

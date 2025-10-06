@@ -1,4 +1,4 @@
-import ContactForm from "../../ui/components/forms/contact-form";
+import ContactForm from "@/ui/components/forms/contact-form";
 import { generateMetadata } from "@/lib/utils/metadata";
 
 export const metadata = generateMetadata("/contact");

@@ -3,6 +3,7 @@ import { Prisma } from "@prisma/client";
 import { OrderItem } from "@/lib/types/interfaces";
 import { calculateShippingCost, getDeliveryMethod } from "@/lib/utils/delivery";
 import prisma from "@/lib/services/prisma";
+import * as Sentry from "@sentry/nextjs";
 
 export const dynamic = "force-dynamic";
 
@@ -134,7 +135,8 @@ export async function GET(request: Request) {
       sortBy,
       sortOrder,
     });
-  } catch {
+  } catch (error) {
+    Sentry.captureException(error);
     return NextResponse.json(
       { error: "Възникна грешка при извличане на поръчките!" },
       { status: 500 }

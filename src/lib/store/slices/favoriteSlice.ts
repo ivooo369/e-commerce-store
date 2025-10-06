@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { FavoritesState, Product } from "../../types/interfaces";
+import { FavoritesState, Product } from "@/lib/types/interfaces";
 import {
   sanitizeProduct,
   serializeProductDates,

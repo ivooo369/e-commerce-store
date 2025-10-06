@@ -2,6 +2,7 @@ import axios from "axios";
 import { Product, ProductWithSubcategories } from "@/lib/types/interfaces";
 import { Product as PrismaSchema, Subcategory } from "@prisma/client";
 import prisma from "@/lib/services/prisma";
+import * as Sentry from "@sentry/nextjs";
 
 const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
@@ -25,7 +26,8 @@ export const fetchAllPublicProducts = async (): Promise<
         orderBy: { code: "asc" },
       });
       return products as unknown as ProductWithSubcategories[];
-    } catch {
+    } catch (error) {
+      Sentry.captureException(error);
       throw new Error("Възникна грешка при извличане на продуктите!");
     }
   }
@@ -34,7 +36,8 @@ export const fetchAllPublicProducts = async (): Promise<
     const response = await axios.get(`${baseUrl}/api/public/products`);
     const data: ProductWithSubcategories[] = response.data;
     return data.sort((a, b) => a.code.localeCompare(b.code));
-  } catch {
+  } catch (error) {
+    Sentry.captureException(error);
     throw new Error("Възникна грешка при извличане на продуктите!");
   }
 };
@@ -45,7 +48,8 @@ export const fetchProducts = async (): Promise<ProductWithSubcategories[]> => {
     const data: ProductWithSubcategories[] = response.data;
     data.sort((a, b) => a.code.localeCompare(b.code));
     return data;
-  } catch {
+  } catch (error) {
+    Sentry.captureException(error);
     throw new Error("Възникна грешка при извличане на продуктите!");
   }
 };
@@ -61,7 +65,8 @@ export const fetchProductByCode = async (
 
     const response = await axios.get(url);
     return response.data;
-  } catch {
+  } catch (error) {
+    Sentry.captureException(error);
     throw new Error("Възникна грешка при извличане на продукта!");
   }
 };
@@ -76,7 +81,8 @@ export const fetchProductsByQuery = async (
     )}`;
     const response = await axios.get(url);
     return Array.isArray(response.data) ? response.data : [];
-  } catch {
+  } catch (error) {
+    Sentry.captureException(error);
     throw new Error("Възникна грешка при извличане на продуктите!");
   }
 };
@@ -110,7 +116,8 @@ export const fetchFilteredProducts = async (
     } else {
       throw new Error("Възникна грешка! Не е получен масив от продукти!");
     }
-  } catch {
+  } catch (error) {
+    Sentry.captureException(error);
     throw new Error("Възникна грешка при извличане на продуктите!");
   }
 };
@@ -125,7 +132,8 @@ export const fetchRecommendations = async (searchTerm: string) => {
     } else {
       throw new Error("Възникна грешка при извличане на продуктите!");
     }
-  } catch {
+  } catch (error) {
+    Sentry.captureException(error);
     throw new Error("Възникна грешка при извличане на продуктите!");
   }
 };
@@ -138,13 +146,14 @@ export const createProduct = async (productData: Product) => {
       ...response.data,
       newCount: countResponse.data.count,
     };
-  } catch (error: unknown) {
+  } catch (error) {
+    Sentry.captureException(error);
     const axiosError = error as {
       response?: {
         data?: { message?: string; error?: string };
       };
     };
-    
+
     if (axiosError.response?.data?.message) {
       throw new Error(axiosError.response.data.message);
     } else if (axiosError.response?.data?.error) {
@@ -162,7 +171,8 @@ export const deleteProduct = async (id: string) => {
       ...response.data,
       newCount: countResponse.data.count,
     };
-  } catch {
+  } catch (error) {
+    Sentry.captureException(error);
     throw new Error("Възникна грешка при изтриване на продукта!");
   }
 };
@@ -171,7 +181,8 @@ export const fetchProduct = async (id: string) => {
   try {
     const response = await axios.get(`/api/dashboard/products/${id}`);
     return response.data;
-  } catch {
+  } catch (error) {
+    Sentry.captureException(error);
     throw new Error("Възникна грешка при извличане на продукта!");
   }
 };
@@ -183,13 +194,14 @@ export const editProduct = async (id: string, updatedProduct: PrismaSchema) => {
       updatedProduct
     );
     return response.data;
-  } catch (error: unknown) {
+  } catch (error) {
+    Sentry.captureException(error);
     const axiosError = error as {
       response?: {
         data?: { message?: string; error?: string };
       };
     };
-    
+
     if (axiosError.response?.data?.message) {
       throw new Error(axiosError.response.data.message);
     } else if (axiosError.response?.data?.error) {
@@ -203,7 +215,8 @@ export const getProductCount = async (): Promise<number> => {
   try {
     const response = await axios.get("/api/dashboard/products?count=true");
     return response.data.count;
-  } catch {
+  } catch (error) {
+    Sentry.captureException(error);
     throw new Error("Възникна грешка при извличане на броя на продуктите!");
   }
 };
