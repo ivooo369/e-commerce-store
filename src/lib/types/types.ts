@@ -47,3 +47,18 @@ export type AlertType = {
   message: string;
   severity: AlertSeverity;
 } | null;
+
+export interface ExtendedUser {
+  id: string;
+  email: string;
+  name: string;
+  image: string | null;
+  isVerified: boolean;
+  googleId: string | null;
+}
+
+declare module "next-auth" {
+  interface Session {
+    user: ExtendedUser;
+  }
+}

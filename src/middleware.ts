@@ -10,17 +10,23 @@ export async function middleware(request: NextRequest) {
 
     const token = await getToken({ req: request });
 
-    if (isDashboardRoute && !token) {
-      const loginUrl = new URL("/admin/login", request.url);
-      loginUrl.searchParams.set("redirect", request.nextUrl.pathname);
-      return NextResponse.redirect(loginUrl);
+    const isAdminToken = token?.email && !token?.googleId;
+
+    if (isDashboardRoute) {
+      if (!token || !isAdminToken) {
+        const loginUrl = new URL("/admin/login", request.url);
+        loginUrl.searchParams.set("redirect", request.nextUrl.pathname);
+        return NextResponse.redirect(loginUrl);
+      }
     }
 
-    if (isApiRoute && !token) {
-      return NextResponse.json(
-        { error: "Неоторизиран достъп!" },
-        { status: 401 }
-      );
+    if (isApiRoute) {
+      if (!token || !isAdminToken) {
+        return NextResponse.json(
+          { error: "Неоторизиран достъп!" },
+          { status: 401 }
+        );
+      }
     }
 
     return NextResponse.next();

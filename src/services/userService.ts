@@ -142,7 +142,7 @@ export const signIn = async (formData: { email: string; password: string }) => {
       throw new Error("Грешен имейл или парола!");
     } else if (axiosError.response?.data?.message) {
       throw new Error(axiosError.response.data.message);
-    } else if (axiosError.message === "Network Error") {
+    } else if (axiosError.message === "Възникна мрежова грешка!") {
       throw new Error(
         "Грешка при връзка със сървъра. Моля, опитайте отново по-късно."
       );
@@ -234,5 +234,25 @@ export const resetPassword = async (formData: {
     const message = (error as { response?: { data?: { message?: string } } })
       ?.response?.data?.message;
     throw new Error(message || "Възникна грешка при смяна на паролата!");
+  }
+};
+
+export const googleOAuthSignIn = async (email: string) => {
+  try {
+    const { data } = await axios.post(
+      "/api/public/users/oauth-sign-in",
+      { email },
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return data;
+  } catch (error) {
+    Sentry.captureException(error);
+    const message = (error as { response?: { data?: { message?: string } } })
+      ?.response?.data?.message;
+    throw new Error(message || "Възникна грешка при влизане с Google акаунт!");
   }
 };

@@ -29,6 +29,7 @@ model Customer {
   isVerified        Boolean?   @default(false) @map("is_verified")
   verificationToken String?    @unique(map: "customers_new_verification_token_key") @map("verification_token") @db.VarChar(255)
   tokenExpiration   DateTime?  @map("token_expiration") @db.Timestamptz(6)
+  googleId          String?    @unique @map("google_id") @db.VarChar(255)
   createdAt         DateTime?  @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt         DateTime?  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
   favorites         Favorite[]

@@ -20,7 +20,7 @@ export default function DashboardProductCard({
   return (
     <Card className="product-card max-w-xs mx-auto text-center min-w-full flex flex-col justify-between shadow-lg transition-colors duration-300">
       <CardMedia
-        className="min-w-80 h-52 object-cover"
+        className="h-52 w-full object-cover"
         component="img"
         image={product.images[0]}
         alt={product.name}

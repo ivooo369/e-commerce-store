@@ -1,8 +1,10 @@
 import CredentialsProvider from "next-auth/providers/credentials";
+import GoogleProvider from "next-auth/providers/google";
 import bcrypt from "bcrypt";
 import prisma from "@/lib/services/prisma";
+import { NextAuthOptions } from "next-auth";
 
-export const authOptions = {
+export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
       name: "Credentials",
@@ -21,11 +23,22 @@ export const authOptions = {
             throw new Error("Неправилно потребителско име или парола!");
           }
 
-          return user;
+          return {
+            id: user.id,
+            email: user.username,
+            name: user.username,
+            image: null,
+            isVerified: true,
+            googleId: null,
+          };
         } catch {
           throw new Error("Неправилно потребителско име или парола!");
         }
       },
+    }),
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
   ],
   pages: {
@@ -36,6 +49,88 @@ export const authOptions = {
     updateAge: 60 * 10,
   },
   secret: process.env.NEXTAUTH_SECRET,
+  callbacks: {
+    async signIn({ user, account }) {
+      if (account?.provider === "google") {
+        try {
+          const email = user.email;
+          if (!email) return false;
+
+          const existingCustomer = await prisma.customer.findUnique({
+            where: { email },
+          });
+
+          if (existingCustomer) {
+            await prisma.customer.update({
+              where: { email },
+              data: {
+                googleId: account.providerAccountId,
+                isVerified: true,
+              },
+            });
+          } else {
+            await prisma.customer.create({
+              data: {
+                email,
+                firstName: user.name?.split(" ")[0] || null,
+                lastName: user.name?.split(" ").slice(1).join(" ") || null,
+                googleId: account.providerAccountId,
+                isVerified: true,
+              },
+            });
+          }
+
+          return true;
+        } catch {
+          return false;
+        }
+      }
+
+      return true;
+    },
+    async session({ session, token }) {
+      if (token?.email) {
+        try {
+          const customer = await prisma.customer.findUnique({
+            where: { email: token.email as string },
+            select: {
+              id: true,
+              email: true,
+              firstName: true,
+              lastName: true,
+              isVerified: true,
+              googleId: true,
+            },
+          });
+
+          if (customer) {
+            session.user = {
+              id: customer.id,
+              email: customer.email!,
+              name: `${customer.firstName || ""} ${
+                customer.lastName || ""
+              }`.trim(),
+              image: null,
+              isVerified: customer.isVerified || false,
+              googleId: customer.googleId,
+            };
+          }
+        } catch {
+          throw new Error("Възникна грешка при обработка на сесията!");
+        }
+      }
+
+      return session;
+    },
+    async jwt({ token, user, account }) {
+      if (user && account?.provider === "google") {
+        token.email = user.email;
+        token.name = user.name;
+      }
+
+      return token;
+    },
+  },
 };
 
 async function verifyPassword(plainPassword: string, hashedPassword: string) {

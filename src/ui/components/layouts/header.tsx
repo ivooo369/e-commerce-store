@@ -18,6 +18,7 @@ import { fetchCategoriesForHeader } from "@/services/categoryService";
 import { clearCart } from "@/lib/store/slices/cartSlice";
 import { useQuery } from "@tanstack/react-query";
 import { RootState } from "@/lib/types/types";
+import { signOut } from "next-auth/react";
 
 export default function Header() {
   const pathname = usePathname();
@@ -75,12 +76,19 @@ export default function Header() {
   const toggleCatalogMenu = () => setIsCatalogMenuOpen(!isCatalogMenuOpen);
   const toggleAccountMenu = () => setIsAccountMenuOpen(!isAccountMenuOpen);
 
-  const handleSignOut = () => {
+  const handleSignOut = async () => {
+    const userData = localStorage.getItem("userData");
+    const isGoogleOAuthUser = userData && userData.includes("google_oauth_");
+
     localStorage.removeItem("userData");
     localStorage.removeItem("userAccountData");
 
     dispatch(clearCart(""));
     dispatch(clearUser());
+
+    if (isGoogleOAuthUser) {
+      await signOut({ redirect: false });
+    }
   };
 
   return (

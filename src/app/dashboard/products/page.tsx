@@ -154,22 +154,25 @@ export default function DashboardProductsPage() {
     <>
       <DashboardNav />
       <DashboardSecondaryNav />
-      <div className="container mx-auto px-4 py-4 sm:py-6 bg-bg-primary min-h-screen">
-        <div className="mb-4">
+      <div className="container mx-auto py-4 sm:py-6 bg-bg-primary min-h-screen">
+        <div className="mb-4 px-4">
           <DashboardSearch
             searchTerm={searchTerm}
             onSearchChange={setSearchTerm}
           />
         </div>
 
-        <ProductFilters
-          categories={categoriesData || []}
-          subcategories={subcategoriesData}
-          showCategoryFilter={true}
-          onFiltersChange={handleFiltersChange}
-          initialFilters={filters}
-          includeContainer={false}
-        />
+        <div className="flex flex-col items-center space-y-4 w-full px-4">
+          <ProductFilters
+            categories={categoriesData || []}
+            subcategories={subcategoriesData}
+            showCategoryFilter={true}
+            onFiltersChange={handleFiltersChange}
+            initialFilters={filters}
+            includeContainer={false}
+          />
+        </div>
+
         {displayedProducts.length > 0 && (
           <PaginationButtons
             itemsPerPage={ITEMS_PER_PAGE}
@@ -178,47 +181,51 @@ export default function DashboardProductsPage() {
             currentPage={currentPage}
           />
         )}
-        {isLoading ? (
-          <Box className="flex justify-center items-center min-h-[50vh] w-full">
-            <CircularProgress message="Зареждане на продуктите..." />
-          </Box>
-        ) : isError ? (
-          <div className="text-center py-10">
-            <h2 className="text-2xl font-bold">
-              Възникна грешка при извличане на продуктите
-            </h2>
-          </div>
-        ) : currentItems.length === 0 ? (
-          <div className="mt-4 font-bold">
-            <p className="text-center text-2xl p-16 bg-card-bg rounded-md text-text-secondary border border-card-border transition-colors duration-300">
-              {filters.selectedSubcategories.length > 0 ||
-              filters.selectedCategories.length > 0 ||
-              filters.priceRange[0] > 0 ||
-              filters.priceRange[1] < 500 ||
-              searchTerm.length > 0
-                ? "Няма продукти, отговарящи на избраните филтри"
-                : "Няма налични продукти"}
-            </p>
-          </div>
-        ) : (
-          <div className="container mx-auto">
-            <div className="grid gap-5 sm:gap-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 py-4 sm:py-6 md:py-8 px-4">
-              {currentItems.map((product: ProductWithSubcategories) => (
-                <DashboardProductCard
-                  key={product.id}
-                  product={product}
-                  onDelete={() => product.id && handleOpenModal(product.id)}
-                />
-              ))}
+
+        <div>
+          {isLoading ? (
+            <Box className="flex justify-center items-center py-10 my-auto">
+              <CircularProgress message="Зареждане на продуктите..." />
+            </Box>
+          ) : isError ? (
+            <div className="container mx-auto px-4 text-center py-10">
+              <h2 className="text-2xl font-bold">
+                Възникна грешка при извличане на продуктите
+              </h2>
             </div>
-            <PaginationButtons
-              itemsPerPage={ITEMS_PER_PAGE}
-              totalItems={displayedProducts.length}
-              paginate={paginate}
-              currentPage={currentPage}
-            />
-          </div>
-        )}
+          ) : currentItems.length === 0 ? (
+            <div className="container mx-auto px-4 mt-4 font-bold">
+              <p className="text-center text-2xl p-16 bg-card-bg rounded-md text-text-secondary border border-card-border transition-colors duration-300">
+                {filters.selectedSubcategories.length > 0 ||
+                filters.selectedCategories.length > 0 ||
+                filters.priceRange[0] > 0 ||
+                filters.priceRange[1] < 500 ||
+                searchTerm.length > 0
+                  ? "Няма продукти, отговарящи на избраните филтри"
+                  : "Няма налични продукти"}
+              </p>
+            </div>
+          ) : (
+            <>
+              <div className="grid gap-5 sm:gap-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 py-4 sm:py-6 md:py-8 px-4">
+                {currentItems.map((product: ProductWithSubcategories) => (
+                  <DashboardProductCard
+                    key={product.id}
+                    product={product}
+                    onDelete={() => product.id && handleOpenModal(product.id)}
+                  />
+                ))}
+              </div>
+              <PaginationButtons
+                itemsPerPage={ITEMS_PER_PAGE}
+                totalItems={displayedProducts.length}
+                paginate={paginate}
+                currentPage={currentPage}
+              />
+            </>
+          )}
+        </div>
+
         <ConfirmationModal
           open={isModalOpen}
           onCancel={handleCloseModal}

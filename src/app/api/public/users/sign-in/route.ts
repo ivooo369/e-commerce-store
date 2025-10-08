@@ -91,10 +91,28 @@ export async function POST(req: Request) {
         password: true,
         firstName: true,
         lastName: true,
+        googleId: true,
       },
     });
 
-    if (!existingUser || typeof existingUser.password !== "string") {
+    if (!existingUser) {
+      return NextResponse.json(
+        { message: "Неправилен имейл или парола!" },
+        { status: 400 }
+      );
+    }
+
+    if (existingUser.googleId && !existingUser.password) {
+      return NextResponse.json(
+        {
+          message:
+            "Този акаунт е свързан с Google. Моля, влезте с Google акаунта си!",
+        },
+        { status: 400 }
+      );
+    }
+
+    if (!existingUser.password) {
       return NextResponse.json(
         { message: "Неправилен имейл или парола!" },
         { status: 400 }

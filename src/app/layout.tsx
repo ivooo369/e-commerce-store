@@ -7,6 +7,7 @@ import { defaultMetadata } from "@/lib/utils/metadata";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import * as Sentry from "@sentry/nextjs";
+import SessionProvider from "@/ui/components/providers/SessionProvider";
 
 export function generateMetadata(): Metadata {
   return {
@@ -58,10 +59,12 @@ export default function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
       <body className={`${inter.variable} font-sans`}>
-        <MainLayout>{children}</MainLayout>
-        <ScrollToTop />
-        <Analytics />
-        <SpeedInsights />
+        <SessionProvider>
+          <MainLayout>{children}</MainLayout>
+          <ScrollToTop />
+          <Analytics />
+          <SpeedInsights />
+        </SessionProvider>
       </body>
     </html>
   );

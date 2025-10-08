@@ -45,10 +45,19 @@ export async function POST(req: Request) {
 
     const existingUser = await prisma.customer.findUnique({ where: { email } });
     if (existingUser) {
-      return NextResponse.json(
-        { message: "Потребител с този имейл вече съществува!" },
-        { status: 400 }
-      );
+      if (existingUser.googleId) {
+        return NextResponse.json(
+          {
+            message: "Този имейл вече е свързан с Google акаунт!",
+          },
+          { status: 400 }
+        );
+      } else {
+        return NextResponse.json(
+          { message: "Потребител с този имейл вече съществува!" },
+          { status: 400 }
+        );
+      }
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
