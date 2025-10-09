@@ -17,8 +17,6 @@ export default function ForgotPasswordPage() {
   const user = useSelector((state: RootState) => state.user);
   const isLoggedIn = user.isLoggedIn;
 
-  const isEmailReadOnly = isLoggedIn;
-
   useEffect(() => {
     if (isLoggedIn) {
       const userData = localStorage.getItem("userData");
@@ -114,16 +112,12 @@ export default function ForgotPasswordPage() {
             name="email"
             type="email"
             value={email}
-            onChange={
-              isEmailReadOnly ? undefined : (e) => setEmail(e.target.value)
-            }
+            onChange={(e) => setEmail(e.target.value)}
             label="E-mail"
             inputProps={{
               maxLength: 255,
               autoComplete: "email",
-              readOnly: isEmailReadOnly,
             }}
-            disabled={isEmailReadOnly}
           />
         </FormControl>
 

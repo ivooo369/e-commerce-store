@@ -42,7 +42,7 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   pages: {
-    signIn: "/admin/login",
+    signIn: "/user/sign-in",
   },
   session: {
     maxAge: 60 * 30,
@@ -91,29 +91,48 @@ export const authOptions: NextAuthOptions = {
     async session({ session, token }) {
       if (token?.email) {
         try {
-          const customer = await prisma.customer.findUnique({
-            where: { email: token.email as string },
+          const admin = await prisma.admin.findUnique({
+            where: { username: token.email as string },
             select: {
               id: true,
-              email: true,
-              firstName: true,
-              lastName: true,
-              isVerified: true,
-              googleId: true,
+              username: true,
             },
           });
 
-          if (customer) {
+          if (admin) {
             session.user = {
-              id: customer.id,
-              email: customer.email!,
-              name: `${customer.firstName || ""} ${
-                customer.lastName || ""
-              }`.trim(),
+              id: admin.id,
+              email: admin.username,
+              name: admin.username,
               image: null,
-              isVerified: customer.isVerified || false,
-              googleId: customer.googleId,
+              isVerified: true,
+              googleId: null,
             };
+          } else {
+            const customer = await prisma.customer.findUnique({
+              where: { email: token.email as string },
+              select: {
+                id: true,
+                email: true,
+                firstName: true,
+                lastName: true,
+                isVerified: true,
+                googleId: true,
+              },
+            });
+
+            if (customer) {
+              session.user = {
+                id: customer.id,
+                email: customer.email!,
+                name: `${customer.firstName || ""} ${
+                  customer.lastName || ""
+                }`.trim(),
+                image: null,
+                isVerified: customer.isVerified || false,
+                googleId: customer.googleId,
+              };
+            }
           }
         } catch {
           throw new Error("Възникна грешка при обработка на сесията!");
@@ -126,6 +145,7 @@ export const authOptions: NextAuthOptions = {
       if (user && account?.provider === "google") {
         token.email = user.email;
         token.name = user.name;
+        token.googleId = account.providerAccountId;
       }
 
       return token;

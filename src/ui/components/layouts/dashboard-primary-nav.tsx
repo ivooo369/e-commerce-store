@@ -3,7 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   FaBox,
   FaPlus,
@@ -13,9 +13,11 @@ import {
 } from "react-icons/fa";
 import ThemeToggle from "@/ui/components/others/theme-toggle";
 import { getProductCount } from "@/services/productService";
+import { signOut } from "next-auth/react";
 
 export default function DashboardNav() {
   const pathname = usePathname();
+  const router = useRouter();
 
   const { data: productCount, isLoading } = useQuery({
     queryKey: ["productCount"],
@@ -25,6 +27,18 @@ export default function DashboardNav() {
     retry: 3,
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
   });
+
+  const handleLogout = async () => {
+    try {
+      await signOut({
+        redirect: false,
+        callbackUrl: "/",
+      });
+      router.push("/");
+    } catch {
+      router.push("/");
+    }
+  };
 
   return (
     <nav className="dashboard-primary-nav w-full p-4 bg-bg-tertiary border-b border-border-color transition-colors duration-300">
@@ -114,14 +128,14 @@ export default function DashboardNav() {
           <FaClipboardList className="mr-2" />
           Поръчки
         </Link>
-        <Link
-          href="/"
+        <button
+          onClick={handleLogout}
           className="flex items-center text-white font-bold py-2 px-4 rounded-lg shadow-lg transition-colors duration-300 bg-error-color hover:bg-red-700"
           aria-label="Изход"
         >
           <FaSignOutAlt className="mr-2" />
           Изход
-        </Link>
+        </button>
         <ThemeToggle />
       </div>
     </nav>

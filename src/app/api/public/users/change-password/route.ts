@@ -71,8 +71,11 @@ export async function POST(req: Request) {
 
     if (typeof user.password !== "string") {
       return NextResponse.json(
-        { message: "Невалиден формат на паролата!" },
-        { status: 500 }
+        {
+          message:
+            "Този акаунт е свързан с Google. Моля, използвайте 'Забравена парола' за да зададете парола!",
+        },
+        { status: 400 }
       );
     }
 

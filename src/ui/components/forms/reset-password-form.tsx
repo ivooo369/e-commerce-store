@@ -66,9 +66,7 @@ export default function ResetPasswordForm() {
     },
     onSuccess: (responseData) => {
       setAlert({
-        message:
-          responseData.message ||
-          "Паролата беше сменена успешно! Ще бъдете изведени от акаунта си за сигурност.",
+        message: responseData.message || "Паролата беше сменена успешно!",
         severity: "success",
       });
       setNewPassword("");

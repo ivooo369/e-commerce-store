@@ -140,7 +140,7 @@ export function customerOrderEmail(data: OrderEmailData) {
       </header>
       <div style="padding: 1.5rem; background-color: #f8fafc;">
         <p style="font-size: 14px; margin: 0;">Здравейте, ${data.name},</p>
-        <p style="font-size: 14px; margin-top: 6px; margin-bottom: 0;">Благодарим ви, че пазарувахте при нас! Моля, потвърдете поръчката си, за да започнем обработката!</p>
+        <p style="font-size: 14px; margin-top: 6px; margin-bottom: 0;">Благодарим Ви, че пазарувахте при нас! Моля, потвърдете поръчката си, за да започнем обработката!</p>
         <div style="text-align:center; margin:2rem 0;">
           <a href="${
             data.confirmUrl
