@@ -25,12 +25,14 @@ import { useAutoDismissAlert } from "@/lib/hooks/useAutoDismissAlert";
 import { cartService } from "@/services/cartService";
 import { setCartItems } from "@/lib/store/slices/cartSlice";
 import { signIn as nextAuthSignIn, useSession } from "next-auth/react";
+import TurnstileCaptcha from "@/ui/components/forms/turnstile-captcha";
 
 export default function SignInPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [signingIn, setIsSigningIn] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState<string>("");
   const dispatch = useDispatch();
   const router = useRouter();
   const [alert, setAlert] = useAutoDismissAlert();
@@ -120,6 +122,7 @@ export default function SignInPage() {
 
   const mutation = useMutation({
     mutationFn: signIn,
+    retry: false,
     onMutate: () => {
       setIsSigningIn(true);
     },
@@ -171,9 +174,19 @@ export default function SignInPage() {
 
   const handleSignIn = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    if (!captchaToken) {
+      setAlert({
+        message: "Моля, потвърдете че не сте робот!",
+        severity: "error",
+      });
+      return;
+    }
+
     const formData = {
       email: email.trim(),
       password: password.trim(),
+      captchaToken,
     };
     mutation.mutate(formData);
   };
@@ -222,6 +235,7 @@ export default function SignInPage() {
             }
           />
         </FormControl>
+
         <Button
           type="submit"
           className="font-bold"
@@ -268,6 +282,14 @@ export default function SignInPage() {
         >
           Влез с Google акаунт
         </Button>
+
+        <TurnstileCaptcha
+          onVerify={(token) => setCaptchaToken(token)}
+          onError={() => setCaptchaToken("")}
+          onExpire={() => setCaptchaToken("")}
+          className="my-4"
+        />
+
         <div className="flex flex-col sm:flex-row justify-center items-center gap-2 sm:gap-4 text-base">
           <span>
             <span className="font-semibold">Нямате акаунт?</span>{" "}

@@ -12,6 +12,7 @@ import {
 } from "@mui/material";
 import AlertMessage from "@/ui/components/feedback/alert-message";
 import { sendMessage } from "@/services/messageService";
+import TurnstileCaptcha from "@/ui/components/forms/turnstile-captcha";
 
 export default function ContactForm() {
   const queryClient = useQueryClient();
@@ -21,9 +22,11 @@ export default function ContactForm() {
   const [content, setContent] = useState("");
   const [isSending, setIsSending] = useState(false);
   const [alert, setAlert] = useAutoDismissAlert(5000);
+  const [captchaToken, setCaptchaToken] = useState<string>("");
 
   const mutation = useMutation({
     mutationFn: sendMessage,
+    retry: false,
     onMutate: () => {
       setIsSending(true);
     },
@@ -53,7 +56,16 @@ export default function ContactForm() {
 
   const handleSendMessage = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    mutation.mutate({ name, email, title, content });
+
+    if (!captchaToken) {
+      setAlert({
+        message: "Моля, потвърдете че не сте робот!",
+        severity: "error",
+      });
+      return;
+    }
+
+    mutation.mutate({ name, email, title, content, captchaToken });
   };
 
   return (
@@ -108,6 +120,7 @@ export default function ContactForm() {
         variant="outlined"
         inputProps={{ maxLength: 500 }}
       />
+
       <Button
         type="submit"
         variant="contained"
@@ -118,6 +131,14 @@ export default function ContactForm() {
       >
         {isSending ? "Изпращане..." : "Изпрати съобщение"}
       </Button>
+
+      <TurnstileCaptcha
+        onVerify={(token) => setCaptchaToken(token)}
+        onError={() => setCaptchaToken("")}
+        onExpire={() => setCaptchaToken("")}
+        className="my-4"
+      />
+
       {alert && (
         <AlertMessage severity={alert.severity} message={alert.message} />
       )}

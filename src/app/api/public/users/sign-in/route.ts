@@ -4,6 +4,15 @@ import jwt from "jsonwebtoken";
 import { DecodedToken } from "@/lib/types/interfaces";
 import prisma from "@/lib/services/prisma";
 import * as Sentry from "@sentry/nextjs";
+import {
+  universalRateLimit,
+  createRateLimitResponse,
+} from "@/lib/utils/rateLimit";
+import {
+  verifyTurnstileToken,
+  createTurnstileErrorResponse,
+} from "@/services/turnstileService";
+
 const JWT_SECRET = process.env.JWT_SECRET;
 
 export async function GET(req: Request) {
@@ -63,20 +72,33 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   try {
-    let { email, password } = await req.json();
+    const rateLimitResult = universalRateLimit(req);
+    if (!rateLimitResult.allowed) {
+      return createRateLimitResponse(
+        rateLimitResult.remaining,
+        rateLimitResult.resetTime
+      );
+    }
 
-    email = email?.trim();
-    password = password?.trim();
+    const { email, password, captchaToken } = await req.json();
 
-    if (!email || !password) {
+    const trimmedEmail = email?.trim();
+    const trimmedPassword = password?.trim();
+
+    if (!trimmedEmail || !trimmedPassword || !captchaToken) {
       return NextResponse.json(
-        { message: "Имейлът и паролата са задължителни!" },
+        { message: "Имейлът, паролата и captcha са задължителни!" },
         { status: 400 }
       );
     }
 
+    const isCaptchaValid = await verifyTurnstileToken(captchaToken);
+    if (!isCaptchaValid) {
+      return createTurnstileErrorResponse();
+    }
+
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    if (!emailRegex.test(email)) {
+    if (!emailRegex.test(trimmedEmail)) {
       return NextResponse.json(
         { message: "Невалиден формат на имейл адреса!" },
         { status: 400 }
@@ -84,7 +106,7 @@ export async function POST(req: Request) {
     }
 
     const existingUser = await prisma.customer.findUnique({
-      where: { email },
+      where: { email: trimmedEmail },
       select: {
         id: true,
         email: true,
@@ -120,7 +142,7 @@ export async function POST(req: Request) {
     }
 
     const isPasswordValid = await bcrypt.compare(
-      password,
+      trimmedPassword,
       existingUser.password
     );
 

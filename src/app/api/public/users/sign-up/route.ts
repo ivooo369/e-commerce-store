@@ -5,45 +5,82 @@ import jwt from "jsonwebtoken";
 import { sendVerificationEmail } from "@/lib/email-templates/verifyEmail";
 import prisma from "@/lib/services/prisma";
 import * as Sentry from "@sentry/nextjs";
+import {
+  universalRateLimit,
+  createRateLimitResponse,
+} from "@/lib/utils/rateLimit";
+import {
+  verifyTurnstileToken,
+  createTurnstileErrorResponse,
+} from "@/services/turnstileService";
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
 export async function POST(req: Request) {
   try {
-    let { firstName, lastName, email, city, address, phone, password } =
-      await req.json();
+    const rateLimitResult = universalRateLimit(req);
+    if (!rateLimitResult.allowed) {
+      return createRateLimitResponse(
+        rateLimitResult.remaining,
+        rateLimitResult.resetTime
+      );
+    }
 
-    firstName = firstName?.trim();
-    lastName = lastName?.trim();
-    email = email?.trim();
-    password = password?.trim();
-    city = city?.trim();
-    address = address?.trim();
-    phone = phone?.trim();
+    const {
+      firstName,
+      lastName,
+      email,
+      city,
+      address,
+      phone,
+      password,
+      captchaToken,
+    } = await req.json();
 
-    if (!firstName || !lastName || !email || !password) {
+    const trimmedFirstName = firstName?.trim();
+    const trimmedLastName = lastName?.trim();
+    const trimmedEmail = email?.trim();
+    const trimmedPassword = password?.trim();
+    const trimmedCity = city?.trim();
+    const trimmedAddress = address?.trim();
+    const trimmedPhone = phone?.trim();
+
+    if (
+      !trimmedFirstName ||
+      !trimmedLastName ||
+      !trimmedEmail ||
+      !trimmedPassword ||
+      !captchaToken
+    ) {
       return NextResponse.json(
         { message: "Всички задължителни полета трябва да бъдат попълнени!" },
         { status: 400 }
       );
     }
 
+    const isCaptchaValid = await verifyTurnstileToken(captchaToken);
+    if (!isCaptchaValid) {
+      return createTurnstileErrorResponse();
+    }
+
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    if (!emailRegex.test(email)) {
+    if (!emailRegex.test(trimmedEmail)) {
       return NextResponse.json(
         { message: "Невалиден формат на имейл адреса!" },
         { status: 400 }
       );
     }
 
-    if (password.length < 8) {
+    if (trimmedPassword.length < 8) {
       return NextResponse.json(
         { message: "Паролата трябва да бъде поне 8 символа!" },
         { status: 400 }
       );
     }
 
-    const existingUser = await prisma.customer.findUnique({ where: { email } });
+    const existingUser = await prisma.customer.findUnique({
+      where: { email: trimmedEmail },
+    });
     if (existingUser) {
       if (existingUser.googleId) {
         return NextResponse.json(
@@ -60,20 +97,20 @@ export async function POST(req: Request) {
       }
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(trimmedPassword, 10);
     const verificationToken = crypto.randomBytes(32).toString("hex");
     const tokenExpiration = new Date();
     tokenExpiration.setHours(tokenExpiration.getHours() + 1);
 
     const newUser = await prisma.customer.create({
       data: {
-        firstName,
-        lastName,
-        email,
+        firstName: trimmedFirstName,
+        lastName: trimmedLastName,
+        email: trimmedEmail,
         password: hashedPassword,
-        city,
-        address,
-        phone,
+        city: trimmedCity,
+        address: trimmedAddress,
+        phone: trimmedPhone,
         isVerified: false,
         verificationToken,
         tokenExpiration,
@@ -92,7 +129,7 @@ export async function POST(req: Request) {
       JWT_SECRET,
       { expiresIn: "24h" }
     );
-    await sendVerificationEmail(email, verificationToken);
+    await sendVerificationEmail(trimmedEmail, verificationToken);
 
     return NextResponse.json(
       {

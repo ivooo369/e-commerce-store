@@ -3,11 +3,23 @@ import bcrypt from "bcrypt";
 import prisma from "@/lib/services/prisma";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import * as Sentry from "@sentry/nextjs";
+import {
+  universalRateLimit,
+  createRateLimitResponse,
+} from "@/lib/utils/rateLimit";
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
 export async function POST(req: Request) {
   try {
+    const rateLimitResult = universalRateLimit(req);
+    if (!rateLimitResult.allowed) {
+      return createRateLimitResponse(
+        rateLimitResult.remaining,
+        rateLimitResult.resetTime
+      );
+    }
+
     const token = req.headers.get("Authorization")?.split(" ")[1]?.trim();
     const { currentPassword, newPassword } = await req.json();
 

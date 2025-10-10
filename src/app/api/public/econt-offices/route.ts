@@ -5,9 +5,6 @@ import * as Sentry from "@sentry/nextjs";
 
 export const dynamic = "force-dynamic";
 
-const ECONT_API_URL =
-  "https://ee.econt.com/services/Nomenclatures/NomenclaturesService.getOffices.json";
-
 const formatTimeRange = (from: number, to: number) => {
   if (!from || !to) return null;
   const fromDate = new Date(from);
@@ -33,7 +30,7 @@ export async function GET(req: NextRequest) {
     }
 
     const response = await axios.post(
-      ECONT_API_URL,
+      "https://ee.econt.com/services/Nomenclatures/NomenclaturesService.getOffices.json",
       { countryCode: "BGR" },
       {
         headers: {

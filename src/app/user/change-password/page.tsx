@@ -49,6 +49,7 @@ export default function ChangePasswordPage() {
 
   const mutation = useMutation({
     mutationFn: changePassword,
+    retry: false,
     onMutate: () => {
       setIsChanging(true);
       setAlert(null);

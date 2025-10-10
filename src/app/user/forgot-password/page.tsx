@@ -8,11 +8,13 @@ import { useAutoDismissAlert } from "@/lib/hooks/useAutoDismissAlert";
 import { forgotPassword } from "@/services/userService";
 import { useSelector } from "react-redux";
 import { RootState } from "@/lib/types/types";
+import TurnstileCaptcha from "@/ui/components/forms/turnstile-captcha";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
   const [isSending, setIsSending] = useState(false);
   const [alert, setAlert] = useAutoDismissAlert();
+  const [captchaToken, setCaptchaToken] = useState<string>("");
 
   const user = useSelector((state: RootState) => state.user);
   const isLoggedIn = user.isLoggedIn;
@@ -43,6 +45,7 @@ export default function ForgotPasswordPage() {
 
   const mutation = useMutation({
     mutationFn: forgotPassword,
+    retry: false,
     onMutate: () => {
       setIsSending(true);
       setAlert(null);
@@ -70,6 +73,14 @@ export default function ForgotPasswordPage() {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
+    if (!captchaToken) {
+      setAlert({
+        message: "Моля, потвърдете че не сте робот!",
+        severity: "error",
+      });
+      return;
+    }
+
     if (!email.trim()) {
       setAlert({
         message: "Моля, въведете имейл адрес!",
@@ -87,7 +98,7 @@ export default function ForgotPasswordPage() {
       return;
     }
 
-    mutation.mutate(email.trim());
+    mutation.mutate({ email: email.trim(), captchaToken });
   };
 
   return (
@@ -131,6 +142,13 @@ export default function ForgotPasswordPage() {
         >
           {isSending ? "Получаване..." : "Получи инструкции"}
         </Button>
+
+        <TurnstileCaptcha
+          onVerify={(token) => setCaptchaToken(token)}
+          onError={() => setCaptchaToken("")}
+          onExpire={() => setCaptchaToken("")}
+          className="my-4"
+        />
 
         {alert && (
           <div>

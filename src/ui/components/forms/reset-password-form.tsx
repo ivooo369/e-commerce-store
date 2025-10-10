@@ -60,6 +60,7 @@ export default function ResetPasswordForm() {
 
   const mutation = useMutation({
     mutationFn: resetPassword,
+    retry: false,
     onMutate: () => {
       setIsResetting(true);
       setAlert(null);

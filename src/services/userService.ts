@@ -92,7 +92,7 @@ export const deleteAccount = async (userId: string) => {
   }
 };
 
-export const signUp = async (formData: Customer) => {
+export const signUp = async (formData: Customer & { captchaToken: string }) => {
   try {
     const response = await axios.post("/api/public/users/sign-up", formData, {
       headers: {
@@ -120,7 +120,11 @@ export const signUp = async (formData: Customer) => {
   }
 };
 
-export const signIn = async (formData: { email: string; password: string }) => {
+export const signIn = async (formData: {
+  email: string;
+  password: string;
+  captchaToken: string;
+}) => {
   try {
     const { data } = await axios.post("/api/public/users/sign-in", formData, {
       headers: { "Content-Type": "application/json" },
@@ -192,11 +196,14 @@ export const getVerificationLink = (token: string) => {
   return `${getBaseUrl()}/user/verify-email?token=${token}`;
 };
 
-export const forgotPassword = async (email: string) => {
+export const forgotPassword = async (formData: {
+  email: string;
+  captchaToken: string;
+}) => {
   try {
     const { data } = await axios.post(
       "/api/public/users/forgot-password",
-      { email },
+      formData,
       {
         headers: {
           "Content-Type": "application/json",

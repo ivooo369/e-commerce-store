@@ -701,3 +701,17 @@ export interface ProductFiltersProps {
   initialFilters?: Partial<ProductFiltersState>;
   includeContainer?: boolean;
 }
+
+export interface RateLimitData {
+  count: number;
+  firstRequest: number;
+}
+
+export interface TurnstileCaptchaProps {
+  onVerify: (token: string) => void;
+  onError?: () => void;
+  onExpire?: () => void;
+  theme?: "light" | "dark" | "auto";
+  size?: "normal" | "compact";
+  className?: string;
+}

@@ -3,18 +3,39 @@ import jwt from "jsonwebtoken";
 import prisma from "@/lib/services/prisma";
 import { sendPasswordResetEmail } from "@/lib/email-templates/passwordResetEmail";
 import * as Sentry from "@sentry/nextjs";
+import {
+  universalRateLimit,
+  createRateLimitResponse,
+} from "@/lib/utils/rateLimit";
+import {
+  verifyTurnstileToken,
+  createTurnstileErrorResponse,
+} from "@/services/turnstileService";
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
 export async function POST(req: Request) {
   try {
-    const { email } = await req.json();
+    const rateLimitResult = universalRateLimit(req);
+    if (!rateLimitResult.allowed) {
+      return createRateLimitResponse(
+        rateLimitResult.remaining,
+        rateLimitResult.resetTime
+      );
+    }
 
-    if (!email || email.trim() === "") {
+    const { email, captchaToken } = await req.json();
+
+    if (!email || email.trim() === "" || !captchaToken) {
       return NextResponse.json(
-        { message: "Моля, въведете имейл адрес!" },
+        { message: "Моля, въведете имейл адрес и потвърдете captcha!" },
         { status: 400 }
       );
+    }
+
+    const isCaptchaValid = await verifyTurnstileToken(captchaToken);
+    if (!isCaptchaValid) {
+      return createTurnstileErrorResponse();
     }
 
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;

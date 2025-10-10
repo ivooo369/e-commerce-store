@@ -15,9 +15,11 @@ import { useDispatch } from "react-redux";
 import { setUser } from "@/lib/store/slices/userSlice";
 import Link from "next/link";
 import AccountBenefits from "@/ui/components/others/account-benefits";
-import { Checkbox, FormControlLabel } from "@mui/material";
+import { FormControlLabel } from "@mui/material";
+import MuiCheckbox from "@mui/material/Checkbox";
 import { signUp } from "@/services/userService";
 import { useAutoDismissAlert } from "@/lib/hooks/useAutoDismissAlert";
+import TurnstileCaptcha from "@/ui/components/forms/turnstile-captcha";
 
 export default function SignUpPage() {
   const dispatch = useDispatch();
@@ -35,6 +37,7 @@ export default function SignUpPage() {
   const [signingUp, setIsSigningUp] = useState(false);
   const [areTermsAccepted, setAreTermsAccepted] = useState(false);
   const [alert, setAlert] = useAutoDismissAlert();
+  const [captchaToken, setCaptchaToken] = useState<string>("");
 
   const handleClickShowPassword = () => setIsPasswordVisible((show) => !show);
   const handleClickShowConfirmPassword = () =>
@@ -46,6 +49,7 @@ export default function SignUpPage() {
 
   const mutation = useMutation({
     mutationFn: signUp,
+    retry: false,
     onMutate: () => {
       setIsSigningUp(true);
     },
@@ -97,6 +101,14 @@ export default function SignUpPage() {
   const handleSignUp = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
+    if (!captchaToken) {
+      setAlert({
+        message: "Моля, потвърдете че не сте робот!",
+        severity: "error",
+      });
+      return;
+    }
+
     if (password.length < 8) {
       setAlert({
         message: "Паролата трябва да е поне 8 символа!",
@@ -121,6 +133,7 @@ export default function SignUpPage() {
       city,
       address,
       phone,
+      captchaToken,
     };
 
     mutation.mutate(formData);
@@ -251,40 +264,45 @@ export default function SignUpPage() {
             inputProps={{ maxLength: 20, autoComplete: "phone" }}
           />
         </FormControl>
-        <div className="flex justify-center">
-          <FormControlLabel
-            className="m-0"
-            control={
-              <Checkbox
-                checked={areTermsAccepted}
-                onChange={(event) => {
-                  const checkbox = event.target as HTMLInputElement;
-                  setAreTermsAccepted(checkbox.checked);
-                  if (checkbox.checked) {
-                    checkbox.setCustomValidity("");
-                  }
-                }}
-                color="primary"
-                required
-                size="medium"
-                inputProps={{
-                  "aria-label": "Съгласие с условията",
-                }}
-                onInvalid={(event) => {
-                  const checkbox = event.target as HTMLInputElement;
-                  checkbox.setCustomValidity(
-                    "Моля, дайте съгласие за обработка на вашите данни, за да продължите."
-                  );
-                }}
+        <div>
+          <div className="flex justify-center">
+            <FormControl component="fieldset" className="w-full max-w-2xl">
+              <FormControlLabel
+                className="m-0 justify-center"
+                control={
+                  <MuiCheckbox
+                    checked={areTermsAccepted}
+                    onChange={(event) => {
+                      const checkbox = event.target as HTMLInputElement;
+                      setAreTermsAccepted(checkbox.checked);
+                      if (checkbox.checked) {
+                        checkbox.setCustomValidity("");
+                      }
+                    }}
+                    color="primary"
+                    required
+                    size="medium"
+                    inputProps={{
+                      "aria-label": "Съгласие с условията",
+                    }}
+                    onInvalid={(event) => {
+                      const checkbox = event.target as HTMLInputElement;
+                      checkbox.setCustomValidity(
+                        "Моля, дайте съгласие за обработка на вашите данни, за да продължите."
+                      );
+                    }}
+                  />
+                }
+                label={
+                  <span className="text-base sm:text-lg text-gray-700 dark:text-gray-300 text-center">
+                    Съгласявам се личните ми данни да бъдат обработвани
+                  </span>
+                }
               />
-            }
-            label={
-              <span className="text-base sm:text-lg text-gray-700 dark:text-gray-300">
-                Съгласявам се личните ми данни да бъдат обработвани
-              </span>
-            }
-          />
+            </FormControl>
+          </div>
         </div>
+
         <Button
           className="font-bold"
           color="primary"
@@ -295,6 +313,14 @@ export default function SignUpPage() {
         >
           {signingUp ? "Регистриране..." : "Регистрирай се"}
         </Button>
+
+        <TurnstileCaptcha
+          onVerify={(token) => setCaptchaToken(token)}
+          onError={() => setCaptchaToken("")}
+          onExpire={() => setCaptchaToken("")}
+          className="my-4"
+        />
+
         <p className="flex justify-center items-center gap-1.5 text-base sm:text-lg font-semibold">
           Имате акаунт?
           <Link href="/user/sign-in" className="text-blue-600 hover:underline">

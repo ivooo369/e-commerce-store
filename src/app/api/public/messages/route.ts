@@ -3,6 +3,14 @@ import prisma from "@/lib/services/prisma";
 import nodemailer from "nodemailer";
 import { contactEmailHtml } from "@/lib/email-templates/contactEmail";
 import * as Sentry from "@sentry/nextjs";
+import {
+  universalRateLimit,
+  createRateLimitResponse,
+} from "@/lib/utils/rateLimit";
+import {
+  verifyTurnstileToken,
+  createTurnstileErrorResponse,
+} from "@/services/turnstileService";
 
 export const dynamic = "force-dynamic";
 
@@ -16,43 +24,62 @@ const transporter = nodemailer.createTransport({
 
 export async function POST(request: Request) {
   try {
+    const rateLimitResult = universalRateLimit(request);
+    if (!rateLimitResult.allowed) {
+      return createRateLimitResponse(
+        rateLimitResult.remaining,
+        rateLimitResult.resetTime
+      );
+    }
+
     const body = await request.json();
-    let { name, email, title, content } = body;
+    const { name, email, title, content, captchaToken } = body;
 
-    name = name?.trim();
-    email = email?.trim();
-    title = title?.trim();
-    content = content?.trim();
+    const trimmedName = name?.trim();
+    const trimmedEmail = email?.trim();
+    const trimmedTitle = title?.trim();
+    const trimmedContent = content?.trim();
 
-    if (!name || !email || !title || !content) {
+    if (
+      !trimmedName ||
+      !trimmedEmail ||
+      !trimmedTitle ||
+      !trimmedContent ||
+      !captchaToken
+    ) {
       return NextResponse.json(
         { message: "Всички полета са задължителни!" },
         { status: 400 }
       );
     }
 
-    if (name.length > 100) {
+    const isCaptchaValid = await verifyTurnstileToken(captchaToken);
+    if (!isCaptchaValid) {
+      return createTurnstileErrorResponse();
+    }
+
+    if (trimmedName.length > 100) {
       return NextResponse.json(
         { message: "Името не може да надвишава 100 символа!" },
         { status: 400 }
       );
     }
 
-    if (email.length > 255) {
+    if (trimmedEmail.length > 255) {
       return NextResponse.json(
         { message: "Имейлът не може да надвишава 255 символа!" },
         { status: 400 }
       );
     }
 
-    if (title.length > 100) {
+    if (trimmedTitle.length > 100) {
       return NextResponse.json(
         { message: "Темата не може да надвишава 100 символа!" },
         { status: 400 }
       );
     }
 
-    if (content.length > 500) {
+    if (trimmedContent.length > 500) {
       return NextResponse.json(
         { message: "Съобщението не може да надвишава 500 символа!" },
         { status: 400 }
@@ -60,7 +87,7 @@ export async function POST(request: Request) {
     }
 
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    if (!emailRegex.test(email)) {
+    if (!emailRegex.test(trimmedEmail)) {
       return NextResponse.json(
         { message: "Невалиден формат на имейл адреса!" },
         { status: 400 }
@@ -69,27 +96,32 @@ export async function POST(request: Request) {
 
     const existingCustomer = await prisma.customer.findUnique({
       where: {
-        email,
+        email: trimmedEmail,
       },
     });
 
     const newMessage = await prisma.message.create({
       data: {
-        name,
-        email,
-        title,
-        content,
+        name: trimmedName,
+        email: trimmedEmail,
+        title: trimmedTitle,
+        content: trimmedContent,
         customerId: existingCustomer ? existingCustomer.id : null,
       },
     });
 
     await transporter.sendMail({
-      from: `"${name}" <${process.env.EMAIL_USER}>`,
+      from: `"${trimmedName}" <${process.env.EMAIL_USER}>`,
       to: process.env.EMAIL_USER,
-      replyTo: email,
-      subject: title,
-      text: content,
-      html: contactEmailHtml({ name, email, title, content }),
+      replyTo: trimmedEmail,
+      subject: trimmedTitle,
+      text: trimmedContent,
+      html: contactEmailHtml({
+        name: trimmedName,
+        email: trimmedEmail,
+        title: trimmedTitle,
+        content: trimmedContent,
+      }),
     });
 
     return NextResponse.json(

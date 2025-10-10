@@ -15,6 +15,7 @@ import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import Button from "@mui/material/Button";
 import AlertMessage from "@/ui/components/feedback/alert-message";
+import TurnstileCaptcha from "@/ui/components/forms/turnstile-captcha";
 
 export default function DashboardLoginPage() {
   const [customerUsername, setCustomerUsername] = useState("");
@@ -23,6 +24,7 @@ export default function DashboardLoginPage() {
   const [isEntering, setIsEntering] = useState(false);
   const router = useRouter();
   const [alert, setAlert] = useAutoDismissAlert();
+  const [captchaToken, setCaptchaToken] = useState<string>("");
 
   const handleClickShowPassword = () => setIsPasswordVisible((show) => !show);
 
@@ -38,6 +40,7 @@ export default function DashboardLoginPage() {
         password: customerPassword,
       });
     },
+    retry: false,
     onMutate: () => {
       setIsEntering(true);
     },
@@ -66,6 +69,15 @@ export default function DashboardLoginPage() {
 
   const handleSignIn = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
+    if (!captchaToken) {
+      setAlert({
+        message: "Моля, потвърдете че не сте робот!",
+        severity: "error",
+      });
+      return;
+    }
+
     mutation.mutate();
   };
 
@@ -108,6 +120,7 @@ export default function DashboardLoginPage() {
               }
             />
           </FormControl>
+
           <Button
             type="submit"
             variant="contained"
@@ -118,6 +131,14 @@ export default function DashboardLoginPage() {
           >
             {isEntering ? "Влизане..." : "Вход"}
           </Button>
+
+          <TurnstileCaptcha
+            onVerify={(token) => setCaptchaToken(token)}
+            onError={() => setCaptchaToken("")}
+            onExpire={() => setCaptchaToken("")}
+            className="my-4"
+          />
+
           {alert && (
             <div>
               <AlertMessage severity={alert.severity} message={alert.message} />
