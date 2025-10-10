@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { Order } from "@prisma/client";
-import nodemailer from "nodemailer";
 import { getDeliveryMethod, calculateShippingCost } from "@/lib/utils/delivery";
 import { OrderItem } from "@/lib/types/interfaces";
 import prisma from "@/lib/services/prisma";
@@ -8,15 +7,8 @@ import {
   adminOrderEmail,
   customerOrderEmail,
 } from "@/lib/email-templates/orderEmails";
+import { emailTransporter } from "@/lib/config/email.config";
 import * as Sentry from "@sentry/nextjs";
-
-const transporter = nodemailer.createTransport({
-  service: "Gmail",
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
 
 export async function GET(request: Request) {
   try {
@@ -232,7 +224,7 @@ export async function POST(request: Request) {
     const emailPromises = [];
 
     emailPromises.push(
-      transporter.sendMail({
+      emailTransporter.sendMail({
         from: `"Lipci Design Studio" <${process.env.EMAIL_USER}>`,
         to: process.env.EMAIL_USER,
         replyTo: email,
@@ -242,7 +234,7 @@ export async function POST(request: Request) {
     );
 
     emailPromises.push(
-      transporter.sendMail({
+      emailTransporter.sendMail({
         from: `"Lipci Design Studio" <${process.env.EMAIL_USER}>`,
         to: email,
         subject: `Потвърждение на поръчка #${orderId

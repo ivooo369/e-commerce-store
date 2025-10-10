@@ -1,23 +1,13 @@
 import { OrderEmailData, OrderItem } from "@/lib/types/interfaces";
 import { formatPrice } from "@/lib/utils/currency";
-import nodemailer from "nodemailer";
-
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
+import { emailTransporter } from "@/lib/config/email.config";
 
 function generateItemsHtml(items: OrderItem[]) {
   return items
     .map((item, index) => {
       const isLast = index === items.length - 1;
       const hasImage = item.product.images && item.product.images.length > 0;
-      const imageUrl = hasImage
-        ? item.product.images[0]
-        : "/images/placeholder-product.jpg";
+      const imageUrl = hasImage && item.product.images[0];
       const quantity = typeof item.quantity === "number" ? item.quantity : 1;
       const price =
         typeof item.price === "number"
@@ -227,9 +217,9 @@ export async function sendOrderStatusNotification(
   `;
 
   try {
-    await transporter.sendMail({
+    await emailTransporter.sendMail({
       from: `"Lipci Design Studio" <${process.env.EMAIL_USER}>`,
-      to: process.env.ADMIN_EMAIL || process.env.EMAIL_USER!,
+      to: process.env.EMAIL_USER,
       subject: `Поръчка #${orderId
         .substring(0, 8)
         .toUpperCase()} е ${statusText}`,
@@ -237,7 +227,7 @@ export async function sendOrderStatusNotification(
     });
   } catch {
     throw new Error(
-      "Възникна грешка при изпращане на известие за статус на поръчка"
+      "Възникна грешка при изпращане на известие за статус на поръчка!"
     );
   }
 }

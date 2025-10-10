@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/services/prisma";
-import nodemailer from "nodemailer";
 import { contactEmailHtml } from "@/lib/email-templates/contactEmail";
+import { emailTransporter } from "@/lib/config/email.config";
 import * as Sentry from "@sentry/nextjs";
 import {
   universalRateLimit,
@@ -13,14 +13,6 @@ import {
 } from "@/services/turnstileService";
 
 export const dynamic = "force-dynamic";
-
-const transporter = nodemailer.createTransport({
-  service: "Gmail",
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
 
 export async function POST(request: Request) {
   try {
@@ -110,7 +102,7 @@ export async function POST(request: Request) {
       },
     });
 
-    await transporter.sendMail({
+    await emailTransporter.sendMail({
       from: `"${trimmedName}" <${process.env.EMAIL_USER}>`,
       to: process.env.EMAIL_USER,
       replyTo: trimmedEmail,

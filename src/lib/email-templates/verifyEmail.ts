@@ -1,18 +1,10 @@
 import { getVerificationLink } from "@/services/userService";
-import nodemailer from "nodemailer";
-
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
+import { emailTransporter } from "@/lib/config/email.config";
 
 export const sendVerificationEmail = async (email: string, token: string) => {
   const verificationLink = getVerificationLink(token);
-  return transporter.sendMail({
-    from: process.env.EMAIL_USER,
+  return emailTransporter.sendMail({
+    from: `"Lipci Design Studio" <${process.env.EMAIL_USER}>`,
     to: email,
     subject: "Потвърждение на имейл адрес",
     html: `
