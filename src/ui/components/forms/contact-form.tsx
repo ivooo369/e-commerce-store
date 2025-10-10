@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useAutoDismissAlert } from "@/lib/hooks/useAutoDismissAlert";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
@@ -13,6 +13,7 @@ import {
 import AlertMessage from "@/ui/components/feedback/alert-message";
 import { sendMessage } from "@/services/messageService";
 import TurnstileCaptcha from "@/ui/components/forms/turnstile-captcha";
+import { TurnstileCaptchaRef } from "@/lib/types/interfaces";
 
 export default function ContactForm() {
   const queryClient = useQueryClient();
@@ -23,6 +24,7 @@ export default function ContactForm() {
   const [isSending, setIsSending] = useState(false);
   const [alert, setAlert] = useAutoDismissAlert(5000);
   const [captchaToken, setCaptchaToken] = useState<string>("");
+  const turnstileRef = useRef<TurnstileCaptchaRef>(null);
 
   const mutation = useMutation({
     mutationFn: sendMessage,
@@ -51,6 +53,8 @@ export default function ContactForm() {
         severity: "error",
       });
       setIsSending(false);
+      turnstileRef.current?.reset();
+      setCaptchaToken("");
     },
   });
 
@@ -133,6 +137,7 @@ export default function ContactForm() {
       </Button>
 
       <TurnstileCaptcha
+        ref={turnstileRef}
         onVerify={(token) => setCaptchaToken(token)}
         onError={() => setCaptchaToken("")}
         onExpire={() => setCaptchaToken("")}

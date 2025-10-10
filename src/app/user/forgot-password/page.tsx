@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useMutation } from "@tanstack/react-query";
 import AlertMessage from "@/ui/components/feedback/alert-message";
 import { FormControl, InputLabel, OutlinedInput, Button } from "@mui/material";
@@ -9,12 +9,14 @@ import { forgotPassword } from "@/services/userService";
 import { useSelector } from "react-redux";
 import { RootState } from "@/lib/types/types";
 import TurnstileCaptcha from "@/ui/components/forms/turnstile-captcha";
+import { TurnstileCaptchaRef } from "@/lib/types/interfaces";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
   const [isSending, setIsSending] = useState(false);
   const [alert, setAlert] = useAutoDismissAlert();
   const [captchaToken, setCaptchaToken] = useState<string>("");
+  const turnstileRef = useRef<TurnstileCaptchaRef>(null);
 
   const user = useSelector((state: RootState) => state.user);
   const isLoggedIn = user.isLoggedIn;
@@ -64,6 +66,8 @@ export default function ForgotPasswordPage() {
         message: error.message || "Възникна грешка при изпращане на имейла!",
         severity: "error",
       });
+      turnstileRef.current?.reset();
+      setCaptchaToken("");
     },
     onSettled: () => {
       setIsSending(false);
@@ -144,6 +148,7 @@ export default function ForgotPasswordPage() {
         </Button>
 
         <TurnstileCaptcha
+          ref={turnstileRef}
           onVerify={(token) => setCaptchaToken(token)}
           onError={() => setCaptchaToken("")}
           onExpire={() => setCaptchaToken("")}

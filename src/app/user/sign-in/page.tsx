@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useMutation } from "@tanstack/react-query";
 import AlertMessage from "@/ui/components/feedback/alert-message";
 import Visibility from "@mui/icons-material/Visibility";
@@ -26,6 +26,7 @@ import { cartService } from "@/services/cartService";
 import { setCartItems } from "@/lib/store/slices/cartSlice";
 import { signIn as nextAuthSignIn, useSession } from "next-auth/react";
 import TurnstileCaptcha from "@/ui/components/forms/turnstile-captcha";
+import { TurnstileCaptchaRef } from "@/lib/types/interfaces";
 
 export default function SignInPage() {
   const [email, setEmail] = useState("");
@@ -33,6 +34,7 @@ export default function SignInPage() {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [signingIn, setIsSigningIn] = useState(false);
   const [captchaToken, setCaptchaToken] = useState<string>("");
+  const turnstileRef = useRef<TurnstileCaptchaRef>(null);
   const dispatch = useDispatch();
   const router = useRouter();
   const [alert, setAlert] = useAutoDismissAlert();
@@ -169,6 +171,8 @@ export default function SignInPage() {
         severity: "error",
       });
       setIsSigningIn(false);
+      turnstileRef.current?.reset();
+      setCaptchaToken("");
     },
   });
 
@@ -284,6 +288,7 @@ export default function SignInPage() {
         </Button>
 
         <TurnstileCaptcha
+          ref={turnstileRef}
           onVerify={(token) => setCaptchaToken(token)}
           onError={() => setCaptchaToken("")}
           onExpire={() => setCaptchaToken("")}

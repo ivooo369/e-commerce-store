@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useMutation } from "@tanstack/react-query";
 import IconButton from "@mui/material/IconButton";
 import OutlinedInput from "@mui/material/OutlinedInput";
@@ -20,6 +20,7 @@ import MuiCheckbox from "@mui/material/Checkbox";
 import { signUp } from "@/services/userService";
 import { useAutoDismissAlert } from "@/lib/hooks/useAutoDismissAlert";
 import TurnstileCaptcha from "@/ui/components/forms/turnstile-captcha";
+import { TurnstileCaptchaRef } from "@/lib/types/interfaces";
 
 export default function SignUpPage() {
   const dispatch = useDispatch();
@@ -38,6 +39,7 @@ export default function SignUpPage() {
   const [areTermsAccepted, setAreTermsAccepted] = useState(false);
   const [alert, setAlert] = useAutoDismissAlert();
   const [captchaToken, setCaptchaToken] = useState<string>("");
+  const turnstileRef = useRef<TurnstileCaptchaRef>(null);
 
   const handleClickShowPassword = () => setIsPasswordVisible((show) => !show);
   const handleClickShowConfirmPassword = () =>
@@ -95,6 +97,8 @@ export default function SignUpPage() {
         severity: "error",
       });
       setIsSigningUp(false);
+      turnstileRef.current?.reset();
+      setCaptchaToken("");
     },
   });
 
@@ -315,6 +319,7 @@ export default function SignUpPage() {
         </Button>
 
         <TurnstileCaptcha
+          ref={turnstileRef}
           onVerify={(token) => setCaptchaToken(token)}
           onError={() => setCaptchaToken("")}
           onExpire={() => setCaptchaToken("")}

@@ -715,3 +715,7 @@ export interface TurnstileCaptchaProps {
   size?: "normal" | "compact";
   className?: string;
 }
+
+export interface TurnstileCaptchaRef {
+  reset: () => void;
+}

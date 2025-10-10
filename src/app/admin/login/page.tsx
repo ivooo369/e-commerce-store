@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
 import { signIn } from "next-auth/react";
@@ -16,6 +16,7 @@ import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import Button from "@mui/material/Button";
 import AlertMessage from "@/ui/components/feedback/alert-message";
 import TurnstileCaptcha from "@/ui/components/forms/turnstile-captcha";
+import { TurnstileCaptchaRef } from "@/lib/types/interfaces";
 
 export default function DashboardLoginPage() {
   const [customerUsername, setCustomerUsername] = useState("");
@@ -25,6 +26,7 @@ export default function DashboardLoginPage() {
   const router = useRouter();
   const [alert, setAlert] = useAutoDismissAlert();
   const [captchaToken, setCaptchaToken] = useState<string>("");
+  const turnstileRef = useRef<TurnstileCaptchaRef>(null);
 
   const handleClickShowPassword = () => setIsPasswordVisible((show) => !show);
 
@@ -64,6 +66,8 @@ export default function DashboardLoginPage() {
         message: error.message,
         severity: "error",
       });
+      turnstileRef.current?.reset();
+      setCaptchaToken("");
     },
   });
 
@@ -82,7 +86,7 @@ export default function DashboardLoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col justify-center items-center bg-bg-secondary transition-colors duration-300">
+    <div className="min-h-screen flex flex-col justify-center items-center bg-bg-secondary transition-colors duration-300 px-4 py-4 sm:py-6">
       <div className="bg-card-bg p-6 rounded-lg shadow-2xl w-full max-w-lg border border-card-border transition-colors duration-300">
         <h1 className="text-2xl font-bold text-center mb-6 tracking-wide text-text-primary">
           Администраторски Панел - Вход
@@ -133,6 +137,7 @@ export default function DashboardLoginPage() {
           </Button>
 
           <TurnstileCaptcha
+            ref={turnstileRef}
             onVerify={(token) => setCaptchaToken(token)}
             onError={() => setCaptchaToken("")}
             onExpire={() => setCaptchaToken("")}
