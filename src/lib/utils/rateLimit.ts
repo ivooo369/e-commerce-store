@@ -1,4 +1,4 @@
-import { RateLimitData } from "../types/interfaces";
+import type { RateLimitData } from "../types/interfaces";
 
 const requests = new Map<string, RateLimitData>();
 

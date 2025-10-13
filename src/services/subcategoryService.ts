@@ -1,7 +1,7 @@
 import axios from "axios";
-import { Subcategory } from "@/lib/types/interfaces";
 import { Subcategory as SubcategoryPrisma } from "@prisma/client";
 import * as Sentry from "@sentry/nextjs";
+import type { Subcategory } from "@/lib/types/interfaces";
 
 export const createSubcategory = async (subcategoryData: Subcategory) => {
   try {

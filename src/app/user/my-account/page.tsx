@@ -6,7 +6,6 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import Button from "@mui/material/Button";
 import { useSelector, useDispatch } from "react-redux";
 import { setUser } from "@/lib/store/slices/userSlice";
-import { RootState } from "@/lib/types/types";
 import useProtectedRoute from "@/lib/hooks/useProtectedRoute";
 import CircularProgress from "@/ui/components/feedback/circular-progress";
 import {
@@ -16,6 +15,7 @@ import {
 } from "@/services/userService";
 import { AccountUpdateForm } from "@/ui/components/forms/account-update-form";
 import Box from "@mui/material/Box";
+import type { RootState } from "@/lib/types/types";
 
 export default function MyAccountPage() {
   const dispatch = useDispatch();

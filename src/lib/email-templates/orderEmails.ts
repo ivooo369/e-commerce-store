@@ -1,6 +1,6 @@
-import { OrderEmailData, OrderItem } from "@/lib/types/interfaces";
 import { formatPrice } from "@/lib/utils/currency";
 import { emailTransporter } from "@/lib/config/email.config";
+import type { OrderEmailData, OrderItem } from "@/lib/types/interfaces";
 
 function generateItemsHtml(items: OrderItem[]) {
   return items

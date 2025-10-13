@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import {
+import type {
   DynamicMetadata,
   RouteConfig,
   RouteMetadata,

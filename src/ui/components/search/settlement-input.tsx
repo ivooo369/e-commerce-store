@@ -3,8 +3,8 @@
 import { useState, useRef, useEffect, useMemo } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { searchSettlements } from "@/services/locationService";
-import { Settlement, SettlementInputProps } from "@/lib/types/interfaces";
 import { debounce } from "lodash";
+import type { Settlement, SettlementInputProps } from "@/lib/types/interfaces";
 
 export default function SettlementInput({
   value,

@@ -1,6 +1,6 @@
 import React, { memo, useMemo, useCallback } from "react";
 import DynamicOfficeMap from "@/ui/components/maps/dynamic-office-map";
-import { OfficeMapProps } from "@/lib/types/interfaces";
+import type { OfficeMapProps } from "@/lib/types/interfaces";
 
 export const MemoizedOfficeMap = memo<OfficeMapProps>(
   ({ cityName, offices, selectedOfficeId, onOfficeSelect }) => {

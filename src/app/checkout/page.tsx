@@ -14,11 +14,15 @@ import {
 import { useCart } from "@/lib/hooks/useCart";
 import { useOffices } from "@/lib/hooks/useOffices";
 import CircularProgress from "@/ui/components/feedback/circular-progress";
-import { FormDataDelivery, Settlement, CartItem } from "@/lib/types/interfaces";
 import { orderService } from "@/services/orderService";
 import { deliveryOptions } from "@/lib/utils/delivery";
 import CheckoutSteps from "@/ui/components/others/checkout-step-content";
 import Box from "@mui/material/Box";
+import type {
+  FormDataDelivery,
+  Settlement,
+  CartItem,
+} from "@/lib/types/interfaces";
 
 export default function CheckoutPage() {
   const [isClient, setIsClient] = useState(false);

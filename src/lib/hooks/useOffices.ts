@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { getEcontOfficesRest } from "@/services/econtService";
-import { Office, ApiOffice } from "@/lib/types/interfaces";
+import type { Office, ApiOffice } from "@/lib/types/interfaces";
 
 const mapApiOfficeToOffice = (office: ApiOffice): Office => {
   const workTime = office.workTime || "";

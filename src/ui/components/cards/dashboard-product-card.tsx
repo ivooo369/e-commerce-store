@@ -4,8 +4,8 @@ import CardMedia from "@mui/material/CardMedia";
 import Button from "@mui/material/Button";
 import { FaTrash } from "react-icons/fa";
 import Link from "next/link";
-import { DashboardProductCardProps } from "@/lib/types/interfaces";
 import { formatPrice } from "@/lib/utils/currency";
+import type { DashboardProductCardProps } from "@/lib/types/interfaces";
 
 export default function DashboardProductCard({
   product,

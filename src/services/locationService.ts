@@ -1,6 +1,6 @@
-import { Settlement } from "@/lib/types/interfaces";
 import axios from "axios";
 import * as Sentry from "@sentry/nextjs";
+import type { Settlement } from "@/lib/types/interfaces";
 
 const GEONAMES_USERNAME = "lipci";
 

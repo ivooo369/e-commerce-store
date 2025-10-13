@@ -16,9 +16,9 @@ import {
   ChevronDown,
 } from "lucide-react";
 import CircularProgress from "@/ui/components/feedback/circular-progress";
-import { OrderItem, OrderResponse } from "@/lib/types/interfaces";
 import { formatPrice } from "@/lib/utils/currency";
 import Box from "@mui/material/Box";
+import type { OrderItem, OrderResponse } from "@/lib/types/interfaces";
 
 export default function OrderHistoryPage() {
   useProtectedRoute();

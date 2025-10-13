@@ -11,14 +11,14 @@ import DashboardSearch from "@/ui/components/search/dashboard-search";
 import CircularProgress from "@/ui/components/feedback/circular-progress";
 import usePagination, { ITEMS_PER_PAGE } from "@/lib/hooks/usePagination";
 import PaginationButtons from "@/ui/components/navigation/pagination";
-import {
-  ProductFiltersState,
-  ProductWithSubcategories,
-} from "@/lib/types/interfaces";
 import { deleteProduct, fetchProducts } from "@/services/productService";
 import { fetchCategories } from "@/services/categoryService";
 import ProductFilters from "@/ui/components/others/product-filters";
 import { useProductFilters } from "@/lib/hooks/useProductFilters";
+import type {
+  ProductFiltersState,
+  ProductWithNestedSubcategories,
+} from "@/lib/types/interfaces";
 
 export default function DashboardProductsPage() {
   const queryClient = useQueryClient();
@@ -71,7 +71,7 @@ export default function DashboardProductsPage() {
       }
     >();
 
-    productsData.forEach((product: ProductWithSubcategories) => {
+    productsData.forEach((product: ProductWithNestedSubcategories) => {
       product.subcategories?.forEach(({ subcategory }) => {
         if (subcategory) {
           const { category, ...subcategoryData } = subcategory;
@@ -208,7 +208,7 @@ export default function DashboardProductsPage() {
           ) : (
             <>
               <div className="grid gap-5 sm:gap-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 py-4 sm:py-6 md:py-8 px-4">
-                {currentItems.map((product: ProductWithSubcategories) => (
+                {currentItems.map((product: ProductWithNestedSubcategories) => (
                   <DashboardProductCard
                     key={product.id}
                     product={product}

@@ -1,5 +1,4 @@
 import { useDispatch, useSelector } from "react-redux";
-import { RootState, AppDispatch } from "@/lib/types/types";
 import {
   addToCart,
   updateCartItem,
@@ -8,10 +7,11 @@ import {
   setCartItems,
 } from "@/lib/store/slices/cartSlice";
 import { useCallback, useEffect, useRef } from "react";
-import { ProductBase, CartItem } from "@/lib/types/interfaces";
 import { sanitizeProduct } from "@/lib/utils/sanitizeProduct";
 import { cartService } from "@/services/cartService";
 import { fetchProductByCode } from "@/services/productService";
+import type { RootState, AppDispatch } from "@/lib/types/types";
+import type { ProductBase, CartItem } from "@/lib/types/interfaces";
 
 const prepareProduct = (product: ProductBase): ProductBase => {
   if (!product) return product;

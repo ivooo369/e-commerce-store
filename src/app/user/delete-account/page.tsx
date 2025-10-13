@@ -12,7 +12,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useMutation } from "@tanstack/react-query";
 import { deleteAccount } from "@/services/userService";
 import useProtectedRoute from "@/lib/hooks/useProtectedRoute";
-import { RootState } from "@/lib/types/types";
+import type { RootState } from "@/lib/types/types";
 
 export default function DeleteAccountPage() {
   const router = useRouter();

@@ -1,7 +1,7 @@
-import { PaginationButtonsProps } from "@/lib/types/interfaces";
 import Pagination from "@mui/material/Pagination";
 import Stack from "@mui/material/Stack";
 import { ChangeEvent } from "react";
+import type { PaginationButtonsProps } from "@/lib/types/interfaces";
 
 export default function PaginationButtons({
   itemsPerPage,

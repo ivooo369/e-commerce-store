@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import axios from "axios";
-import { EcontOffice } from "@/lib/types/interfaces";
 import * as Sentry from "@sentry/nextjs";
+import type { EcontOffice } from "@/lib/types/interfaces";
 
 export const dynamic = "force-dynamic";
 

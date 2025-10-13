@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useParams } from "next/navigation";
 import { orderService } from "@/services/orderService";
-import { OrderResponse } from "@/lib/types/interfaces";
 import DashboardNav from "@/ui/components/layouts/dashboard-primary-nav";
 import DashboardSecondaryNav from "@/ui/components/layouts/dashboard-secondary-nav";
 import OrderNotesModal from "@/ui/components/modals/order-notes-modal";
@@ -12,6 +11,7 @@ import { useQuery } from "@tanstack/react-query";
 import OrderDetails from "@/ui/components/orders/order-details";
 import OrderSummary from "@/ui/components/orders/order-summary";
 import Box from "@mui/material/Box";
+import type { OrderResponse } from "@/lib/types/interfaces";
 
 export default function OrderDetailsPage() {
   const { id } = useParams();

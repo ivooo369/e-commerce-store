@@ -1,11 +1,6 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import {
-  CategoryPageProps,
-  Product,
-  ProductFiltersState,
-} from "@/lib/types/interfaces";
 import { Box } from "@mui/material";
 import ProductCard from "@/ui/components/cards/product-card";
 import CircularProgress from "@/ui/components/feedback/circular-progress";
@@ -15,6 +10,11 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchFilteredProducts } from "@/services/productService";
 import { useProductFilters } from "@/lib/hooks/useProductFilters";
 import ProductFilters from "./product-filters";
+import type {
+  CategoryPageProps,
+  Product,
+  ProductFiltersState,
+} from "@/lib/types/interfaces";
 
 export default function CategoryPageContent({
   category,

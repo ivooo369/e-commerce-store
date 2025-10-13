@@ -1,4 +1,4 @@
-import { DashboardSearchProps } from "@/lib/types/interfaces";
+import type { DashboardSearchProps } from "@/lib/types/interfaces";
 
 export default function DashboardSearch({
   searchTerm,

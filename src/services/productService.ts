@@ -1,13 +1,16 @@
 import axios from "axios";
-import { Product, ProductWithSubcategories } from "@/lib/types/interfaces";
 import { Product as PrismaSchema, Subcategory } from "@prisma/client";
 import prisma from "@/lib/services/prisma";
 import * as Sentry from "@sentry/nextjs";
+import type {
+  Product,
+  ProductWithNestedSubcategories,
+} from "@/lib/types/interfaces";
 
 const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
 export const fetchAllPublicProducts = async (): Promise<
-  ProductWithSubcategories[]
+  ProductWithNestedSubcategories[]
 > => {
   if (typeof window === "undefined") {
     try {
@@ -25,7 +28,7 @@ export const fetchAllPublicProducts = async (): Promise<
         },
         orderBy: { code: "asc" },
       });
-      return products as unknown as ProductWithSubcategories[];
+      return products as unknown as ProductWithNestedSubcategories[];
     } catch (error) {
       Sentry.captureException(error);
       throw new Error("Възникна грешка при извличане на продуктите!");
@@ -34,7 +37,7 @@ export const fetchAllPublicProducts = async (): Promise<
 
   try {
     const response = await axios.get(`${baseUrl}/api/public/products`);
-    const data: ProductWithSubcategories[] = response.data;
+    const data: ProductWithNestedSubcategories[] = response.data;
     return data.sort((a, b) => a.code.localeCompare(b.code));
   } catch (error) {
     Sentry.captureException(error);
@@ -42,10 +45,12 @@ export const fetchAllPublicProducts = async (): Promise<
   }
 };
 
-export const fetchProducts = async (): Promise<ProductWithSubcategories[]> => {
+export const fetchProducts = async (): Promise<
+  ProductWithNestedSubcategories[]
+> => {
   try {
     const response = await axios.get("/api/dashboard/products");
-    const data: ProductWithSubcategories[] = response.data;
+    const data: ProductWithNestedSubcategories[] = response.data;
     data.sort((a, b) => a.code.localeCompare(b.code));
     return data;
   } catch (error) {

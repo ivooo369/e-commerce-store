@@ -12,17 +12,17 @@ import {
   XCircle,
   CheckCircle,
 } from "lucide-react";
-import { OrderResponse, OrderStatus } from "@/lib/types/interfaces";
 import { formatPrice } from "@/lib/utils/currency";
 import OrderStatusModal from "@/ui/components/modals/order-status-modal";
 import DashboardNav from "@/ui/components/layouts/dashboard-primary-nav";
 import DashboardSecondaryNav from "@/ui/components/layouts/dashboard-secondary-nav";
 import CircularProgress from "@/ui/components/feedback/circular-progress";
 import dynamic from "next/dynamic";
-import { SortField, SortOrder } from "@/lib/types/types";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useDebounce } from "use-debounce";
 import Box from "@mui/material/Box";
+import type { SortField, SortOrder } from "@/lib/types/types";
+import type { OrderResponse, OrderStatus } from "@/lib/types/interfaces";
 
 const PaginationButtons = dynamic(
   () => import("@/ui/components/navigation/pagination"),

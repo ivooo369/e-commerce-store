@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { OrderItem, OrderSummaryProps } from "@/lib/types/interfaces";
 import { formatPrice } from "@/lib/utils/currency";
+import type { OrderItem, OrderSummaryProps } from "@/lib/types/interfaces";
 
 export default function OrderSummary({
   order,

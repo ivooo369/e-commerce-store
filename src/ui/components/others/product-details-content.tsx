@@ -13,10 +13,10 @@ import { useCart } from "@/lib/hooks/useCart";
 import { formatPrice } from "@/lib/utils/currency";
 import { Tooltip, IconButton } from "@mui/material";
 import { useFavorites } from "@/lib/hooks/useFavorites";
-import { Product } from "@/lib/types/interfaces";
 import Box from "@mui/material/Box";
 import { useSelector } from "react-redux";
-import { RootState } from "@/lib/types/types";
+import type { RootState } from "@/lib/types/types";
+import type { Product } from "@/lib/types/interfaces";
 
 export default function ProductDetailsContent({
   product,

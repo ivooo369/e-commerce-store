@@ -13,7 +13,7 @@ import {
 import AlertMessage from "@/ui/components/feedback/alert-message";
 import { sendMessage } from "@/services/messageService";
 import TurnstileCaptcha from "@/ui/components/forms/turnstile-captcha";
-import { TurnstileCaptchaRef } from "@/lib/types/interfaces";
+import type { TurnstileCaptchaRef } from "@/lib/types/interfaces";
 
 export default function ContactForm() {
   const queryClient = useQueryClient();

@@ -7,9 +7,9 @@ import {
   Package,
   ChevronRight,
 } from "lucide-react";
-import { OrderDetailsProps } from "@/lib/types/interfaces";
 import { formatPrice } from "@/lib/utils/currency";
 import { getDeliveryMethod, SHIPPING_COSTS } from "@/lib/utils/delivery";
+import type { OrderDetailsProps } from "@/lib/types/interfaces";
 
 export default function OrderDetails({
   order,

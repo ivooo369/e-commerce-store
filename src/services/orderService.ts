@@ -1,11 +1,11 @@
 import axios from "axios";
-import {
+import * as Sentry from "@sentry/nextjs";
+import type {
   OrderData,
   OrderResponse,
   OrderStatusResponse,
   PaginatedOrdersResponse,
 } from "@/lib/types/interfaces";
-import * as Sentry from "@sentry/nextjs";
 
 export const orderService = {
   async createOrder(orderData: OrderData): Promise<{ orderId: string }> {

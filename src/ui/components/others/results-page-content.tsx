@@ -4,7 +4,7 @@ import { useState, useCallback, useEffect } from "react";
 import ProductCard from "@/ui/components/cards/product-card";
 import PaginationButtons from "@/ui/components/navigation/pagination";
 import { ITEMS_PER_PAGE } from "@/lib/hooks/usePagination";
-import { ResultsProps } from "@/lib/types/interfaces";
+import type { ResultsProps } from "@/lib/types/interfaces";
 
 export default function ResultsPageContent({
   initialProducts,

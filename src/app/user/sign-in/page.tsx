@@ -26,7 +26,7 @@ import { cartService } from "@/services/cartService";
 import { setCartItems } from "@/lib/store/slices/cartSlice";
 import { signIn as nextAuthSignIn, useSession } from "next-auth/react";
 import TurnstileCaptcha from "@/ui/components/forms/turnstile-captcha";
-import { TurnstileCaptchaRef } from "@/lib/types/interfaces";
+import type { TurnstileCaptchaRef } from "@/lib/types/interfaces";
 
 export default function SignInPage() {
   const [email, setEmail] = useState("");

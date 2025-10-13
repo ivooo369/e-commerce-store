@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import { Prisma } from "@prisma/client";
-import { OrderItem } from "@/lib/types/interfaces";
 import { calculateShippingCost, getDeliveryMethod } from "@/lib/utils/delivery";
 import prisma from "@/lib/services/prisma";
 import * as Sentry from "@sentry/nextjs";
+import type { OrderItem } from "@/lib/types/interfaces";
 
 export const dynamic = "force-dynamic";
 

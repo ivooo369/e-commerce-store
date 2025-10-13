@@ -6,7 +6,6 @@ import { useSelector } from "react-redux";
 import { useCart } from "@/lib/hooks/useCart";
 import { useFavorites } from "@/lib/hooks/useFavorites";
 import { formatPrice } from "@/lib/utils/currency";
-import { RootState } from "@/lib/types/types";
 import { Tooltip } from "@mui/material";
 import {
   Button,
@@ -24,8 +23,9 @@ import FavoriteBorder from "@mui/icons-material/FavoriteBorder";
 import Image from "next/image";
 import ClearCartConfirmationModal from "@/ui/components/modals/clear-cart-confirmation-modal";
 import Link from "next/link";
-import { Product } from "@/lib/types/interfaces";
 import Box from "@mui/material/Box";
+import type { RootState } from "@/lib/types/types";
+import type { Product } from "@/lib/types/interfaces";
 
 export default function CartPage() {
   const [isClient, setIsClient] = useState(false);

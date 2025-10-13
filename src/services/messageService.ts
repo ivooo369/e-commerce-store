@@ -1,7 +1,7 @@
 import axios from "axios";
-import { Message } from "@/lib/types/interfaces";
 import { Message as MessagePrisma } from "@prisma/client";
 import * as Sentry from "@sentry/nextjs";
+import type { Message } from "@/lib/types/interfaces";
 
 export const sendMessage = async (
   formData: Message & { captchaToken: string }

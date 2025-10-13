@@ -17,8 +17,8 @@ import { clearUser } from "@/lib/store/slices/userSlice";
 import { fetchCategoriesForHeader } from "@/services/categoryService";
 import { clearCart } from "@/lib/store/slices/cartSlice";
 import { useQuery } from "@tanstack/react-query";
-import { RootState } from "@/lib/types/types";
 import { signOut } from "next-auth/react";
+import type { RootState } from "@/lib/types/types";
 
 export default function Header() {
   const pathname = usePathname();

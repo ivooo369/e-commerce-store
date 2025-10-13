@@ -20,7 +20,7 @@ import MuiCheckbox from "@mui/material/Checkbox";
 import { signUp } from "@/services/userService";
 import { useAutoDismissAlert } from "@/lib/hooks/useAutoDismissAlert";
 import TurnstileCaptcha from "@/ui/components/forms/turnstile-captcha";
-import { TurnstileCaptchaRef } from "@/lib/types/interfaces";
+import type { TurnstileCaptchaRef } from "@/lib/types/interfaces";
 
 export default function SignUpPage() {
   const dispatch = useDispatch();

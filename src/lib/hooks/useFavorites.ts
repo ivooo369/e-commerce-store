@@ -5,8 +5,8 @@ import {
   addFavorite,
   removeFavorite,
 } from "@/services/favoriteService";
-import { Product, UseFavoritesReturn } from "@/lib/types/interfaces";
-import { RootState } from "@/lib/types/types";
+import type { RootState } from "@/lib/types/types";
+import type { Product, UseFavoritesReturn } from "@/lib/types/interfaces";
 
 export const useFavorites = (): UseFavoritesReturn => {
   const queryClient = useQueryClient();

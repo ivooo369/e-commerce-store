@@ -1,4 +1,3 @@
-import { ClearCartConfirmationModalProps } from "@/lib/types/interfaces";
 import {
   Dialog,
   DialogTitle,
@@ -9,6 +8,7 @@ import {
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
+import type { ClearCartConfirmationModalProps } from "@/lib/types/interfaces";
 
 function ClearCartConfirmationModalContent({
   open,

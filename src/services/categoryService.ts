@@ -1,8 +1,8 @@
 import axios from "axios";
 import { Category as CategoryPrisma } from "@prisma/client";
-import { Category } from "@/lib/types/interfaces";
 import prisma from "@/lib/services/prisma";
 import * as Sentry from "@sentry/nextjs";
+import type { Category } from "@/lib/types/interfaces";
 
 export const fetchCategories = async (): Promise<CategoryPrisma[]> => {
   if (typeof window === "undefined") {

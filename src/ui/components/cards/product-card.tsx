@@ -10,12 +10,12 @@ import Link from "next/link";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import Favorite from "@mui/icons-material/Favorite";
 import FavoriteBorder from "@mui/icons-material/FavoriteBorder";
-import { ProductCardProps } from "@/lib/types/interfaces";
 import { useCart } from "@/lib/hooks/useCart";
 import { formatPrice } from "@/lib/utils/currency";
 import { useFavorites } from "@/lib/hooks/useFavorites";
 import { useSelector } from "react-redux";
-import { RootState } from "@/lib/types/types";
+import type { RootState } from "@/lib/types/types";
+import type { ProductCardProps } from "@/lib/types/interfaces";
 
 export default function ProductCard({ product }: ProductCardProps) {
   const { addItemToCart } = useCart();

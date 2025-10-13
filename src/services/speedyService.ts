@@ -1,5 +1,5 @@
-import { SpeedyOfficeResponse } from "@/lib/types/interfaces";
 import * as Sentry from "@sentry/nextjs";
+import type { SpeedyOfficeResponse } from "@/lib/types/interfaces";
 
 function parseWorkTime(workTime: string): { day: string; time: string }[] {
   if (!workTime) {

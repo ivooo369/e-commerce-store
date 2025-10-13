@@ -1,6 +1,5 @@
 "use client";
 
-import { OrderStatusModalProps } from "@/lib/types/interfaces";
 import {
   Dialog,
   DialogTitle,
@@ -11,6 +10,7 @@ import {
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
+import type { OrderStatusModalProps } from "@/lib/types/interfaces";
 
 export default function OrderStatusModal({
   open,

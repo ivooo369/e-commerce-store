@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/services/prisma";
-import { OrderItem, OrderResponse } from "@/lib/types/interfaces";
 import { getDeliveryMethod, SHIPPING_COSTS } from "@/lib/utils/delivery";
 import * as Sentry from "@sentry/nextjs";
+import type { OrderItem, OrderResponse } from "@/lib/types/interfaces";
 
 export async function GET(
   request: Request,

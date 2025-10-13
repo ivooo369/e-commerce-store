@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { CategoryCardProps } from "@/lib/types/interfaces";
+import type { CategoryCardProps } from "@/lib/types/interfaces";
 
 export default function CategoryCard({ category }: CategoryCardProps) {
   return (

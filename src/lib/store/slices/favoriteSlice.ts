@@ -1,5 +1,4 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { FavoritesState, Product } from "@/lib/types/interfaces";
 import {
   sanitizeProduct,
   serializeProductDates,
@@ -9,6 +8,7 @@ import {
   addFavorite,
   removeFavorite,
 } from "@/services/favoriteService";
+import type { FavoritesState, Product } from "@/lib/types/interfaces";
 
 const convertDatesToISO = <T>(obj: T): T => {
   if (obj === null || obj === undefined) return obj as T;

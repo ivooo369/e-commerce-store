@@ -16,12 +16,12 @@ import Box from "@mui/material/Box";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { Category, Subcategory as SubcategoryPrisma } from "@prisma/client";
-import { Subcategory } from "@/lib/types/interfaces";
 import { fetchDashboardCategories } from "@/services/categoryService";
 import {
   deleteSubcategory,
   fetchSubcategories,
 } from "@/services/subcategoryService";
+import type { Subcategory } from "@/lib/types/interfaces";
 
 export default function DashboardSubcategoriesPage() {
   const queryClient = useQueryClient();

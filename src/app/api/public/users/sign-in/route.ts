@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { DecodedToken } from "@/lib/types/interfaces";
 import prisma from "@/lib/services/prisma";
 import * as Sentry from "@sentry/nextjs";
 import {
@@ -12,6 +11,7 @@ import {
   verifyTurnstileToken,
   createTurnstileErrorResponse,
 } from "@/services/turnstileService";
+import type { DecodedToken } from "@/lib/types/interfaces";
 
 const JWT_SECRET = process.env.JWT_SECRET;
 

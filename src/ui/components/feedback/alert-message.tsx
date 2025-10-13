@@ -1,7 +1,7 @@
 import { Alert } from "@mui/material";
 import CheckIcon from "@mui/icons-material/Check";
 import ErrorIcon from "@mui/icons-material/Error";
-import { AlertMessageProps } from "@/lib/types/interfaces";
+import type { AlertMessageProps } from "@/lib/types/interfaces";
 
 export default function AlertMessage({ severity, message }: AlertMessageProps) {
   let icon;

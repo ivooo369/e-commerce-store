@@ -1,9 +1,9 @@
 "use client";
 
-import { OrderNotesModalProps } from "@/lib/types/interfaces";
 import { Dialog, DialogTitle, DialogContent, Button } from "@mui/material";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
+import type { OrderNotesModalProps } from "@/lib/types/interfaces";
 
 export default function OrderNotesModal({
   open,

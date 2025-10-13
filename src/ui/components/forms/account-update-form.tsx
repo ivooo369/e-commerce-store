@@ -2,9 +2,9 @@
 
 import { FormControl, InputLabel, OutlinedInput, Button } from "@mui/material";
 import AlertMessage from "@/ui/components/feedback/alert-message";
-import { AccountUpdateFormProps } from "@/lib/types/interfaces";
 import { useEffect } from "react";
 import { useAutoDismissAlert } from "@/lib/hooks/useAutoDismissAlert";
+import type { AccountUpdateFormProps } from "@/lib/types/interfaces";
 
 export function AccountUpdateForm({
   formState: { firstName, lastName, email, city, address, phone },

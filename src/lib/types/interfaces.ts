@@ -1,6 +1,6 @@
 import { Category as CategoryPrisma } from "@prisma/client";
 import { Key } from "react";
-import { AlertSeverity, Theme } from "./types";
+import type { AlertSeverity, Theme } from "./types";
 
 export interface DecodedToken {
   userId: string;
@@ -64,7 +64,7 @@ export interface Message {
   content: string;
 }
 
-export interface ProductWithSubcategories extends ProductBase {
+export interface ProductWithNestedSubcategories extends ProductBase {
   subcategories: Array<{
     id: string;
     name: string;
@@ -182,10 +182,6 @@ export interface DashboardSearchProps {
 export interface ThemeContextType {
   theme: Theme;
   toggleTheme: () => void;
-}
-
-export interface FavoritesState {
-  products: Product[];
 }
 
 export interface UpdateUser {
@@ -438,11 +434,6 @@ export interface CartState {
   items: CartItem[];
   loading: boolean;
   error: string | null;
-}
-
-export interface CartItem {
-  product: ProductBase;
-  quantity: number;
 }
 
 export interface CartItemResponse {

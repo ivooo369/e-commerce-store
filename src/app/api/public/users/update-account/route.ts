@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/services/prisma";
 import jwt from "jsonwebtoken";
-import { DecodedToken, UpdateUser } from "@/lib/types/interfaces";
 import * as Sentry from "@sentry/nextjs";
+import type { DecodedToken, UpdateUser } from "@/lib/types/interfaces";
 
 export const dynamic = "force-dynamic";
 const JWT_SECRET = process.env.JWT_SECRET;

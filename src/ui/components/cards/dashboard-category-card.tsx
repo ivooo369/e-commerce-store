@@ -4,7 +4,7 @@ import CardMedia from "@mui/material/CardMedia";
 import Button from "@mui/material/Button";
 import { FaTrash } from "react-icons/fa";
 import Link from "next/link";
-import { DashboardCategoryCardProps } from "@/lib/types/interfaces";
+import type { DashboardCategoryCardProps } from "@/lib/types/interfaces";
 
 export default function DashboardCategoryCard({
   category,

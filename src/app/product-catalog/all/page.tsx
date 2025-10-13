@@ -4,13 +4,13 @@ import {
 } from "@prisma/client";
 import { fetchAllPublicProducts } from "@/services/productService";
 import { fetchCategories } from "@/services/categoryService";
-import { ProductWithRelations } from "@/lib/types/interfaces";
 import { generateMetadata } from "@/lib/utils/metadata";
-import {
+import CategoryPageContent from "@/ui/components/others/category-page-content";
+import type {
   ProductWithSubcategories,
   SubcategoryWithRelations,
 } from "@/lib/types/types";
-import CategoryPageContent from "@/ui/components/others/category-page-content";
+import type { ProductWithRelations } from "@/lib/types/interfaces";
 
 export const dynamic = "force-dynamic";
 export const metadata = generateMetadata("/product-catalog/all");

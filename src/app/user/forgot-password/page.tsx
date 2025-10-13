@@ -7,9 +7,9 @@ import { FormControl, InputLabel, OutlinedInput, Button } from "@mui/material";
 import { useAutoDismissAlert } from "@/lib/hooks/useAutoDismissAlert";
 import { forgotPassword } from "@/services/userService";
 import { useSelector } from "react-redux";
-import { RootState } from "@/lib/types/types";
 import TurnstileCaptcha from "@/ui/components/forms/turnstile-captcha";
-import { TurnstileCaptchaRef } from "@/lib/types/interfaces";
+import type { RootState } from "@/lib/types/types";
+import type { TurnstileCaptchaRef } from "@/lib/types/interfaces";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");

@@ -1,5 +1,5 @@
-import { Product } from "@/lib/types/interfaces";
-import { Serializable, SerializableObject } from "@/lib/types/types";
+import type { Serializable, SerializableObject } from "@/lib/types/types";
+import type { Product } from "@/lib/types/interfaces";
 
 const ensureDateString = (value: unknown): string | undefined => {
   if (value === null || value === undefined) return undefined;

@@ -11,7 +11,7 @@ import {
   Slider,
 } from "@mui/material";
 import { formatPrice } from "@/lib/utils/currency";
-import { ProductFiltersProps } from "@/lib/types/interfaces";
+import type { ProductFiltersProps } from "@/lib/types/interfaces";
 
 export default function ProductFilters({
   categories,

@@ -16,7 +16,7 @@ import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import Button from "@mui/material/Button";
 import AlertMessage from "@/ui/components/feedback/alert-message";
 import TurnstileCaptcha from "@/ui/components/forms/turnstile-captcha";
-import { TurnstileCaptchaRef } from "@/lib/types/interfaces";
+import type { TurnstileCaptchaRef } from "@/lib/types/interfaces";
 
 export default function DashboardLoginPage() {
   const [customerUsername, setCustomerUsername] = useState("");

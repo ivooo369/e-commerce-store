@@ -1,6 +1,6 @@
-import { OrderStatusPageProps } from "@/lib/types/interfaces";
 import { redirect } from "next/navigation";
 import { orderService } from "@/services/orderService";
+import type { OrderStatusPageProps } from "@/lib/types/interfaces";
 
 export default async function OrderStatusPage({
   searchParams,

@@ -1,7 +1,7 @@
 import axios from "axios";
-import { UserData, Customer } from "@/lib/types/interfaces";
 import jwt from "jsonwebtoken";
 import * as Sentry from "@sentry/nextjs";
+import type { UserData, Customer } from "@/lib/types/interfaces";
 
 const getBaseUrl = () => {
   return (

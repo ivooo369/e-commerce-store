@@ -5,7 +5,7 @@ import Button from "@mui/material/Button";
 import WarningIcon from "@mui/icons-material/Warning";
 import { FaTrash } from "react-icons/fa";
 import CircularProgress from "@/ui/components/feedback/circular-progress";
-import { ConfirmationModalProps } from "@/lib/types/interfaces";
+import type { ConfirmationModalProps } from "@/lib/types/interfaces";
 
 export default function ConfirmationModal({
   open,

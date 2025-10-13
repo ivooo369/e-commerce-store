@@ -1,6 +1,6 @@
 import axios from "axios";
-import { EcontOffice, EcontOfficeResponse } from "@/lib/types/interfaces";
 import * as Sentry from "@sentry/nextjs";
+import type { EcontOffice, EcontOfficeResponse } from "@/lib/types/interfaces";
 
 export async function getEcontOfficesRest(
   cityName: string

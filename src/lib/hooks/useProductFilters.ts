@@ -1,11 +1,11 @@
 import { useMemo } from "react";
-import {
+import type {
   ProductFiltersState,
-  ProductWithSubcategories,
+  ProductWithNestedSubcategories,
 } from "@/lib/types/interfaces";
 
 export function useProductFilters(
-  products: ProductWithSubcategories[],
+  products: ProductWithNestedSubcategories[],
   filters: ProductFiltersState,
   searchTerm: string = ""
 ) {

@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useCallback, memo } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { Office, OfficeMapProps } from "@/lib/types/interfaces";
+import type { Office, OfficeMapProps } from "@/lib/types/interfaces";
 
 const OfficeMap = memo(function OfficeMap({
   offices,

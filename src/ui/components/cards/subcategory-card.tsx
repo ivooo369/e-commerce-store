@@ -3,7 +3,7 @@ import CardContent from "@mui/material/CardContent";
 import Button from "@mui/material/Button";
 import { FaTrash } from "react-icons/fa";
 import Link from "next/link";
-import { DashboardSubcategoryCardProps } from "@/lib/types/interfaces";
+import type { DashboardSubcategoryCardProps } from "@/lib/types/interfaces";
 
 export default function SubcategoryCard({
   subcategory,

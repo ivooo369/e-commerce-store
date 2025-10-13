@@ -8,7 +8,7 @@ import {
   forwardRef,
 } from "react";
 import { Turnstile, type TurnstileInstance } from "@marsidev/react-turnstile";
-import {
+import type {
   TurnstileCaptchaProps,
   TurnstileCaptchaRef,
 } from "@/lib/types/interfaces";

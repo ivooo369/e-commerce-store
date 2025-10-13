@@ -1,7 +1,7 @@
 import axios from "axios";
-import { CartItem, CartItemResponse } from "@/lib/types/interfaces";
 import { sanitizeProduct } from "@/lib/utils/sanitizeProduct";
 import * as Sentry from "@sentry/nextjs";
+import type { CartItem, CartItemResponse } from "@/lib/types/interfaces";
 
 export const cartService = {
   async getCartItems(customerId: string): Promise<CartItem[]> {
