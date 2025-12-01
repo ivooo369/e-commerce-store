@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { Prisma } from "@prisma/client";
+import { Prisma } from "@/generated/client/client";
 import { calculateShippingCost, getDeliveryMethod } from "@/lib/utils/delivery";
 import prisma from "@/lib/services/prisma";
 import * as Sentry from "@sentry/nextjs";

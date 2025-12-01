@@ -1,6 +1,5 @@
 import axios from "axios";
-import { Product as PrismaSchema, Subcategory } from "@prisma/client";
-import prisma from "@/lib/services/prisma";
+import type { Product as PrismaSchema, Subcategory } from "@prisma/client";
 import * as Sentry from "@sentry/nextjs";
 import type {
   Product,
@@ -12,29 +11,6 @@ const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 export const fetchAllPublicProducts = async (): Promise<
   ProductWithNestedSubcategories[]
 > => {
-  if (typeof window === "undefined") {
-    try {
-      const products = await prisma.product.findMany({
-        include: {
-          subcategories: {
-            include: {
-              subcategory: {
-                include: {
-                  category: true,
-                },
-              },
-            },
-          },
-        },
-        orderBy: { code: "asc" },
-      });
-      return products as unknown as ProductWithNestedSubcategories[];
-    } catch (error) {
-      Sentry.captureException(error);
-      throw new Error("Възникна грешка при извличане на продуктите!");
-    }
-  }
-
   try {
     const response = await axios.get(`${baseUrl}/api/public/products`);
     const data: ProductWithNestedSubcategories[] = response.data;
@@ -225,3 +201,5 @@ export const getProductCount = async (): Promise<number> => {
     throw new Error("Възникна грешка при извличане на броя на продуктите!");
   }
 };
+
+

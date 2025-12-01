@@ -1,24 +1,18 @@
 import axios from "axios";
-import { Category as CategoryPrisma } from "@prisma/client";
-import prisma from "@/lib/services/prisma";
+import type { Category as CategoryPrisma } from "@prisma/client";
 import * as Sentry from "@sentry/nextjs";
 import type { Category } from "@/lib/types/interfaces";
 
-export const fetchCategories = async (): Promise<CategoryPrisma[]> => {
-  if (typeof window === "undefined") {
-    try {
-      const categories = await prisma.category.findMany({
-        orderBy: { code: "asc" },
-      });
-      return categories;
-    } catch (error) {
-      Sentry.captureException(error);
-      throw new Error("Възникна грешка при зареждане на категориите!");
-    }
-  }
+const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
+export const fetchCategories = async (): Promise<CategoryPrisma[]> => {
   try {
-    const { data } = await axios.get("/api/public/categories");
+    const url =
+      typeof window === "undefined"
+        ? `${baseUrl}/api/public/categories`
+        : "/api/public/categories";
+
+    const { data } = await axios.get(url);
     return data;
   } catch (error) {
     Sentry.captureException(error);
@@ -115,73 +109,6 @@ export const editCategory = async (updatedCategory: Category, id: string) => {
 };
 
 export const fetchCategoryByNameWithProducts = async (name: string) => {
-  if (typeof window === "undefined") {
-    try {
-      const decodedName = decodeURIComponent(name);
-
-      const category = await prisma.category.findFirst({
-        where: { name: decodedName },
-      });
-
-      if (!category) {
-        throw new Error("Категорията не е намерена!");
-      }
-
-      const subcategories = await prisma.subcategory.findMany({
-        where: { categoryId: category.id },
-        include: {
-          products: {
-            include: {
-              product: {
-                include: {
-                  subcategories: {
-                    include: {
-                      subcategory: true,
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      });
-
-      const products = subcategories.flatMap((sc) =>
-        sc.products.map((p) => p.product)
-      );
-
-      return {
-        category,
-        subcategories: subcategories.map((sc) => ({
-          id: sc.id,
-          name: sc.name,
-          code: sc.code,
-          categoryId: sc.categoryId,
-          createdAt: sc.createdAt,
-          updatedAt: sc.updatedAt,
-          category: {
-            id: category.id,
-            name: category.name,
-            code: category.code,
-          },
-        })),
-        products,
-      };
-    } catch (error) {
-      Sentry.captureException(error);
-      if (
-        error instanceof Error &&
-        error.message === "Категорията не е намерена!"
-      ) {
-        throw error;
-      }
-
-      throw new Error(
-        "Възникна грешка при зареждане на категорията с продукти!"
-      );
-    }
-  }
-
   try {
     const decodedName = decodeURIComponent(name);
     const encodedName = encodeURIComponent(decodedName);

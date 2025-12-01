@@ -14,7 +14,7 @@ export default function Error({
       <div className="max-w-md w-full space-y-6 text-center p-8 bg-white dark:bg-gray-800 rounded-xl shadow-lg dark:shadow-gray-800/30">
         <div className="text-center">
           <h1 className="text-9xl font-bold text-red-600 dark:text-red-500">
-            {error.digest ? error.digest.substring(0, 3) : "500"}
+            500
           </h1>
           <h2 className="mt-4 text-3xl font-extrabold text-gray-900 dark:text-gray-100 sm:text-4xl">
             Възникна неочаквана грешка
