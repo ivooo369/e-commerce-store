@@ -1,5 +1,5 @@
-import { Subcategory, Category, Product } from "@prisma/client";
 import { store } from "@/lib/store/store";
+import type { Subcategory, Category, Product } from "@/generated/client/client";
 
 export type Theme = "light" | "dark";
 

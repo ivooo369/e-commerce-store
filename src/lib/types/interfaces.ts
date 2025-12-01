@@ -1,6 +1,6 @@
-import { Category as CategoryPrisma } from "@prisma/client";
 import { Key } from "react";
 import type { AlertSeverity, Theme } from "./types";
+import type { Category as CategoryPrisma } from "@/generated/client/client";
 
 export interface DecodedToken {
   userId: string;
@@ -496,12 +496,6 @@ export interface OrderStatusResponse {
   name: string;
   email: string;
   createdAt: Date;
-}
-
-export interface ConfirmOrCancelPageProps {
-  searchParams: {
-    orderId?: string;
-  };
 }
 
 export interface OrderStatusPageProps {

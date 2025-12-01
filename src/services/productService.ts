@@ -1,10 +1,13 @@
 import axios from "axios";
-import type { Product as PrismaSchema, Subcategory } from "@prisma/client";
 import * as Sentry from "@sentry/nextjs";
 import type {
   Product,
   ProductWithNestedSubcategories,
 } from "@/lib/types/interfaces";
+import type {
+  Product as ProductPrisma,
+  Subcategory,
+} from "@/generated/client/client";
 
 const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
@@ -38,7 +41,7 @@ export const fetchProducts = async (): Promise<
 export const fetchProductByCode = async (
   code: string,
   isServer: boolean = false
-): Promise<PrismaSchema> => {
+): Promise<ProductPrisma> => {
   try {
     const url = isServer
       ? `${baseUrl}/api/public/products/${code}`
@@ -54,7 +57,7 @@ export const fetchProductByCode = async (
 
 export const fetchProductsByQuery = async (
   query: string
-): Promise<PrismaSchema[]> => {
+): Promise<ProductPrisma[]> => {
   try {
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "";
     const url = `${baseUrl}/api/public/products/search?query=${encodeURIComponent(
@@ -168,7 +171,10 @@ export const fetchProduct = async (id: string) => {
   }
 };
 
-export const editProduct = async (id: string, updatedProduct: PrismaSchema) => {
+export const editProduct = async (
+  id: string,
+  updatedProduct: ProductPrisma
+) => {
   try {
     const response = await axios.put(
       `/api/dashboard/products/${id}`,
@@ -201,5 +207,3 @@ export const getProductCount = async (): Promise<number> => {
     throw new Error("Възникна грешка при извличане на броя на продуктите!");
   }
 };
-
-

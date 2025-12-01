@@ -1,6 +1,5 @@
 "use client";
 
-import { Category } from "@prisma/client";
 import DashboardNav from "@/ui/components/layouts/dashboard-primary-nav";
 import DashboardSecondaryNav from "@/ui/components/layouts/dashboard-secondary-nav";
 import DashboardCategoryCard from "@/ui/components/cards/dashboard-category-card";
@@ -16,6 +15,7 @@ import {
   deleteCategory,
   fetchDashboardCategories,
 } from "@/services/categoryService";
+import type { Category } from "@/generated/client/client";
 
 export default function DashboardCategoriesPage() {
   const queryClient = useQueryClient();

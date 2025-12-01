@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { Order } from "@prisma/client";
 import { getDeliveryMethod, calculateShippingCost } from "@/lib/utils/delivery";
 import prisma from "@/lib/services/prisma";
 import {
@@ -9,6 +8,7 @@ import {
 import { emailTransporter } from "@/lib/config/email.config";
 import * as Sentry from "@sentry/nextjs";
 import type { OrderItem } from "@/lib/types/interfaces";
+import type { Order } from "@/generated/client/client";
 
 export async function GET(request: Request) {
   try {

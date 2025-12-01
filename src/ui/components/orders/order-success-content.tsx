@@ -6,11 +6,11 @@ import Link from "next/link";
 import { CheckCircle2, Home, Mail, Phone } from "lucide-react";
 import CircularProgress from "@/ui/components/feedback/circular-progress";
 import { getDeliveryMethod } from "@/lib/utils/delivery";
-import { Order } from "@prisma/client";
 import { orderService } from "@/services/orderService";
 import { useCart } from "@/lib/hooks/useCart";
 import { useQuery } from "@tanstack/react-query";
 import Box from "@mui/material/Box";
+import type { Order } from "@/generated/client/client";
 
 export function OrderSuccessContent() {
   const searchParams = useSearchParams();

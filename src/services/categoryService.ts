@@ -1,7 +1,7 @@
 import axios from "axios";
-import type { Category as CategoryPrisma } from "@prisma/client";
 import * as Sentry from "@sentry/nextjs";
 import type { Category } from "@/lib/types/interfaces";
+import type { Category as CategoryPrisma } from "@/generated/client/client";
 
 const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 

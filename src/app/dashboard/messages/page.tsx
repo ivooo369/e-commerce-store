@@ -7,11 +7,11 @@ import DashboardNav from "@/ui/components/layouts/dashboard-primary-nav";
 import Box from "@mui/material/Box";
 import CircularProgress from "@/ui/components/feedback/circular-progress";
 import ConfirmationModal from "@/ui/components/modals/confirmation-modal";
-import { Message as MessagePrisma } from "@prisma/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { deleteMessage, fetchMessages } from "@/services/messageService";
 import DashboardSecondaryNav from "@/ui/components/layouts/dashboard-secondary-nav";
+import type { Message } from "@/generated/client/client";
 
 export default function DashboardMessagesPage() {
   const queryClient = useQueryClient();
@@ -36,11 +36,11 @@ export default function DashboardMessagesPage() {
     onMutate: async (id) => {
       await queryClient.cancelQueries({ queryKey: ["messages"] });
 
-      const previousMessages = queryClient.getQueryData<MessagePrisma[]>([
+      const previousMessages = queryClient.getQueryData<Message[]>([
         "messages",
       ]);
 
-      queryClient.setQueryData<MessagePrisma[]>(
+      queryClient.setQueryData<Message[]>(
         ["messages"],
         (oldMessages) =>
           oldMessages?.filter((message) => message.id !== id) || []

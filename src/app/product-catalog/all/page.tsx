@@ -1,7 +1,3 @@
-import {
-  Subcategory as SubcategoryPrisma,
-  Category as CategoryPrisma,
-} from "@prisma/client";
 import { fetchAllPublicProducts } from "@/services/productService";
 import { fetchCategories } from "@/services/categoryService";
 import { generateMetadata } from "@/lib/utils/metadata";
@@ -11,6 +7,7 @@ import type {
   SubcategoryWithRelations,
 } from "@/lib/types/types";
 import type { ProductWithRelations } from "@/lib/types/interfaces";
+import type { Subcategory, Category } from "@/generated/client/client";
 
 export const dynamic = "force-dynamic";
 export const metadata = generateMetadata("/product-catalog/all");
@@ -62,11 +59,11 @@ export default async function AllProductsPage() {
       code: "ALL",
       createdAt: new Date(),
       updatedAt: new Date(),
-      subcategories: [] as SubcategoryPrisma[],
+      subcategories: [] as Subcategory[],
     };
 
-    const categoryMap = new Map<string, CategoryPrisma>();
-    const subcategoryMap = new Map<string, SubcategoryPrisma>();
+    const categoryMap = new Map<string, Category>();
+    const subcategoryMap = new Map<string, Subcategory>();
 
     (products as ProductWithSubcategories[]).forEach(
       (product: ProductWithSubcategories) => {

@@ -13,7 +13,6 @@ import Select, { SelectChangeEvent } from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import CircularProgress from "@/ui/components/feedback/circular-progress";
 import AlertMessage from "@/ui/components/feedback/alert-message";
-import { Category } from "@prisma/client";
 import { fetchDashboardCategories } from "@/services/categoryService";
 import {
   editSubcategory,
@@ -21,6 +20,7 @@ import {
 } from "@/services/subcategoryService";
 import DashboardSecondaryNav from "@/ui/components/layouts/dashboard-secondary-nav";
 import Box from "@mui/material/Box";
+import type { Category } from "@/generated/client/client";
 
 export default function DashboardEditSubcategoryPage() {
   const router = useRouter();

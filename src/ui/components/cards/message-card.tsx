@@ -1,6 +1,6 @@
 import { Button } from "@mui/material";
 import { FaTrash } from "react-icons/fa";
-import { Message } from "@prisma/client";
+import type { Message } from "@/generated/client/client";
 
 export default function MessageCard({
   message,

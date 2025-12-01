@@ -14,10 +14,10 @@ import Image from "next/image";
 import AlertMessage from "@/ui/components/feedback/alert-message";
 import { FaTrash } from "react-icons/fa";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Subcategory as SubcategoryPrisma } from "@prisma/client";
 import { createProduct } from "@/services/productService";
 import { fetchSubcategories } from "@/services/subcategoryService";
 import DashboardSecondaryNav from "@/ui/components/layouts/dashboard-secondary-nav";
+import type { Subcategory } from "@/generated/client/client";
 
 export default function DashboardAddNewProductPage() {
   const [productName, setProductName] = useState("");
@@ -32,7 +32,7 @@ export default function DashboardAddNewProductPage() {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const queryClient = useQueryClient();
 
-  const { data: subcategories = [] } = useQuery<SubcategoryPrisma[]>({
+  const { data: subcategories = [] } = useQuery<Subcategory[]>({
     queryKey: ["subcategories"],
     queryFn: fetchSubcategories,
   });
@@ -221,7 +221,7 @@ export default function DashboardAddNewProductPage() {
               }
               label="Изберете подкатегории"
             >
-              {subcategories.map((subcategory: SubcategoryPrisma) => (
+              {subcategories.map((subcategory: Subcategory) => (
                 <MenuItem key={subcategory.id} value={subcategory.id}>
                   {subcategory.code} - {subcategory.name}
                 </MenuItem>
