@@ -254,148 +254,168 @@ export default function DashboardOrdersPage() {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden">
-          <div className="overflow-x-auto -mx-2 sm:mx-0">
-            <div className="inline-block min-w-full align-middle">
-              <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700 border-collapse">
-                <thead className="bg-gray-50 dark:bg-gray-700">
-                  <tr className="divide-x divide-gray-200 dark:divide-gray-700">
-                    {[
-                      "createdAt",
-                      "id",
-                      "customer",
-                      "status",
-                      "total",
-                      "isCompleted",
-                    ].map((col) => (
-                      <th
-                        key={col}
-                        scope="col"
-                        className={`${
-                          col === "isCompleted" ? "w-48 px-4" : "px-3 sm:px-6"
-                        } py-3 text-center text-sm font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer`}
-                        onClick={() => handleSort(col as SortField)}
-                      >
-                        <div className="flex items-center justify-center">
-                          <span>
-                            {col === "createdAt"
-                              ? "Дата"
-                              : col === "id"
-                              ? "Поръчка №"
-                              : col === "customer"
-                              ? "Клиент"
-                              : col === "status"
-                              ? "Статус"
-                              : col === "total"
-                              ? "Сума"
-                              : "Завършена ли е?"}
-                          </span>
-                          <div className="flex flex-col ml-1 -space-y-1">
-                            <ChevronUp
-                              className={`w-3 h-3 ${
-                                sortBy === col && sortOrder === "asc"
-                                  ? "text-primary"
-                                  : "text-gray-300 dark:text-gray-500"
-                              }`}
-                            />
-                            <ChevronDown
-                              className={`w-3 h-3 ${
-                                sortBy === col && sortOrder === "desc"
-                                  ? "text-primary"
-                                  : "text-gray-300 dark:text-gray-500"
-                              }`}
-                            />
-                          </div>
-                        </div>
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-
-                <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                  {paginatedOrders.map((order) => {
-                    const status = getStatusDisplay(order.status);
-                    return (
-                      <tr
-                        key={order.id}
-                        className="hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer divide-x divide-gray-100 dark:divide-gray-700"
-                        onClick={() =>
-                          router.push(`/dashboard/orders/${order.id}`)
-                        }
-                      >
-                        <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300 text-center">
-                          <div className="flex flex-col">
+        {filteredOrders.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-12 bg-white dark:bg-gray-800 rounded-lg shadow">
+            <div className="bg-gray-100 dark:bg-gray-700 p-4 rounded-full mb-4">
+              <Search className="w-8 h-8 text-gray-400 dark:text-gray-500" />
+            </div>
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-1">
+              Няма намерени поръчки
+            </h3>
+            <p className="text-gray-500 dark:text-gray-400 text-sm text-center max-w-sm">
+              {searchTerm || statusFilter !== "all"
+                ? "Няма поръчки, отговарящи на вашите критерии за търсене."
+                : "Все още няма направени поръчки в системата."}
+            </p>
+          </div>
+        ) : (
+          <div className="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden">
+            <div className="overflow-x-auto -mx-2 sm:mx-0">
+              <div className="inline-block min-w-full align-middle">
+                <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700 border-collapse">
+                  <thead className="bg-gray-50 dark:bg-gray-700">
+                    <tr className="divide-x divide-gray-200 dark:divide-gray-700">
+                      {[
+                        "createdAt",
+                        "id",
+                        "customer",
+                        "status",
+                        "total",
+                        "isCompleted",
+                      ].map((col) => (
+                        <th
+                          key={col}
+                          scope="col"
+                          className={`${
+                            col === "isCompleted" ? "w-48 px-4" : "px-3 sm:px-6"
+                          } py-3 text-center text-sm font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer`}
+                          onClick={() => handleSort(col as SortField)}
+                        >
+                          <div className="flex items-center justify-center">
                             <span>
-                              {formatDate(order.createdAt).split(",")[0]}
+                              {col === "createdAt"
+                                ? "Дата"
+                                : col === "id"
+                                ? "Поръчка №"
+                                : col === "customer"
+                                ? "Клиент"
+                                : col === "status"
+                                ? "Статус"
+                                : col === "total"
+                                ? "Сума"
+                                : "Завършена ли е?"}
                             </span>
-                            <span className="text-sm text-gray-400">
-                              {formatDate(order.createdAt).split(",")[1].trim()}{" "}
-                              ч.
-                            </span>
+                            <div className="flex flex-col ml-1 -space-y-1">
+                              <ChevronUp
+                                className={`w-3 h-3 ${
+                                  sortBy === col && sortOrder === "asc"
+                                    ? "text-primary"
+                                    : "text-gray-300 dark:text-gray-500"
+                                }`}
+                              />
+                              <ChevronDown
+                                className={`w-3 h-3 ${
+                                  sortBy === col && sortOrder === "desc"
+                                    ? "text-primary"
+                                    : "text-gray-300 dark:text-gray-500"
+                                }`}
+                              />
+                            </div>
                           </div>
-                        </td>
-                        <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white text-center">
-                          #{order.id.substring(0, 8).toUpperCase()}
-                        </td>
-                        <td className="hidden sm:table-cell px-6 py-4 whitespace-nowrap text-center">
-                          <div>{order.name || "Анонимен клиент"}</div>
-                          <div className="text-sm text-gray-500 dark:text-gray-400 truncate max-w-[200px] mx-auto">
-                            {order.email || "Без имейл"}
-                          </div>
-                        </td>
-                        <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-center">
-                          <span
-                            className={`inline-flex items-center px-2 py-0.5 sm:px-2.5 sm:py-0.5 rounded-full text-sm font-medium ${status.bg} ${status.textColor}`}
-                          >
-                            <span className="hidden sm:inline-block">
-                              {status.icon}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+
+                  <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                    {paginatedOrders.map((order) => {
+                      const status = getStatusDisplay(order.status);
+                      return (
+                        <tr
+                          key={order.id}
+                          className="hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer divide-x divide-gray-100 dark:divide-gray-700"
+                          onClick={() =>
+                            router.push(`/dashboard/orders/${order.id}`)
+                          }
+                        >
+                          <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300 text-center">
+                            <div className="flex flex-col">
+                              <span>
+                                {formatDate(order.createdAt).split(",")[0]}
+                              </span>
+                              <span className="text-sm text-gray-400">
+                                {formatDate(order.createdAt)
+                                  .split(",")[1]
+                                  .trim()}{" "}
+                                ч.
+                              </span>
+                            </div>
+                          </td>
+                          <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white text-center">
+                            #{order.id.substring(0, 8).toUpperCase()}
+                          </td>
+                          <td className="hidden sm:table-cell px-6 py-4 whitespace-nowrap text-center">
+                            <div>{order.name || "Анонимен клиент"}</div>
+                            <div className="text-sm text-gray-500 dark:text-gray-400 truncate max-w-[200px] mx-auto">
+                              {order.email || "Без имейл"}
+                            </div>
+                          </td>
+                          <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-center">
+                            <span
+                              className={`inline-flex items-center px-2 py-0.5 sm:px-2.5 sm:py-0.5 rounded-full text-sm font-medium ${status.bg} ${status.textColor}`}
+                            >
+                              <span className="hidden sm:inline-block">
+                                {status.icon}
+                              </span>
+                              <span className="ml-0 sm:ml-1">
+                                {status.text}
+                              </span>
                             </span>
-                            <span className="ml-0 sm:ml-1">{status.text}</span>
-                          </span>
-                        </td>
-                        <td className="hidden sm:table-cell px-6 py-4 whitespace-nowrap text-center text-sm font-medium text-gray-900 dark:text-white">
-                          <div className="flex flex-col items-end">
-                            <span>{order.total?.toFixed(2)} лв.</span>
-                            <span className="text-xs text-gray-500">
-                              {formatPrice(order.total || 0, "EUR")}
-                            </span>
-                          </div>
-                        </td>
-                        <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-center">
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleStatusToggleClick(
-                                order.id,
+                          </td>
+                          <td className="hidden sm:table-cell px-6 py-4 whitespace-nowrap text-center text-sm font-medium text-gray-900 dark:text-white">
+                            <div className="flex flex-col items-end">
+                              <span>{order.total?.toFixed(2)} лв.</span>
+                              <span className="text-xs text-gray-500">
+                                {formatPrice(order.total || 0, "EUR")}
+                              </span>
+                            </div>
+                          </td>
+                          <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-center">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleStatusToggleClick(
+                                  order.id,
+                                  order.isCompleted
+                                );
+                              }}
+                              className={`mx-auto p-1 sm:p-1.5 rounded-lg border ${
                                 order.isCompleted
-                              );
-                            }}
-                            className={`mx-auto p-1 sm:p-1.5 rounded-lg border ${
-                              order.isCompleted
-                                ? "border-green-100 dark:border-green-900 bg-green-50 dark:bg-green-900/30 hover:bg-green-100 dark:hover:bg-green-900/50"
-                                : "border-yellow-100 dark:border-yellow-900/50 bg-yellow-50 dark:bg-yellow-900/10 hover:bg-yellow-100 dark:hover:bg-yellow-900/30"
-                            } transition-colors w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center`}
-                            title={
-                              order.isCompleted
-                                ? "Маркирай като незавършена"
-                                : "Маркирай като завършена"
-                            }
-                          >
-                            {order.isCompleted ? (
-                              <Check className="w-4 h-4 sm:w-5 sm:h-5 text-green-600 dark:text-green-400" />
-                            ) : (
-                              <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-600 dark:text-yellow-400" />
-                            )}
-                          </button>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+                                  ? "border-green-100 dark:border-green-900 bg-green-50 dark:bg-green-900/30 hover:bg-green-100 dark:hover:bg-green-900/50"
+                                  : "border-yellow-100 dark:border-yellow-900/50 bg-yellow-50 dark:bg-yellow-900/10 hover:bg-yellow-100 dark:hover:bg-yellow-900/30"
+                              } transition-colors w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center`}
+                              title={
+                                order.isCompleted
+                                  ? "Маркирай като незавършена"
+                                  : "Маркирай като завършена"
+                              }
+                            >
+                              {order.isCompleted ? (
+                                <Check className="w-4 h-4 sm:w-5 sm:h-5 text-green-600 dark:text-green-400" />
+                              ) : (
+                                <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-600 dark:text-yellow-400" />
+                              )}
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
         {totalPages > 1 && (
           <div className="mt-4 sm:mt-6 px-2 sm:px-0">
